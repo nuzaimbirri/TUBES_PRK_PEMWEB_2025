@@ -1,0 +1,12 @@
+# Allow access to API files but protect sensitive files
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Enable CORS if needed
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+</IfModule>
