@@ -1,0 +1,3 @@
+# Deny all access to models folder
+Order Allow,Deny
+Deny from all
