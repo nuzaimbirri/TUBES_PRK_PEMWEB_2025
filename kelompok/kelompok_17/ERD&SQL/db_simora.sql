@@ -19,7 +19,6 @@ CREATE TABLE profiles (
     npm VARCHAR(20) UNIQUE,
     department VARCHAR(50),
     phone_number VARCHAR(15),
-    profile_photo VARCHAR(255) DEFAULT 'default.jpg',
     address TEXT,
     activity_status ENUM('aktif', 'sp1', 'sp2', 'non-aktif') DEFAULT 'aktif',
     profile_photo VARCHAR(255) DEFAULT 'default.jpg',
