@@ -57,7 +57,7 @@ CREATE TABLE attendance (
 
 
 INSERT INTO users (username, email, password, role) 
-VALUES ('admin', 'admin@simora.com', '$2y$10$8.randomhashstringhere...', 'admin');
+VALUES ('admin', 'admin@simora.com', '$2y$10$G/REZa8TaxGHxWhrqoh41.KpUDwwHUdrqJgjLnUtA8OLOzwydqyFy', 'admin');
 
 
 INSERT INTO profiles (user_id, full_name, department, activity_status)

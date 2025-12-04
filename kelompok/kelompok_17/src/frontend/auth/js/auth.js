@@ -2,8 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
 
-    const BASE_API_URL = 'http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/backend/api/auth.php';
-
+    const BASE_API_URL = '...auth.php';  
     const LOGIN_API_URL = `${BASE_API_URL}?action=login`;
     const REGISTER_API_URL = `${BASE_API_URL}?action=register`;
 
