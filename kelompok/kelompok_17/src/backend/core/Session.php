@@ -13,17 +13,11 @@ class Session
         if (session_status() === PHP_SESSION_NONE) {
             ini_set('session.use_strict_mode', 1);
             ini_set('session.use_only_cookies', 1);
-            ini_set('session.cookie_httponly', 1);
+            ini_set('session.cookie_httponly', 0);
+            ini_set('session.cookie_path', '/');
+            ini_set('session.cookie_domain', '');
 
             session_name(SESSION_NAME);
-
-            session_set_cookie_params([
-                'lifetime' => SESSION_LIFETIME,
-                'path' => '/',
-                'secure' => false, // <--- UBAH JADI FALSE (supaya jalan di http://localhost)
-                'httponly' => true,
-                'samesite' => 'Lax'
-            ]);
 
             session_start();
             self::$started = true;
@@ -84,6 +78,12 @@ class Session
         self::$started = false;
     }
 
+    public static function regenerate(): void
+    {
+        self::start();
+        session_regenerate_id(true);
+    }
+
     public static function isLoggedIn(): bool
     {
         return self::has('user_id') && self::get('user_id') !== null;
@@ -91,8 +91,17 @@ class Session
 
     public static function getUserId(): ?int
     {
-        $userId = self::get('user_id');
-        return $userId !== null ? (int) $userId : null;
+        return self::get('user_id');
+    }
+
+    public static function getUsername(): ?string
+    {
+        return self::get('username');
+    }
+
+    public static function getEmail(): ?string
+    {
+        return self::get('email');
     }
 
     public static function getRole(): ?string
@@ -105,18 +114,19 @@ class Session
         return self::getRole() === ROLE_ADMIN;
     }
 
-    public static function setFlash(string $type, string $message): void
+    public static function isAnggota(): bool
     {
-        self::set('_flash', [
-            'type' => $type,
-            'message' => $message
-        ]);
+        return self::getRole() === ROLE_ANGGOTA;
     }
 
-    public static function getFlash(): ?array
+    public static function flash(string $key, $value = null)
     {
-        $flash = self::get('_flash');
-        self::remove('_flash');
-        return $flash;
+        if ($value === null) {
+            $flashValue = self::get('_flash_' . $key);
+            self::remove('_flash_' . $key);
+            return $flashValue;
+        }
+
+        self::set('_flash_' . $key, $value);
     }
 }

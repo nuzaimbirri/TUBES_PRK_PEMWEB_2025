@@ -95,11 +95,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (response.ok && result.status === 'success') {
+                console.log('✅ Login successful!', result);
                 displayMessage('loginMessage', 'Login Berhasil! Mengarahkan ke Dashboard...', 'success');
                 
                 // Redirect berdasarkan role
                 setTimeout(() => {
                     const userRole = result.data.user.role;
+                    console.log('User role:', userRole);
+                    console.log('Redirecting to dashboard...');
+                    
                     // Path redirect relatif terhadap file login_register.html
                     if (userRole === 'admin') {
                         window.location.href = '../admin/dashboard.html';

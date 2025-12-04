@@ -5,10 +5,10 @@ class Response
     public static function json(array $data, int $statusCode = 200): void
     {
         http_response_code($statusCode);
-        
+
         header('Content-Type: application/json; charset=utf-8');
         header('X-Content-Type-Options: nosniff');
-        
+
         echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         exit;
     }
@@ -82,7 +82,11 @@ class Response
         array $methods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         array $headers = ['Content-Type', 'Authorization']
     ): void {
-        header("Access-Control-Allow-Origin: $origin");
+        // Gunakan HTTP_ORIGIN dari request untuk mendukung credentials
+        $allowedOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : $origin;
+
+        header("Access-Control-Allow-Origin: $allowedOrigin");
+        header("Access-Control-Allow-Credentials: true");
         header("Access-Control-Allow-Methods: " . implode(', ', $methods));
         header("Access-Control-Allow-Headers: " . implode(', ', $headers));
         header("Access-Control-Max-Age: 86400");

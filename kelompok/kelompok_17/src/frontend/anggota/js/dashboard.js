@@ -1,36 +1,41 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // Konfigurasi API Path
-    const API_BASE = '../../backend/api'; 
+    // Konfigurasi API Path - GUNAKAN ABSOLUTE URL
+    const API_BASE = 'http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/backend/api'; 
     
     // --------------------------------------------------------
-    // 1. Cek Auth & Ambil Data User (SUDAH BENAR)
+    // 1. Cek Auth & Ambil Data User
     // --------------------------------------------------------
     try {
+        console.log('🔍 Checking authentication...');
         const response = await fetch(`${API_BASE}/auth.php?action=me`, {
             method: 'GET',
-            credentials: 'include'  // Wajib agar sesi terbaca
+            credentials: 'include'
         });
         
+        console.log('Response status:', response.status);
         const result = await response.json();
+        console.log('Auth result:', result);
 
         if (!response.ok || result.status !== 'success') {
+            console.error('❌ Auth failed, redirecting to login...');
             window.location.href = '../auth/login_register.html';
             return;
         }
 
-        const user = result.data.user;
-        const profile = result.data.profile;
+        console.log('✅ Auth successful!');
+        const user = result.data;
 
         // Update UI User info
-        document.getElementById('navUsername').textContent = profile?.full_name || user.username;
+        document.getElementById('navUsername').textContent = user.full_name || user.username;
         
         // Inisial untuk avatar
-        const name = profile?.full_name || user.username;
+        const name = user.full_name || user.username;
         document.getElementById('userInitials').textContent = name.substring(0, 2).toUpperCase();
 
     } catch (error) {
-        console.error('Auth Error:', error);
+        console.error('❌ Auth Error:', error);
         window.location.href = '../auth/login_register.html';
+        return;
     }
 
     // --------------------------------------------------------
