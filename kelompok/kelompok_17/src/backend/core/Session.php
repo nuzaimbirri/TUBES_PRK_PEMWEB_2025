@@ -13,11 +13,22 @@ class Session
         if (session_status() === PHP_SESSION_NONE) {
             ini_set('session.use_strict_mode', 1);
             ini_set('session.use_only_cookies', 1);
-            ini_set('session.cookie_httponly', 0);
+            ini_set('session.cookie_httponly', 1);
             ini_set('session.cookie_path', '/');
             ini_set('session.cookie_domain', '');
+            ini_set('session.cookie_samesite', 'Lax');
 
             session_name(SESSION_NAME);
+
+            // Set cookie params sebelum session_start()
+            session_set_cookie_params([
+                'lifetime' => defined('SESSION_LIFETIME') ? SESSION_LIFETIME : 86400,
+                'path' => '/',
+                'domain' => '',
+                'secure' => false, // Set true jika menggunakan HTTPS
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
 
             session_start();
             self::$started = true;
