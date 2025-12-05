@@ -1,144 +1,184 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
 
-    const BASE_API_URL = 'http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/backend/api/auth.php';
+    const BASE_API_URL =
+        'http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/backend/api/auth.php';
 
     const LOGIN_API_URL = `${BASE_API_URL}?action=login`;
     const REGISTER_API_URL = `${BASE_API_URL}?action=register`;
 
-    const displayMessage = (elementId, message, type) => {
-        const alertElement = document.getElementById(elementId);
-        alertElement.classList.remove('d-none', 'alert-danger', 'alert-success', 'alert-warning');
-        alertElement.classList.add(`alert-${type}`);
-        alertElement.textContent = message;
-    }
+    /* ======================================================
+       Fungsi Utility
+    ====================================================== */
 
-    const getFormData = (form) => {
-        const formData = new FormData(form);
-        const data = {};
-        for (const [key, value] of formData.entries()) {
-            data[key] = typeof value === 'string' ? value.trim() : value;
-        }
-        return data;
+    const displayMessage = (id, message, type) => {
+        const el = document.getElementById(id);
+        el.classList.remove('d-none', 'alert-danger', 'alert-success');
+        el.classList.add(`alert-${type}`);
+        el.textContent = message;
     };
 
-    const resetFormValidation = (form) => {
-        form.querySelectorAll('.form-control').forEach(input => input.classList.remove('is-invalid'));
-        const messageElement = document.getElementById(form.id.replace('Form', 'Message'));
-        if (messageElement) messageElement.classList.add('d-none');
-    }
+    const resetErrors = (form) => {
+        form.querySelectorAll('.is-invalid')
+            .forEach(el => el.classList.remove('is-invalid'));
 
-    const handleValidationErrors = (form, errors) => {
+        const msgID = form.id.replace("Form", "Message");
+        const msg = document.getElementById(msgID);
+        if (msg) msg.classList.add('d-none');
+    };
+
+    const capitalize = (str) =>
+        str.charAt(0).toUpperCase() + str.slice(1);
+
+    const handleValidationErrors = (form, errors, prefix) => {
         for (const field in errors) {
-            const inputElement = form.querySelector(`[name="${field}"]`);
-            const errorElement = document.getElementById(`${form.id.startsWith('login') ? 'login' : 'reg'}${field.charAt(0).toUpperCase() + field.slice(1)}Error`);
-            if (inputElement) inputElement.classList.add('is-invalid');
-            if (errorElement) errorElement.textContent = errors[field];
+            const input = form.querySelector(`[name="${field}"]`);
+            const errorLabel = document.getElementById(
+                `${prefix}${capitalize(field)}Error`
+            );
+
+            if (input) input.classList.add('is-invalid');
+            if (errorLabel) errorLabel.textContent = errors[field];
         }
+    };
+
+    const toggleButton = (btn, state, normalText, loadingText) => {
+        btn.disabled = state;
+        btn.textContent = state ? loadingText : normalText;
+    };
+
+    /* ======================================================
+       LOGIN
+    ====================================================== */
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            resetErrors(loginForm);
+
+            const formData = new FormData(loginForm);
+
+            const btn = loginForm.querySelector("button");
+            toggleButton(btn, true, "Masuk", "Memproses...");
+
+            try {
+                const response = await fetch(LOGIN_API_URL, {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.status === "success") {
+
+                    displayMessage(
+                        "loginMessage",
+                        "Login berhasil! Mengarahkan...",
+                        "success"
+                    );
+
+                    setTimeout(() => {
+                        window.location.href =
+                            result.data.user.role === "admin"
+                                ? "admin/dashboard.html"
+                                : "anggota/dashboard.html";
+                    }, 1200);
+
+                } else {
+                    displayMessage("loginMessage", result.message, "danger");
+
+                    if (result.errors) {
+                        handleValidationErrors(loginForm, result.errors, "login");
+                    }
+                }
+
+            } catch (err) {
+                displayMessage(
+                    "loginMessage",
+                    "Kesalahan jaringan / server tidak merespon.",
+                    "danger"
+                );
+            }
+
+            toggleButton(btn, false, "Masuk", "Memproses...");
+        });
     }
 
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        resetFormValidation(loginForm);
-        const data = getFormData(loginForm);
+    /* ======================================================
+       REGISTER
+    ====================================================== */
 
-        if (!data.email || !data.password) {
-            displayMessage('loginMessage', 'Email dan Password wajib diisi.', 'danger');
-            return;
-        }
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            resetErrors(registerForm);
 
-        const submitBtn = loginForm.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Memproses...';
+            const formData = new FormData(registerForm);
+            const data = Object.fromEntries(formData.entries());
 
-        try {
-            const response = await fetch(LOGIN_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+            let valid = true;
 
-            const text = await response.text();
-            let result;
-            try { result = JSON.parse(text); } 
-            catch { throw new Error('Respons bukan JSON'); }
-
-            if (response.ok && result.status === 'success') {
-                displayMessage('loginMessage', 'Login Berhasil! Mengarahkan ke Dashboard...', 'success');
-                setTimeout(() => {
-                    const userRole = result.data.user.role;
-                    window.location.href = (userRole === 'admin') ? '../admin/dashboard.html' : '../anggota/dashboard.html';
-                }, 1500);
-            } else {
-                displayMessage('loginMessage', result.message || 'Login gagal.', 'danger');
-                if (result.errors) handleValidationErrors(loginForm, result.errors);
+            // Validasi password manual
+            if (data.password.length < 6) {
+                document.getElementById("regPassword").classList.add("is-invalid");
+                document.getElementById("regPasswordError").textContent =
+                    "Minimal 6 karakter.";
+                valid = false;
             }
-        } catch (error) {
-            console.error('Network Error:', error);
-            displayMessage('loginMessage', 'Terjadi kesalahan jaringan atau backend.', 'danger');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Masuk';
-        }
-    });
 
-    registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        resetFormValidation(registerForm);
-        const data = getFormData(registerForm);
-
-        let isValid = true;
-        if (!data.password || data.password.length < 6) {
-            document.getElementById('regPassword').classList.add('is-invalid');
-            document.getElementById('regPasswordError').textContent = 'Password minimal 6 karakter.';
-            isValid = false;
-        }
-        if (data.password !== data.password_confirm) {
-            document.getElementById('regPasswordConfirm').classList.add('is-invalid');
-            document.getElementById('regPasswordConfirmError').textContent = 'Konfirmasi password tidak cocok.';
-            isValid = false;
-        }
-        if (!isValid) {
-            displayMessage('registerMessage', 'Mohon periksa data formulir Anda.', 'danger');
-            return;
-        }
-
-        const submitBtn = registerForm.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Memproses...';
-
-        try {
-            const response = await fetch(REGISTER_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-
-            const text = await response.text();
-            let result;
-            try { result = JSON.parse(text); } 
-            catch { throw new Error('Respons bukan JSON'); }
-
-            if (response.ok && result.status === 'success') {
-                displayMessage('registerMessage', 'Registrasi Berhasil! Anda dapat login sekarang.', 'success');
-                setTimeout(() => {
-                    const loginTab = document.getElementById('login-tab');
-                    const tab = new bootstrap.Tab(loginTab);
-                    tab.show();
-                    registerForm.reset();
-                    resetFormValidation(registerForm);
-                }, 2000);
-            } else {
-                displayMessage('registerMessage', result.message || 'Registrasi gagal.', 'danger');
-                if (result.errors) handleValidationErrors(registerForm, result.errors);
+            if (data.password !== data.password_confirm) {
+                document.getElementById("regPasswordConfirm").classList.add("is-invalid");
+                document.getElementById("regPasswordConfirmError").textContent =
+                    "Password tidak cocok.";
+                valid = false;
             }
-        } catch (error) {
-            console.error('Network Error:', error);
-            displayMessage('registerMessage', 'Terjadi kesalahan jaringan atau backend.', 'danger');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Daftar';
-        }
-    });
+
+            if (!valid) return;
+
+            const btn = registerForm.querySelector("button");
+            toggleButton(btn, true, "Daftar", "Memproses...");
+
+            try {
+                const response = await fetch(REGISTER_API_URL, {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.status === "success") {
+
+                    displayMessage(
+                        "registerMessage",
+                        "Registrasi berhasil! Silakan login.",
+                        "success"
+                    );
+
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 1800);
+
+                } else {
+
+                    displayMessage("registerMessage", result.message, "danger");
+
+                    if (result.errors) {
+                        handleValidationErrors(registerForm, result.errors, "reg");
+                    }
+                }
+
+            } catch (err) {
+                displayMessage(
+                    "registerMessage",
+                    "Kesalahan jaringan / server tidak merespon.",
+                    "danger"
+                );
+            }
+
+            toggleButton(btn, false, "Daftar", "Memproses...");
+        });
+    }
+
 });

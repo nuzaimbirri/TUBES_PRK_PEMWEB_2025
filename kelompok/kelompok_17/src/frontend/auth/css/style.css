@@ -1,46 +1,190 @@
+/* ===========================================
+   STYLE AUTH (LOGIN & REGISTER PAGE)
+   =========================================== */
+
+/* Warna Utama */
 :root {
-    --bs-primary: #1e3c72; 
-    --bs-success: #3c721e; 
+    --bs-primary: #1e3c72;   /* Biru tua untuk Login */
+    --bs-success: #3c721e;   /* Hijau gelap untuk Register */
+    --bg-light: #f4f6f9;
 }
 
-.btn-primary {
-    background-color: var(--bs-primary);
-    border-color: var(--bs-primary);
-    transition: background-color 0.3s ease;
+/* Background + Center Container */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* 🌊 Gradasi Biru Modern */
+    background: linear-gradient(135deg, #0d47a1, #1976d2, #42a5f5);
+
+    /* Tambahan efek lembut pola cahaya */
+    background-image:
+        radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px),
+        linear-gradient(135deg, #0d47a1, #1976d2, #42a5f5);
+
+    background-size: 22px 22px, cover;
+    background-repeat: repeat;
+
+    padding: 20px;
 }
 
-.btn-primary:hover {
-    background-color: #2a5298;
-    border-color: #2a5298;
+/* Card Login/Register */
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    padding: 32px;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    transition: .3s ease;
 }
 
-.btn-success {
-    background-color: var(--bs-success);
-    border-color: var(--bs-success);
-}
-
-.btn-success:hover {
-    background-color: #4a862b;
-    border-color: #4a862b;
-}
-
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-    background-color: var(--bs-primary);
-    color: white;
-}
-
-.nav-pills .nav-link {
+/* Title */
+.auth-title {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 22px;
     color: var(--bs-primary);
 }
 
-.auth-card {
-    
-    max-width: 450px;
+/* Input Box */
+.auth-form input {
     width: 100%;
+    padding: 12px;
+    border: 1px solid #d6d6d6;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    margin-bottom: 16px;
+    transition: 0.25s ease;
 }
 
-@media (max-width: 768px) {
-    .auth-container {
-        padding: 1rem;
+.auth-form input:focus {
+    border-color: var(--bs-primary);
+}
+
+/* Tombol */
+.auth-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+/* Button Login */
+.btn-login {
+    background: var(--bs-primary);
+}
+
+.btn-login:hover {
+    background: #14294e;
+}
+
+/* Button Register */
+.btn-register {
+    background: var(--bs-primary);
+}
+
+.btn-register:hover {
+    background: #14294e;
+}
+
+/* Link pindah halaman */
+.switch-text {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.switch-text a {
+    color: var(--bs-primary);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.switch-text a:hover {
+    text-decoration: underline;
+}
+
+
+/* ===========================================
+   ANIMASI TRANSISI HALAMAN LOGIN <→> REGISTER
+   =========================================== */
+
+/* Wrapper animasi */
+.page-transition {
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: pageSlideIn .45s ease forwards;
+}
+
+/* Slide masuk dari kiri */
+@keyframes pageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Login → Register: geser ke kanan */
+.page-transition-right {
+    opacity: 0;
+    transform: translateX(30px);
+    animation: pageSlideRight .45s ease forwards;
+}
+
+@keyframes pageSlideRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Register → Login: geser ke kiri */
+.page-transition-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    animation: pageSlideLeft .45s ease forwards;
+}
+
+@keyframes pageSlideLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 24px;
+        max-width: 360px;
+    }
+
+    .auth-title {
+        font-size: 24px;
     }
 }
