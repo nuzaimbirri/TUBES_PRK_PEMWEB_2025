@@ -1,13 +1,8 @@
-// transition.js
-// Animasi transisi halaman Login <-> Register
-
 document.addEventListener("DOMContentLoaded", () => {
     const body = document.body;
 
-    // Tambahkan animasi masuk saat halaman dimuat
     body.classList.add("page-transition-enter");
 
-    // Setelah animasi selesai, bersihkan class
     setTimeout(() => {
         body.classList.remove("page-transition-enter");
     }, 600);
