@@ -3,157 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMORA Admin | Dashboard</title>
+    <title>SIMORA | Dashboard Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="css/admin_app.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/admin.css">
+
+    <style>
+        /* Mendefinisikan Variable Warna Utama - FOKUS HIJAU TUA/TEAL */
+        :root {
+            /* Warna Brand (Teal & Aksen) */
+            --clr-primary-brand: #01A29D;       /* Bright Teal (Aksen utama/Indicator) */
+            --clr-hover-dark: #005A54;          /* Darker Green/Teal for hover BG */
+            
+            /* SIDEBAR COLORS */
+            --clr-sidebar-bg: #01A29D;          /* SIDEBAR BACKGROUND HIJAU TUA (Sesuai Gambar) */
+            --clr-sidebar-active-bg: #E3F8F3;   /* Lightest Mint Green BG on hover */
+            --clr-sidebar-base-text: #E5E7EB;   /* Light text for non-active items */
+            --clr-sidebar-active-text: #FFFFFF; /* Teks Putih pada menu aktif (untuk kontras di gambar) */
+            --clr-menu-active-bg-dark: #00877C; /* Latar Belakang DASHBOARD (Hijau gelap) */
+            
+            /* BACKGROUND GRADIENT & MAIN UI */
+            --clr-base-bg: #F4FBF9;             /* Light Mint-Green Tint for main background */
+            --clr-text-primary: #1F2937;        /* Dark Gray */
+            
+            /* Card Icon Gradients */
+            --clr-total-anggota-bg: linear-gradient(135deg, #60a5fa, #3b82f6);
+            --clr-agenda-bg: linear-gradient(135deg, #01A29D, #10b981);
+            --clr-nonaktif-bg: linear-gradient(135deg, #f87171, #ef4444);
+            --clr-presensi-bg: linear-gradient(135deg, #a78bfa, #8b5cf6);
+
+            /* Button Colors */
+            --clr-btn-orange: #FF853D;
+            --clr-btn-red: #F75B50;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="wrapper">
-        <nav id="sidebar">
-            <div class="sidebar-header">
-                <h3>SIMORA Admin</h3>
-                <small class="text-white-50">Sistem Informasi</small>
+    <div class="flex h-screen bg-gray-50 overflow-hidden">
+
+        <aside id="sidebar-desktop" class="sidebar-custom hidden lg:flex flex-col flex-shrink-0">
+            
+            <div class="p-4 flex items-center justify-start h-16">
+                <span class="text-xl font-extrabold text-white">SIMORA</span> 
             </div>
 
-            <ul class="list-unstyled components">
-                <li><a href="#" data-nav="dashboard" class="menu-item active"><i class="fas fa-tachometer-alt"></i> Dashboard Utama</a></li>
-                
-                <li class="menu-divider"><small>Pengelolaan Anggota</small></li>
-                <li><a href="#" data-nav="admin-users" class="admin-menu"><i class="fas fa-users-cog"></i> Kelola Anggota</a></li>
-                <li><a href="#" data-nav="verifikasi-pendaftaran" class="admin-menu"><i class="fas fa-user-check"></i> Verifikasi Pendaftaran</a></li>
-                
-                <li class="menu-divider"><small>Kegiatan & Laporan</small></li>
-                <li><a href="#" data-nav="admin-events" class="admin-menu"><i class="fas fa-calendar-alt"></i> Jadwal & Kegiatan</a></li>
-                <li><a href="#" data-nav="admin-report" class="admin-menu"><i class="fas fa-file-invoice"></i> Laporan & Audit</a></li>
-            </ul>
-
-            <div class="sidebar-footer">
-                <div class="profile-box">
-                    <div class="profile-icon">A</div>
-                    <div class="user-info">
-                        <p class="mb-0" id="currentUsername">Budi Santoso</p>
-                        <small id="userRoleDisplay" class="text-warning">Admin Level 1</small>
-                    </div>
-                </div>
-                <a href="#" id="logoutButton" class="btn btn-logout w-100 mt-3"><i class="fas fa-sign-out-alt me-2"></i> Keluar</a>
-            </div>
-        </nav>
-        <div id="content">
-            <nav class="navbar navbar-top bg-white border-bottom shadow-sm fixed-top">
-                <div class="container-fluid">
-                    <button type="button" id="sidebarCollapse" class="btn btn-outline-primary d-lg-none me-3">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h4 class="ms-0 mb-0 fw-bold" id="pageTitle">Dashboard Utama</h4>
-                    
-                    <div class="ms-auto me-3 d-flex align-items-center">
-                        <i class="fas fa-bell text-muted me-3 cursor-pointer"></i>
-                        <span class="profile-icon rounded-circle bg-secondary text-white text-center">A</span>
-                    </div>
-                </div>
+            <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
+                <a href="#" class="nav-item-custom active-dark-bg"> 
+                    <i class="fas fa-chart-line"></i> DASHBOARD
+                </a>
+                <a href="#" class="nav-item-custom">
+                    <i class="fas fa-users"></i> Data Anggota
+                </a>
+                <a href="#" class="nav-item-custom">
+                    <i class="fas fa-calendar-alt"></i> Kalender Kegiatan
+                </a>
+                <a href="#" class="nav-item-custom">
+                    <i class="fas fa-chart-bar"></i> Laporan Keaktifan
+                </a>
+                <a href="#" class="nav-item-custom">
+                    <i class="fas fa-cogs"></i> Pengaturan Sistem
+                </a>
             </nav>
 
-            <div class="content-body">
-                
-                <div class="row g-4 mb-5" id="statsContainer">
-                    <div class="col-12"><h3 class="fw-bold">Laporan & Audit Sistem</h3></div>
-                    
-                    <div class="col-xl-3 col-md-6">
-                        <div class="stat-card">
-                            <i class="fas fa-users text-success icon-large"></i>
-                            <p>Total Anggota Terdaftar</p>
-                            <h2 id="totalUsersCount" class="fw-bolder">1,247</h2>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6">
-                        <div class="stat-card">
-                            <i class="fas fa-bell text-warning icon-large"></i>
-                            <p>Pendaftaran Tertunda</p>
-                            <h2 id="pendingRegCount" class="fw-bolder">5</h2>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6">
-                        <div class="stat-card">
-                            <i class="fas fa-exclamation-triangle text-danger icon-large"></i>
-                            <p>Anggota Perlu SP</p>
-                            <h2 id="spUsersCount" class="fw-bolder">4</h2>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6">
-                        <div class="stat-card">
-                            <i class="fas fa-check-square text-primary icon-large"></i>
-                            <p>Kegiatan Belum Diverifikasi</p>
-                            <h2 id="pendingEventsCount" class="fw-bolder">2</h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-4 mb-5">
-                    <div class="col-12"><h4 class="fw-bold">Aksi Cepat Admin</h4></div>
-                    
-                    <div class="col-xl-4 col-md-6">
-                        <button class="quick-action-btn bg-warning text-dark w-100 p-4" data-action="upload-kegiatan">
-                            <i class="fas fa-upload fa-2x"></i>
-                            <h5 class="mt-3 mb-0 fw-bold">Upload Kegiatan Baru</h5>
-                        </button>
-                    </div>
-
-                    <div class="col-xl-4 col-md-6">
-                         <button class="quick-action-btn bg-light text-dark w-100 p-4" data-action="kelola-status">
-                            <i class="fas fa-user-tag fa-2x"></i>
-                            <h5 class="mt-3 mb-0 fw-bold">Kelola Anggota & Status</h5>
-                        </button>
-                    </div>
-
-                    <div class="col-xl-4 col-md-6">
-                        <button class="quick-action-btn bg-light text-dark w-100 p-4" data-action="verifikasi-pendaftaran">
-                            <i class="fas fa-file-signature fa-2x"></i>
-                            <h5 class="mt-3 mb-0 fw-bold">Verifikasi Pendaftaran</h5>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm p-4">
-                    <h4 class="fw-bold mb-4">Anggota Baru Perlu Verifikasi</h4>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>NAMA</th>
-                                    <th>NPM</th>
-                                    <th>TANGGAL DAFTAR</th>
-                                    <th>AKSI</th>
-                                </tr>
-                            </thead>
-                            <tbody id="unverifiedMembersTable">
-                                <tr>
-                                    <td>Dewi Sartika</td>
-                                    <td>2115061099</td>
-                                    <td>2025-12-01</td>
-                                    <td><a href="#" class="text-success me-3">Verifikasi</a> <a href="#" class="text-danger">Tolak</a></td>
-                                </tr>
-                                <tr>
-                                    <td>Rizky Firmansyah</td>
-                                    <td>2215061005</td>
-                                    <td>2025-11-28</td>
-                                    <td><a href="#" class="text-success me-3">Verifikasi</a> <a href="#" class="text-danger">Tolak</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+            <div class="p-4 border-t mt-auto border-gray-700">
+                <a href="#" class="btn-logout-custom active-logout w-full">
+                    <i class="fas fa-arrow-right-to-bracket -rotate-180 mr-2"></i> Keluar
+                </a>
             </div>
-        </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            
+            <header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-30 h-16 border-b border-gray-100">
+                <button id="mobile-menu-button" class="lg:hidden text-gray-600 hover:text-gray-900" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <div class="flex-1 flex items-center justify-between ml-4">
+                    <div class="input-group search-input-group w-96 max-w-full">
+                        <span class="input-group-text"><i class="fas fa-search text-gray-400"></i></span>
+                        <input type="text" class="form-control" placeholder="Cari Anggota/Kegiatan...">
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <button class="btn-action-orange">
+                            <i class="fas fa-plus mr-2"></i> Buat Kegiatan
+                        </button>
+                        
+                        <div class="profile-indicator">
+                            <span class="text-sm font-semibold mr-2 text-gray-700">Admin Aktif</span>
+                            <div class="avatar-admin-circle">A</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6">
+                
+                <h1 class="text-2xl font-semibold text-gray-800 mb-2">Dashboard Admin</h1>
+                <p class="text-xl font-bold text-gray-700 mb-6">Ikhtisar Organisasi</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="stats-container">
+                    </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg agenda-card-animated">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-calendar-check mr-2 text-primary-brand"></i> Agenda Kegiatan Mendatang
+                        </h2>
+                        <div id="agenda-list" class="space-y-4">
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-lg activity-card-animated">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center justify-between">
+                            Analisis Keaktifan Mingguan
+                            <i class="fas fa-chart-line text-primary-brand"></i>
+                        </h2>
+                        
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-500">Persentase Anggota Aktif</p>
+                            <div class="flex justify-between items-center mt-1">
+                                <span class="text-4xl font-extrabold text-primary-brand">92%</span>
+                                <span class="text-sm text-green-600 font-semibold flex items-center">
+                                    <i class="fas fa-caret-up mr-1"></i> 7.5%
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-400">Dibandingkan bulan sebelumnya</p>
+                        </div>
+
+                        <div id="activity-chart" class="h-40 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 mb-4">
+                            [Placeholder: Garis Tren Keaktifan]
+                        </div>
+
+                        <button class="btn-primary w-full btn-laporan">
+                            Lihat Laporan Lengkap
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
     </div>
-    
+
+    <div id="sidebar-mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
+    <aside id="sidebar-mobile" class="sidebar-custom fixed top-0 left-0 h-full w-64 transform -translate-x-full z-50 lg:hidden transition-transform duration-300 ease-in-out">
+        <div class="p-4 flex items-center justify-start h-16">
+            <span class="text-xl font-extrabold text-white">SIMORA</span>
+        </div>
+        <nav class="flex-1 flex flex-col mt-4 px-2">
+            <a href="#" class="nav-item-custom active-dark-bg"><i class="fas fa-chart-line"></i> DASHBOARD</a>
+            <a href="#" class="nav-item-custom"><i class="fas fa-users"></i> Data Anggota</a>
+            <a href="#" class="nav-item-custom"><i class="fas fa-calendar-alt"></i> Kalender Kegiatan</a>
+            <a href="#" class="nav-item-custom"><i class="fas fa-chart-bar"></i> Laporan Keaktifan</a>
+            <a href="#" class="nav-item-custom"><i class="fas fa-cogs"></i> Pengaturan Sistem</a>
+        </nav>
+        <div class="p-4 border-t mt-auto border-gray-700">
+            <a href="#" class="btn-logout-custom active-logout w-full">
+                <i class="fas fa-arrow-right-to-bracket -rotate-180 mr-2"></i> Keluar
+            </a>
+        </div>
+    </aside>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/admin_app.js"></script> 
+    <script src="js/admin.js"></script> 
 </body>
 </html>

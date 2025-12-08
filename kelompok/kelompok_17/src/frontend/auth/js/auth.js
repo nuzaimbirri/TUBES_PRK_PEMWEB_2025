@@ -1,179 +1,198 @@
-document.addEventListener('DOMContentLoaded', () => {
+// Lokasi file: src/frontend/auth/js/auth.js
 
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
+document.addEventListener("DOMContentLoaded", async () => {
+
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+
+    // BASE API (Pastikan URL ini benar)
+    const BASE_API_URL =
+        "http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/backend/api/auth.php";
+
+    const LOGIN_API_URL = `${BASE_API_URL}?action=login`;
+    const REGISTER_API_URL = `${BASE_API_URL}?action=register`;
+    const SESSION_API_URL = `${BASE_API_URL}?action=check`;
+
+    // ----------------------
+    // Helper: safe JSON parse
+    // ----------------------
+    const safeJson = async (res) => {
+        try { return await res.json(); } catch { return null; }
+    };
+
+    // ------------------------------------------------
+    // Wait for session confirmation (retry loop)
+    // ------------------------------------------------
+    const waitForSession = async (maxAttempts = 6, delayMs = 300) => {
+        for (let i = 0; i < maxAttempts; i++) {
+            try {
+                const r = await fetch(SESSION_API_URL, {
+                    method: "GET",
+                    credentials: "include",
+                    cache: "no-store"
+                });
+
+                const j = await safeJson(r);
+
+                if (r.ok && j && j.status === "success" && j.data) {
+                    const logged = j.data.logged_in === true || !!j.data.user;
+                    if (logged) return j.data; // return session data
+                }
+            } catch (err) {
+                // network, ignore and retry
+            }
+            await new Promise(res => setTimeout(res, delayMs));
+        }
+        return null; // not confirmed
+    };
+
+    // ========================================================
+    // 🔥 AUTO LOGIN CHECK — DINONAKTIFKAN
+    // ========================================================
+    // Blok ini (yang menyebabkan redirect instan saat refresh) 
+    // dihilangkan untuk memfokuskan user pada halaman login/register.
     
-    // Konfigurasi API dengan URL ABSOLUT (dari HEAD)
-    const BASE_API_URL = 'http://localhost/TUBES PPW/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/backend/api/auth.php'
-    const LOGIN_API_URL = `${BASE_API_URL}?action=login`;
-    const REGISTER_API_URL = `${BASE_API_URL}?action=register`;
+    // ========================================================
+    //  UI HELPERS
+    // ========================================================
+    const displayMessage = (id, message, type) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove("d-none", "alert-danger", "alert-success", "alert-warning");
+        el.classList.add(`alert-${type}`);
+        el.textContent = message;
+    };
 
-    const displayMessage = (id, message, type) => {
-        const el = document.getElementById(id);
-        el.classList.remove('d-none', 'alert-danger', 'alert-success', 'alert-warning');
-        el.classList.add(`alert-${type}`);
-        el.textContent = message;
-    };
+    const resetErrors = (form) => {
+        if (!form) return;
+        form.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
+        form.querySelectorAll(".invalid-feedback").forEach(el => el.textContent = "");
+        const id = form.id.replace("Form", "Message");
+        const msg = document.getElementById(id);
+        if (msg) msg.classList.add("d-none");
+    };
 
-    const resetErrors = (form) => {
-        form.querySelectorAll('.is-invalid')
-            .forEach(el => el.classList.remove('is-invalid'));
-        
-        // Clear all invalid feedback messages
-        form.querySelectorAll('.invalid-feedback')
-            .forEach(el => el.textContent = '');
+    const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-        const msgID = form.id.replace("Form", "Message");
-        const msg = document.getElementById(msgID);
-        if (msg) msg.classList.add('d-none');
-    };
+    const handleValidationErrors = (form, errors, prefix) => {
+        if (!errors || !form) return;
+        for (const field in errors) {
+            const input = form.querySelector(`[name="${field}"]`);
+            const errorLabel = document.getElementById(`${prefix}${capitalize(field)}Error`);
+            if (input) input.classList.add("is-invalid");
+            if (errorLabel) errorLabel.textContent = errors[field];
+        }
+    };
 
-    const capitalize = (str) =>
-        str.charAt(0).toUpperCase() + str.slice(1);
+    const toggleButton = (btn, state, normalText, loadingText) => {
+        if (!btn) return;
+        btn.disabled = state;
+        btn.textContent = state ? loadingText : normalText;
+    };
 
-    const handleValidationErrors = (form, errors, prefix) => {
-        for (const field in errors) {
-            const input = form.querySelector(`[name="${field}"]`);
-            const errorLabel = document.getElementById(
-                `${prefix}${capitalize(field)}Error`
-            );
+    // ========================================================
+    //  LOGIN HANDLER — Redirect setelah sesi dikonfirmasi
+    // ========================================================
+    if (loginForm) {
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            resetErrors(loginForm);
 
-            if (input) input.classList.add('is-invalid');
-            if (errorLabel) errorLabel.textContent = errors[field];
-        }
-    };
+            const btn = loginForm.querySelector("button");
+            toggleButton(btn, true, "Masuk", "Memproses...");
 
-    const toggleButton = (btn, state, normalText, loadingText) => {
-        btn.disabled = state;
-        btn.textContent = state ? loadingText : normalText;
-    };
+            try {
+                const formData = new FormData(loginForm);
 
+                const response = await fetch(LOGIN_API_URL, {
+                    method: "POST",
+                    body: formData,
+                    credentials: "include"
+                });
 
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            resetErrors(loginForm);
+                const result = await safeJson(response);
 
-            const formData = new FormData(loginForm);
-            // Optional: Jika ingin mengirim JSON, ubah ke JSON.stringify(Object.fromEntries(formData.entries()));
-            // Untuk FormData, pastikan backend menerima application/x-www-form-urlencoded atau multipart/form-data.
+                if (result && result.status === "success") {
+                    displayMessage("loginMessage", "Login berhasil! Menunggu konfirmasi sesi...", "success");
 
-            const btn = loginForm.querySelector("button");
-            toggleButton(btn, true, "Masuk", "Memproses...");
+                    // Tunggu konfirmasi session dari server
+                    const session = await waitForSession(6, 300);
 
-            try {
-                const response = await fetch(LOGIN_API_URL, {
-                    method: "POST",
-                    body: formData
-                });
+                    if (session && (session.logged_in === true || session.user)) {
+                        const role = (session.user && session.user.role) || session.role || (result.data?.user?.role);
+                        
+                        // Periksa peran dan redirect ke dashboard yang sesuai
+                        if (role && role.toLowerCase() === "admin") {
+                            // Jalur: auth/js/ -> keluar 2 tingkat -> admin/dashboard.html
+                            location.replace("/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/admin/admin.html");
 
-                const result = await response.json();
+                        } else {
+                            // Jalur: auth/js/ -> keluar 2 tingkat -> anggota/dashboard.html
+                            location.replace("/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/anggota/dashboard.html");
 
-                if (result.status === "success") {
+                        }
+                        return;
 
-                    displayMessage(
-                        "loginMessage",
-                        "Login berhasil! Mengarahkan...",
-                        "success"
-                    );
+                    } else {
+                        displayMessage("loginMessage", "Login sukses tapi sesi belum terkonfirmasi. Coba refresh halaman.", "warning");
+                    }
 
-                    setTimeout(() => {
-                        // Redirect berdasarkan role
-                        window.location.href =
-                            result.data.user.role === "admin"
-                                ? "../admin/admin.html" // Sesuaikan path admin
-                                : "../anggota/dashboard.html"; // Sesuaikan path anggota
-                    }, 1200);
+                } else {
+                    // Gagal login
+                    const msg = (result && result.message) || "Gagal login. Cek kredensial Anda.";
+                    displayMessage("loginMessage", msg, "danger");
 
-                } else {
-                    displayMessage("loginMessage", result.message, "danger");
+                    if (result && result.errors) {
+                        handleValidationErrors(loginForm, result.errors, "login");
+                    }
+                }
 
-                    if (result.errors) {
-                        handleValidationErrors(loginForm, result.errors, "login");
-                    }
-                }
+            } catch (err) {
+                console.error("Login error:", err);
+                displayMessage("loginMessage", "Kesalahan server / jaringan.", "danger");
+            } finally {
+                toggleButton(btn, false, "Masuk", "Memproses...");
+            }
+        });
+    }
 
-            } catch (err) {
-                displayMessage(
-                    "loginMessage",
-                    "Kesalahan jaringan / server tidak merespon.",
-                    "danger"
-                );
-            }
+    // ========================================================
+    //  REGISTER HANDLER
+    // ========================================================
+    if (registerForm) {
+        registerForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            resetErrors(registerForm);
 
-            toggleButton(btn, false, "Masuk", "Memproses...");
-        });
-    }
+            const btn = registerForm.querySelector("button");
+            toggleButton(btn, true, "Daftar", "Memproses...");
 
-    if (registerForm) {
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            resetErrors(registerForm);
+            try {
+                const formData = new FormData(registerForm);
 
-            const formData = new FormData(registerForm);
-            const data = Object.fromEntries(formData.entries()); // Mengambil data untuk validasi klien
+                const response = await fetch(REGISTER_API_URL, {
+                    method: "POST",
+                    body: formData,
+                    credentials: "include"
+                });
 
-            let valid = true;
+                const result = await safeJson(response);
 
-            // Validasi Frontend
-            if (data.password.length < 6) {
-                document.getElementById("regPassword").classList.add("is-invalid");
-                document.getElementById("regPasswordError").textContent =
-                    "Minimal 6 karakter.";
-                valid = false;
-            }
+                if (result && result.status === "success") {
+                    displayMessage("registerMessage", "Registrasi berhasil! Silakan login.", "success");
+                    setTimeout(() => location.replace("login.html"), 1400);
+                } else {
+                    displayMessage("registerMessage", (result && result.message) || "Registrasi gagal", "danger");
+                    if (result && result.errors) handleValidationErrors(registerForm, result.errors, "reg");
+                }
 
-            if (data.password !== data.password_confirm) {
-                document.getElementById("regPasswordConfirm").classList.add("is-invalid");
-                document.getElementById("regPasswordConfirmError").textContent =
-                    "Password tidak cocok.";
-                valid = false;
-            }
-
-            if (!valid) return;
-
-            const btn = registerForm.querySelector("button");
-            toggleButton(btn, true, "Daftar", "Memproses...");
-
-            try {
-                const response = await fetch(REGISTER_API_URL, {
-                    method: "POST",
-                    body: formData // Mengirim FormData
-                });
-
-                const result = await response.json();
-
-                if (result.status === "success") {
-
-                    displayMessage(
-                        "registerMessage",
-                        "Registrasi berhasil! Silakan login.",
-                        "success"
-                    );
-
-                    setTimeout(() => {
-                        window.location.href = "login.html"; // Redirect ke halaman login yang sama
-                    }, 1800);
-
-                } else {
-
-                    displayMessage("registerMessage", result.message, "danger");
-
-                    if (result.errors) {
-                        handleValidationErrors(registerForm, result.errors, "reg");
-                    }
-                }
-
-            } catch (err) {
-                displayMessage(
-                    "registerMessage",
-                    "Kesalahan jaringan / server tidak merespon.",
-                    "danger"
-                );
-            }
-
-            toggleButton(btn, false, "Daftar", "Memproses...");
-        });
-    }
+            } catch (err) {
+                console.error("Register error:", err);
+                displayMessage("registerMessage", "Kesalahan server / jaringan.", "danger");
+            } finally {
+                toggleButton(btn, false, "Daftar", "Memproses...");
+            }
+        });
+    }
 
 });

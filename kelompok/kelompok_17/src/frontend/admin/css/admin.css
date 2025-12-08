@@ -1,0 +1,165 @@
+/* Custom CSS for SIMORA Admin Dashboard - FINAL, SINKRONISASI TAMPILAN */
+
+/* --- VARIABLE COLOR PALETTE ---
+   Variabel warna penting didefinisikan di HTML <style> block.
+*/
+
+/* --- GLOBAL BACKGROUND: GRADASI HIJAU MUDA --- */
+.flex.h-screen.bg-gray-50.overflow-hidden {
+    /* Gradasi vertikal yang lembut dari hijau muda ke putih */
+    background: linear-gradient(to bottom, var(--clr-base-bg) 0%, #FFFFFF 100%);
+}
+
+/* --- SIDEBAR STYLES: HIJAU TUA (Sesuai Gambar) --- */
+.sidebar-custom {
+    width: 250px;
+    background-color: var(--clr-sidebar-bg); /* DEEP GREEN / TEAL TUA */
+    color: white; 
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
+    border-right: none; 
+    z-index: 20; 
+}
+
+/* Logo Text Style */
+.sidebar-custom .text-xl {
+    color: white; /* SIMORA Teks Putih/Terang di atas BG Hijau Tua */
+}
+
+/* Nav Item Styling */
+.nav-item-custom {
+    color: var(--clr-sidebar-base-text); /* Teks terang (Greyish White) */
+    font-weight: 500;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0;
+    border-radius: 0.25rem;
+}
+
+.nav-item-custom i {
+    color: var(--clr-sidebar-base-text); /* Ikon non-aktif berwarna terang */
+    width: 24px;
+    text-align: center;
+    margin-right: 0.75rem;
+}
+
+.nav-item-custom:hover:not(.active-dark-bg) {
+    /* HOVER HIJAU LEBIH GELAP (EVEN DARKER GREEN) */
+    color: var(--clr-sidebar-active-text); 
+    background-color: var(--clr-hover-dark); 
+    font-weight: 600;
+    transform: translateX(2px);
+}
+.nav-item-custom:hover:not(.active-dark-bg) i {
+    color: var(--clr-sidebar-base-text); /* Icon tetap terang/putih di BG hover gelap */
+}
+
+/* --- ACTIVE STATE: DASHBOARD (BG HIJAU TUA) & LINK LAIN (BG MINT CERAH) --- */
+
+/* 1. Dashboard Active (Background Penuh Hijau Tua, Teks Putih) */
+.nav-item-custom.active-dark-bg {
+    background-color: var(--clr-menu-active-bg-dark); /* HIJAU GELAP SOLID */
+    color: white; /* Teks Putih */
+    font-weight: 700;
+    /* Menghilangkan border kiri dan shadow di sini */
+    border-left: none; 
+    box-shadow: none;
+}
+.nav-item-custom.active-dark-bg i {
+    color: white; /* Ikon Putih */
+}
+
+/* 2. Tombol Keluar - Merah */
+.btn-logout-custom {
+    background-color: var(--clr-btn-red);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: 0 4px 10px rgba(247, 91, 80, 0.3);
+    display: block; /* Agar link berfungsi sebagai tombol */
+    text-align: center;
+    text-decoration: none;
+}
+.btn-logout-custom:hover {
+    background-color: #C24141;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(247, 91, 80, 0.6);
+    color: white;
+}
+
+/* --- HEADER & ACTION BUTTONS --- */
+/* --- HEADER & ACTION BUTTONS --- */
+
+/* 1. KOTAK PENCARIAN (Border Hijau) */
+.search-input-group .input-group-text,
+.search-input-group .form-control {
+    border-color: var(--clr-primary-brand) !important;
+    border-width: 2px;
+}
+.search-input-group .form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(1, 162, 157, 0.25); /* Subtle teal focus ring */
+}
+.search-input-group .input-group-text {
+    background-color: white;
+    /* Menghapus border-right default agar menyambung rapi */
+    border-right: none; 
+}
+
+.btn-action-orange {
+    background-color: var(--clr-btn-orange);
+    box-shadow: 0 2px 5px rgba(255, 133, 61, 0.4);
+}
+
+/* 2. LOGO ADMIN AKTIF (Bulat Sempurna) */
+.avatar-admin-circle {
+    /* Bentuk sudah bulat (50%), hanya memastikan ring color */
+    background-color: var(--clr-primary-brand);
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--clr-primary-brand); 
+    transition: all 0.3s;
+}
+
+/* --- CARD & WIDGET STYLES: LEBIH JELAS & BERWARNA (Aksen Hijau Kuat) --- */
+
+.card-ringkasan-base, .agenda-card-animated, .activity-card-animated {
+    /* Menambahkan border yang lebih tebal dan berwarna untuk definisi */
+    border: 1px solid var(--clr-primary-brand); /* Border tipis warna Teal */
+    border-radius: 1rem; 
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); 
+    transition: all 0.4s cubic-bezier(0.2, 0.7, 0.4, 1.2); 
+}
+
+.card-ringkasan-base:hover, .agenda-card-animated:hover, .activity-card-animated:hover {
+    transform: translateY(-8px); 
+    /* Shadow dengan sedikit warna Teal di dalamnya saat hover */
+    box-shadow: 0 20px 40px rgba(1, 162, 157, 0.25);
+}
+
+/* Icon Styles: Gradient/Warna Kuat */
+.card-icon-circle {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+/* Status Text Coloring */
+.status-text-positive { color: var(--clr-primary-brand); font-weight: 700; }
+.status-text-negative { color: var(--clr-btn-red); font-weight: 700; }
+
+/* Agenda/Laporan Buttons (Teal/Green Brand) */
+.btn-agenda-action, .btn-laporan {
+    background-color: var(--clr-primary-brand); 
+    border-color: var(--clr-primary-brand);
+    box-shadow: 0 4px 10px rgba(0, 135, 124, 0.3);
+}
+.btn-agenda-action:hover, .btn-laporan:hover {
+    background-color: var(--clr-hover-dark);
+    border-color: var(--clr-hover-dark);
+}
+
+/* --- MEDIA QUERIES --- */
+@media (max-width: 1024px) {
+    .sidebar-custom {
+        width: 280px; 
+    }
+}

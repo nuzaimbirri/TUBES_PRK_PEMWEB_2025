@@ -57,7 +57,7 @@ CREATE TABLE attendance (
 
 
 INSERT INTO users (username, email, password, role) 
-VALUES ('admin', 'admin@simora.com', '$2y$10$G/REZa8TaxGHxWhrqoh41.KpUDwwHUdrqJgjLnUtA8OLOzwydqyFy', 'admin');
+VALUES ('admin', 'admin@simora.com', '$2y$10$0E4uIS4k7xbUhwkALgEY0.gfwwbcEWIgQVMlB9RtIcp23XrcZSVdq', 'admin');
 
 INSERT INTO profiles (user_id, full_name, department, activity_status)
 VALUES (1, 'Super Admin', 'Inti', 'aktif');
@@ -68,12 +68,6 @@ VALUES ('admin2', 'admin2@simora.com', '$2y$10$tM2yqK0K0N9FvR0R3O3Iq.mB8fK7B2N2E
 
 INSERT INTO profiles (user_id, full_name, department, activity_status)
 VALUES (2, 'Second Administrator', 'Inti', 'aktif');
-
-INSERT INTO users (username, email, password, role)
-VALUES ('admin3', 'admin3@simora.com', '$2y$10$6j2u4FqL2t2v0UtA0tHIOe9wN0t40fDJwN5b2g9pL8oQ8OeYfO1zW', 'admin');
-
-INSERT INTO profiles (user_id, full_name, department, activity_status)
-VALUES (5, 'Third Administrator', 'Inti', 'aktif');
 
 
 
