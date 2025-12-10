@@ -501,6 +501,12 @@ main.main-content {
     color: var(--teal-700);
 }
 
+.event-status-badge.ongoing {
+    background: #fef3c7;
+    color: #92400e;
+    font-weight: 800;
+}
+
 .event-status-badge.completed {
     background: rgba(5, 150, 105, 0.1);
     color: #047857;
@@ -884,3 +890,573 @@ main.main-content {
         height: 36px;
     }
 }
+
+/* ========================================
+   PRESENSI MODAL STYLES
+   ======================================== */
+.modal-sm {
+    max-width: 540px;
+}
+
+.presensi-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.presensi-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, var(--teal-600), var(--emerald-600));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 8px 24px rgba(13, 148, 136, 0.3);
+}
+
+.presensi-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.presensi-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.presensi-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.required {
+    color: var(--accent-red);
+}
+
+.upload-area {
+    position: relative;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--bg-secondary);
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.upload-area:hover {
+    border-color: var(--teal-600);
+    background: var(--teal-50);
+}
+
+.upload-placeholder {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.upload-placeholder svg {
+    color: var(--teal-600);
+    margin-bottom: 16px;
+}
+
+.upload-placeholder p {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+}
+
+.upload-placeholder strong {
+    color: var(--teal-600);
+    font-weight: 600;
+}
+
+.upload-placeholder span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.upload-preview {
+    position: relative;
+    width: 100%;
+    padding: 12px;
+    background: var(--bg-primary);
+}
+
+.upload-preview img {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+}
+
+.btn-remove-preview {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent-red);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-remove-preview:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: all var(--transition-normal);
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--teal-600);
+    box-shadow: 0 0 0 3px var(--teal-100);
+}
+
+.form-textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.form-hint {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.btn-success {
+    background: var(--emerald-600);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition-fast);
+}
+
+.btn-success:hover {
+    background: var(--emerald-700);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.btn-success:active {
+    transform: translateY(0);
+}
+
+.btn-success:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-warning {
+    background: #f59e0b;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition-fast);
+}
+
+.btn-warning:hover {
+    background: #d97706;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-warning:active {
+    transform: translateY(0);
+}
+
+.btn-warning:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   REGISTRATION STATUS INFO BOX
+   ======================================== */
+.registration-info-box {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.registration-info-box.pending {
+    background: rgba(245, 158, 11, 0.05);
+    border-color: #f59e0b;
+}
+
+.registration-info-box.approved {
+    background: var(--emerald-soft);
+    border-color: var(--emerald-600);
+}
+
+.registration-info-box.rejected {
+    background: var(--red-soft);
+    border-color: var(--accent-red);
+}
+
+.registration-info-box.cancelled {
+    background: rgba(107, 114, 128, 0.05);
+    border-color: #9ca3af;
+}
+
+.registration-info-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.registration-info-header svg {
+    flex-shrink: 0;
+}
+
+.registration-info-header h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.registration-info-box p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.registration-info-box.pending .registration-info-header {
+    color: #f59e0b;
+}
+
+.registration-info-box.approved .registration-info-header {
+    color: var(--emerald-700);
+}
+
+.registration-info-box.rejected .registration-info-header {
+    color: #dc2626;
+}
+
+.registration-info-box.cancelled .registration-info-header {
+    color: #6b7280;
+}
+
+/* ========================================
+   EVENT CARD REGISTERED BADGE
+   ======================================== */
+.event-registered-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: linear-gradient(135deg, var(--emerald-600), var(--teal-600));
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+    z-index: 5;
+    animation: bounceIn 0.5s ease;
+}
+
+.event-registered-badge svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Registration Status Badges */
+.event-status-registration {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 5;
+    animation: bounceIn 0.5s ease;
+}
+
+.event-status-registration svg {
+    width: 12px;
+    height: 12px;
+}
+
+.status-registration-pending {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1.5px solid #f59e0b;
+    font-weight: 700;
+}
+
+.status-registration-approved {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1.5px solid var(--emerald-600);
+    font-weight: 700;
+}
+
+.status-registration-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1.5px solid var(--accent-red);
+    font-weight: 700;
+}
+
+.status-registration-cancelled {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1.5px solid #9ca3af;
+    font-weight: 700;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   TOAST NOTIFICATION
+   ======================================== */
+.toast {
+    position: fixed;
+    bottom: -100px;
+    right: 24px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    transition: all var(--transition-normal);
+    min-width: 320px;
+    max-width: 420px;
+}
+
+.toast.show {
+    bottom: 24px;
+    animation: slideInUp 0.3s ease;
+}
+
+.toast.hide {
+    bottom: -100px;
+    opacity: 0;
+}
+
+.toast-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.toast.success .toast-icon {
+    background: var(--emerald-soft);
+    color: var(--emerald-600);
+}
+
+.toast.error .toast-icon {
+    background: var(--red-soft);
+    color: var(--accent-red);
+}
+
+.toast.info .toast-icon {
+    background: var(--blue-soft);
+    color: var(--accent-blue);
+}
+
+.toast-message {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   SPINNER LOADING
+   ======================================== */
+.spinner-sm {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================
+   ATTENDANCE STATUS CARDS
+   ======================================== */
+.attendance-status {
+    text-align: center;
+    padding: 32px 20px;
+    border-radius: var(--border-radius);
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+}
+
+.attendance-status svg {
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.attendance-status.registered {
+    background: var(--emerald-soft);
+    border-color: var(--emerald-600);
+}
+
+.attendance-status.registered svg {
+    color: var(--emerald-600);
+}
+
+.attendance-status.ongoing {
+    background: #fef3c7;
+    border-color: #f59e0b;
+}
+
+.attendance-status.ongoing svg {
+    color: #f59e0b;
+}
+
+.attendance-status.not-registered {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+.attendance-status h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.attendance-status p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.btn-warning {
+    background: #f59e0b;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition-fast);
+}
+
+.btn-warning:hover {
+    background: #d97706;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-warning:active {
+    transform: translateY(0);
+}
+
+.btn-warning:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
