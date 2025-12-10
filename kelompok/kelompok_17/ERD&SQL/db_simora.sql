@@ -59,7 +59,7 @@ CREATE TABLE attendance (
 
 
 INSERT INTO users (username, email, password, role) 
-VALUES ('admin', 'admin@simora.com', '$2y$10$0E4uIS4k7xbUhwkALgEY0.gfwwbcEWIgQVMlB9RtIcp23XrcZSVdq', 'admin');
+VALUES ('admin', 'admin@simora.com', '$2y$10$kFXheGvJM5FNOsOGmgrcnuMo9jf5Ee8R21y1ip0yKmB3VWRk8oViS', 'admin');
 
 -- UPDATE STATUS ADMIN MENJADI AKTIF (1)
 UPDATE users 

@@ -34,8 +34,8 @@ define('DB_CHARSET', 'utf8mb4');
 define('APP_NAME', 'SIMORA');
 define('APP_VERSION', '1.0.0');
 define('APP_ENVIRONMENT', 'development');
-define('APP_BASE_URL', 'http://localhost/TUBES PPW/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/'); // URL dasar lama
-define('API_URL', 'http://localhost/TUBES PPW/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/backend/api/'); // URL API lama
+define('APP_BASE_URL', 'http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/'); // URL dasar lama
+define('API_URL', 'http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/backend/api/'); // URL API lama
 define('APP_DEBUG', true);
 // Timezone dan Language sudah diatur di init.php/core
 // define('APP_TIMEZONE', 'Asia/Jakarta');
