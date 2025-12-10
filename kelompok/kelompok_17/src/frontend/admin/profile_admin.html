@@ -55,8 +55,7 @@
                 <span class="text-2xl font-extrabold text-white">SIMORA</span> 
             </div>
             <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
-                <a href="admin_dashboard.html" class="nav-item-custom nav-item-dashboard active-dark-bg"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
-                <a href="notifikasi.html" class="nav-item-custom"> <i class="fas fa-bell"></i> Notifikasi </a> 
+                <a href="admin.html" class="nav-item-custom nav-item-dashboard active-dark-bg"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
                 <a href="kelola_anggota.html" class="nav-item-custom"> <i class="fas fa-users"></i> Kelola Anggota </a>
                 <a href="kelola_event.html" class="nav-item-custom"> <i class="fas fa-calendar-alt"></i> Kelola Event </a>
                 <a href="kalender_kegiatan.html" class="nav-item-custom"> <i class="fas fa-calendar-check"></i> Kalender Kegiatan </a>
@@ -82,7 +81,7 @@
                     <div class="flex items-center space-x-4">
                         
                         <a href="buat_event.html" class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
-                            <i class="fas fa-plus mr-2"></i> Buat Agenda Baru
+                            <i class="fas fa-plus mr-2"></i> Buat Event Baru
                         </a>
 
                         <a href="notifikasi.html" id="notification-link" class="text-gray-600 hover:text-gray-900 relative p-2">
@@ -122,8 +121,8 @@
                         </div>
 
                         <div class="pt-4 flex justify-end space-x-3">
-                            <button type="button" class="btn btn-outline-secondary font-medium">Ubah Kata Sandi</button>
-                            <button type="button" class="btn-edit-profile">
+                            <button type="button" class="btn btn-outline-secondary font-medium" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Ubah Kata Sandi</button>
+                            <button type="button" class="btn-edit-profile" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                                 <i class="fas fa-edit mr-2"></i> Edit Profil
                             </button>
                         </div>
@@ -134,15 +133,81 @@
         </main>
 
     </div>
+    
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <form id="form-change-password">
+                    <div class="modal-header bg-warning-subtle">
+                        <h5 class="modal-title font-bold" id="changePasswordModalLabel">Ubah Kata Sandi</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body space-y-3">
+                        <p class="text-sm text-gray-600">Anda akan diminta login ulang setelah perubahan kata sandi berhasil.</p>
+                        <div>
+                            <label for="old_password" class="form-label">Kata Sandi Lama</label>
+                            <input type="password" class="form-control" id="old_password" required>
+                        </div>
+                        <div>
+                            <label for="new_password" class="form-label">Kata Sandi Baru</label>
+                            <input type="password" class="form-control" id="new_password" required>
+                        </div>
+                        <div>
+                            <label for="confirm_password" class="form-label">Konfirmasi Kata Sandi Baru</label>
+                            <input type="password" class="form-control" id="confirm_password" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <form id="form-edit-profile">
+                    <div class="modal-header bg-info-subtle">
+                        <h5 class="modal-title font-bold" id="editProfileModalLabel">Edit Data Profil</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body space-y-3">
+                        <div class="text-center mb-3">
+                            <div class="avatar-admin-circle w-20 h-20 mx-auto mb-2 flex items-center justify-center font-bold text-lg cursor-pointer hover:opacity-80">A</div>
+                            <small class="text-gray-600">Klik untuk ganti foto</small>
+                            <input type="file" id="profile_picture_upload" class="d-none" accept="image/*">
+                        </div>
+                        <div>
+                            <label for="edit_full_name" class="form-label">Nama Lengkap</label>
+                            <input type="text" class="form-control" id="edit_full_name" value="Admin SIMORA Utama" required>
+                        </div>
+                        <div>
+                            <label for="edit_username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="edit_username" value="admin.simora" disabled>
+                        </div>
+                        <div>
+                            <label for="edit_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="edit_email" value="admin@simora.ac.id" disabled>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Profil</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div id="sidebar-mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
     <aside id="sidebar-mobile" class="sidebar-custom fixed top-0 left-0 h-full w-64 transform -translate-x-full z-50 lg:hidden transition-transform duration-300 ease-in-out">
         <div class="p-4 flex items-center justify-start h-16">
             <span class="text-2xl font-extrabold text-white">SIMORA</span>
         </div>
         <nav class="flex-1 flex flex-col mt-4 px-2">
-            <a href="admin_dashboard.html" class="nav-item-custom nav-item-dashboard active-dark-bg"><i class="fas fa-chart-line"></i> DASHBOARD</a>
-            <a href="notifikasi.html" class="nav-item-custom"><i class="fas fa-bell"></i> Notifikasi</a>
+            <a href="admin.html" class="nav-item-custom nav-item-dashboard active-dark-bg"><i class="fas fa-chart-line"></i> DASHBOARD</a>
             <a href="kelola_anggota.html" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
             <a href="kelola_event.html" class="nav-item-custom"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
             <a href="kalender_kegiatan.html" class="nav-item-custom"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
@@ -157,5 +222,43 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/admin.js"></script> 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- LOGIKA UNTUK MENGGANTI FOTO PROFIL KETIKA DI KLIK ---
+            const avatarCircle = document.querySelector('.avatar-admin-circle');
+            const fileInput = document.getElementById('profile_picture_upload');
+
+            if (avatarCircle && fileInput) {
+                avatarCircle.addEventListener('click', () => {
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', (event) => {
+                    if (event.target.files && event.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // Di lingkungan nyata, Anda akan mengirim file ini ke server.
+                            // Di sini, kita hanya mengubah latar belakang avatar.
+                            avatarCircle.style.backgroundImage = `url(${e.target.result})`;
+                            avatarCircle.style.backgroundSize = 'cover';
+                            avatarCircle.textContent = ''; // Hapus teks 'A'
+                        };
+                        reader.readAsDataURL(event.target.files[0]);
+                    }
+                });
+            }
+        });
+        
+        // Sidebar Toggle (Harus diimplementasikan atau di-link dari admin.js)
+        window.toggleMobileSidebar = function() {
+            const sidebar = document.getElementById('sidebar-mobile');
+            const overlay = document.getElementById('sidebar-mobile-overlay');
+            
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('overflow-hidden');
+        };
+    </script>
 </body>
 </html>

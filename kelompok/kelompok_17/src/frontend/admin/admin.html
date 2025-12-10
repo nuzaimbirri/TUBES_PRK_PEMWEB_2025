@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="css/admin.css">
 
     <style>
-        /* Mendefinisikan Variable Warna Utama */
         :root {
             --clr-primary-brand: #01A29D;
             --clr-hover-dark: #005A54;
@@ -19,14 +18,17 @@
             --clr-sidebar-base-text: #E5E7EB;
             --clr-sidebar-active-text: #FFFFFF;
             --clr-menu-active-bg-dark: #00877C;
-            --clr-base-bg: #F4FBF9;
+            --clr-base-bg: #F4FBF9; /* Warna background muda */
             --clr-btn-red: #F75B50;
             --clr-btn-orange: #FF853D; 
+            /* Tambahan: Background Hijau Tosca Muda */
+            --clr-light-teal-bg: #E0F2F1; 
         }
 
         .d-none { display: none !important; }
         .alert { transition: opacity 0.3s; }
-        
+        .bg-light-teal { background-color: var(--clr-light-teal-bg); }
+
         /* Grid untuk stats (3 kolom) */
         @media (min-width: 1024px) {
             .stats-grid {
@@ -34,10 +36,10 @@
                 grid-template-columns: repeat(3, minmax(0, 1fr)); 
                 gap: 1.5rem;
             }
-            /* Grid untuk Agenda dan Laporan (2 kolom) */
+            /* Grid untuk Event dan Laporan (2 kolom) */
             .dashboard-grid-main {
                  display: grid;
-                 grid-template-columns: 2fr 1fr; /* Agenda lebih lebar */
+                 grid-template-columns: 2fr 1fr; /* Event lebih lebar */
                  gap: 1.5rem;
             }
         }
@@ -45,8 +47,7 @@
 </head>
 <body class="bg-[var(--clr-base-bg)]">
 
-    <div class="flex h-screen bg-gray-50 overflow-hidden">
-
+    <div class="flex h-screen bg-light-teal overflow-hidden"> 
         <aside id="sidebar-desktop" class="sidebar-custom hidden lg:flex flex-col flex-shrink-0">
             <div class="p-4 flex items-center justify-start h-16">
                 <span class="text-2xl font-extrabold text-white">SIMORA</span> 
@@ -89,9 +90,30 @@
                             <span id="notification-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full d-none">0</span>
                         </a>
                         
-                        <div class="profile-indicator flex items-center">
-                            <div class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</div>
-                            <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base">A</div>
+                        <div class="relative">
+                            <button id="profile-dropdown-button" class="flex items-center text-gray-600 hover:text-gray-900 focus:outline-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="profile-indicator flex items-center">
+                                    <div class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</div>
+                                    <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base">A</div>
+                                </div>
+                            </button>
+                            
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="profile-dropdown-button" style="min-width: 180px;">
+                                <li class="px-3 py-2 text-sm text-gray-700 font-semibold border-b border-gray-100">
+                                    Halo, Admin!
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="profile_admin.html">
+                                        <i class="fas fa-user-circle mr-2 w-5 text-[var(--clr-primary-brand)]"></i> Lihat Profil
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#" id="btn-logout-dropdown">
+                                        <i class="fas fa-arrow-right-from-bracket mr-2 w-5 text-red-500"></i> Keluar
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -102,16 +124,20 @@
                 <h1 class="text-xl font-semibold text-gray-800 mb-6">Ikhtisar Organisasi</h1>
                 
                 <div class="stats-grid mb-8" id="stats-container">
-                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-lg border border-gray-100 text-center">Loading...</div>
+                    <div class="bg-white p-4 rounded-xl shadow-lg border border-gray-100 text-center">Loading...</div>
+                    <div class="bg-white p-4 rounded-xl shadow-lg border border-gray-100 text-center">Loading...</div>
+                </div>
                 
                 <div class="dashboard-grid-main">
                     
                     <div class="bg-white p-6 rounded-xl shadow-lg agenda-card-animated">
                         <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                            <i class="fas fa-calendar-alt mr-2 text-[var(--clr-primary-brand)]"></i> Agenda Akan Datang
+                            <i class="fas fa-calendar-alt mr-2 text-[var(--clr-primary-brand)]"></i> Event Akan Datang
                         </h2>
                         <div id="agenda-list" class="space-y-4">
-                            </div>
+                            <p class="text-gray-500">Memuat data event...</p>
+                        </div>
                     </div>
 
                     <div class="bg-white p-6 rounded-xl shadow-lg activity-card-animated">
@@ -121,14 +147,14 @@
                         </h2>
                         
                         <div class="mb-4">
-                            <p class="text-sm text-gray-500">Grafik Pertumbuhan Agenda Selesai (2025)</p>
+                            <p class="text-sm text-gray-500">Grafik Pertumbuhan Event Selesai (2025)</p>
                             <div id="activity-chart" class="h-40 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 my-4 border border-gray-200">
                                 [Placeholder: Grafik Bar/Line Chart]
                             </div>
                         </div>
 
                         <a href="laporan_kegiatan.html" class="btn-primary w-full btn-laporan text-white text-center">
-                            Lihat Laporan Detail
+                            View Laporan Detail
                         </a>
                     </div>
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMORA | Buat Agenda Baru</title>
+    <title>SIMORA | Buat Event Baru</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -19,7 +19,10 @@
             --clr-menu-active-bg-dark: #00877C;
             --clr-base-bg: #F4FBF9;
             --clr-btn-orange: #FF853D;
+            --clr-btn-red: #F75B50; 
         }
+        .d-none { display: none !important; }
+
         /* Style untuk menjaga item sidebar Kelola Event aktif */
         .nav-item-data-event.active-dark-bg { 
             background-color: var(--clr-menu-active-bg-dark); 
@@ -54,8 +57,7 @@
                 <span class="text-2xl font-extrabold text-white">SIMORA</span> 
             </div>
             <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
-                <a href="admin_dashboard.html" class="nav-item-custom"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
-                <a href="notifikasi.html" class="nav-item-custom"> <i class="fas fa-bell"></i> Notifikasi </a> 
+                <a href="admin.html" class="nav-item-custom"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
                 <a href="kelola_anggota.html" class="nav-item-custom"> <i class="fas fa-users"></i> Kelola Anggota </a>
                 <a href="kelola_event.html" class="nav-item-custom nav-item-data-event active-dark-bg"> <i class="fas fa-calendar-alt"></i> Kelola Event </a>
                 <a href="kalender_kegiatan.html" class="nav-item-custom"> <i class="fas fa-calendar-check"></i> Kalender Kegiatan </a>
@@ -76,11 +78,44 @@
                 </button>
 
                 <div class="flex-1 flex items-center justify-between ml-0 lg:ml-4">
-                    <h2 class="text-lg font-semibold text-gray-800">Buat Agenda Baru</h2>
-                    <div class="flex items-center space-x-4">
-                        <div class="profile-indicator flex items-center">
-                            <div class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</div>
-                            <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base bg-gray-300 text-gray-800 rounded-full">A</div>
+                    
+                    <h2 class="text-lg font-semibold text-gray-800 hidden lg:block"></h2>
+                    
+                    <div class="flex items-center space-x-4 ml-auto">
+                        
+                        <a href="buat_event.html" class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
+                            <i class="fas fa-plus mr-2"></i> Buat Event Baru
+                        </a>
+
+                        <a href="notifikasi.html" id="notification-link" class="text-gray-600 hover:text-gray-900 relative p-2">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notification-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full d-none">0</span>
+                        </a>
+                        
+                        <div class="relative">
+                            <button id="profile-dropdown-button" class="flex items-center text-gray-600 hover:text-gray-900 focus:outline-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="profile-indicator flex items-center">
+                                    <div class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</div>
+                                    <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base">A</div>
+                                </div>
+                            </button>
+                            
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="profile-dropdown-button" style="min-width: 180px;">
+                                <li class="px-3 py-2 text-sm text-gray-700 font-semibold border-b border-gray-100">
+                                    Halo, Admin!
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="profile_admin.html">
+                                        <i class="fas fa-user-circle mr-2 w-5 text-[var(--clr-primary-brand)]"></i> Lihat Profil
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#" id="btn-logout-dropdown">
+                                        <i class="fas fa-arrow-right-from-bracket mr-2 w-5 text-red-500"></i> Keluar
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -88,20 +123,20 @@
 
             <div class="p-6">
                 
-                <h1 class="text-xl font-semibold text-gray-800 mb-4">Formulir Agenda Baru</h1>
+                <h1 class="text-xl font-semibold text-gray-800 mb-4">Formulir Event Baru</h1>
                 
-                <form id="form-buat-agenda" class="space-y-6">
+                <form id="form-buat-event" class="space-y-6">
                     
                     <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
                         <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Detail Acara</h2>
                         <div class="space-y-4">
                             <div>
-                                <label for="judul_agenda" class="form-label font-medium text-gray-700">Judul Agenda (Wajib)</label>
-                                <input type="text" class="form-control" id="judul_agenda" required placeholder="Contoh: Electrical Engineering in Action (EEA) 2025">
+                                <label for="judul_event" class="form-label font-medium text-gray-700">Judul Event (Wajib)</label>
+                                <input type="text" class="form-control" id="judul_event" required placeholder="Contoh: Electrical Engineering in Action (EEA) 2025">
                             </div>
                             <div>
-                                <label for="deskripsi_agenda" class="form-label font-medium text-gray-700">Deskripsi Singkat</label>
-                                <textarea class="form-control" id="deskripsi_agenda" rows="3" placeholder="Jelaskan ringkasan atau tujuan acara."></textarea>
+                                <label for="deskripsi_event" class="form-label font-medium text-gray-700">Deskripsi Singkat</label>
+                                <textarea class="form-control" id="deskripsi_event" rows="3" placeholder="Jelaskan ringkasan atau tujuan acara."></textarea>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3 mb-md-0">
@@ -124,7 +159,7 @@
                         <div class="form-check form-switch mb-4">
                             <input class="form-check-input" type="checkbox" id="toggle_pendaftaran_panitia" onchange="togglePanitiaOptions(this)">
                             <label class="form-check-label font-medium text-gray-700" for="toggle_pendaftaran_panitia">
-                                **Buka Pendaftaran Panitia** untuk Agenda Ini
+                                Buka Pendaftaran Panitia untuk Event Ini
                             </label>
                         </div>
 
@@ -142,14 +177,14 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="jumlah_panitia_option" id="panitia_tak_terbatas" value="unlimited" checked onchange="toggleJumlahSpesifik()">
                                         <label class="form-check-label text-gray-700" for="panitia_tak_terbatas">
-                                            **Tak Terbatas** (Semua pendaftar diterima)
+                                            Tak Terbatas (Semua pendaftar diterima)
                                         </label>
                                     </div>
                                     
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="jumlah_panitia_option" id="panitia_jumlah_spesifik" value="specific" onchange="toggleJumlahSpesifik()">
                                         <label class="form-check-label text-gray-700" for="panitia_jumlah_spesifik">
-                                            **Jumlah Spesifik**
+                                            Jumlah Spesifik
                                         </label>
                                     </div>
                                     
@@ -167,7 +202,7 @@
                     <div class="flex justify-end space-x-3">
                         <button type="button" class="btn btn-outline-secondary font-medium" onclick="history.back()">Batal</button>
                         <button type="submit" class="btn-action-primary">
-                            <i class="fas fa-save mr-2"></i> Simpan Agenda
+                            <i class="fas fa-save mr-2"></i> Simpan Event
                         </button>
                     </div>
 
@@ -207,9 +242,40 @@
         
         // Pastikan input jumlah spesifik tersembunyi saat halaman dimuat
         document.addEventListener('DOMContentLoaded', () => {
-            toggleJumlahSpesifik();
+            // Asumsi toggleMobileSidebar dan fungsi lain ada di admin.js
+            if(document.getElementById('panitia_tak_terbatas') && document.getElementById('panitia_jumlah_spesifik')) {
+                toggleJumlahSpesifik();
+            }
         });
+        
+        // Sidebar Toggle (Harus diimplementasikan atau di-link dari admin.js)
+        window.toggleMobileSidebar = function() {
+            const sidebar = document.getElementById('sidebar-mobile');
+            const overlay = document.getElementById('sidebar-mobile-overlay');
+            
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('overflow-hidden');
+        };
     </script>
+    <div id="sidebar-mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
+    <aside id="sidebar-mobile" class="sidebar-custom fixed top-0 left-0 h-full w-64 transform -translate-x-full z-50 lg:hidden transition-transform duration-300 ease-in-out">
+        <div class="p-4 flex items-center justify-start h-16">
+            <span class="text-2xl font-extrabold text-white">SIMORA</span>
+        </div>
+        <nav class="flex-1 flex flex-col mt-4 px-2">
+            <a href="admin.html" class="nav-item-custom"><i class="fas fa-chart-line"></i> DASHBOARD</a>
+            <a href="kelola_anggota.html" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
+            <a href="kelola_event.html" class="nav-item-custom nav-item-data-event active-dark-bg"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
+            <a href="kalender_kegiatan.html" class="nav-item-custom"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
+            <a href="laporan_kegiatan.html" class="nav-item-custom"><i class="fas fa-chart-bar"></i> Laporan Kegiatan</a>
+        </nav>
+        <div class="p-4 border-t mt-auto border-gray-700">
+            <a href="#" id="btn-logout-mobile" class="btn-logout-custom w-full">
+                <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+            </a>
+        </div>
+    </aside>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/admin.js"></script> 
 </body>

@@ -21,7 +21,7 @@
             --clr-menu-active-bg-dark: #00877C;
             --clr-base-bg: #F4FBF9;
             --clr-btn-red: #F75B50;
-            --clr-btn-orange: #FF853D; /* Tambahkan definisi warna orange */
+            --clr-btn-orange: #FF853D; 
         }
         .d-none { display: none !important; }
         .btn-approve { background-color: #10B981; }
@@ -75,10 +75,10 @@
             </div>
             <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
                 <a href="admin.html" class="nav-item-custom active-dark-bg"> <i class="fas fa-chart-line"></i> DASHBOARD </a> 
-                <a href="#" class="nav-item-custom"> <i class="fas fa-users"></i> Kelola Anggota </a>
-                <a href="#" class="nav-item-custom"> <i class="fas fa-calendar-alt"></i> Kelola Event </a>
-                <a href="#" class="nav-item-custom"> <i class="fas fa-calendar-check"></i> Kalender Kegiatan </a>
-                <a href="#" class="nav-item-custom"> <i class="fas fa-chart-bar"></i> Laporan Kegiatan </a>
+                <a href="kelola_anggota.html" class="nav-item-custom"> <i class="fas fa-users"></i> Kelola Anggota </a>
+                <a href="kelola_event.html" class="nav-item-custom"> <i class="fas fa-calendar-alt"></i> Kelola Event </a>
+                <a href="kalender_kegiatan.html" class="nav-item-custom"> <i class="fas fa-calendar-check"></i> Kalender Kegiatan </a>
+                <a href="laporan_kegiatan.html" class="nav-item-custom"> <i class="fas fa-chart-bar"></i> Laporan Kegiatan </a>
             </nav>
             <div class="p-4 border-t mt-auto border-gray-700">
                 <a href="#" id="btn-logout-desktop" class="btn-logout-custom w-full">
@@ -98,18 +98,39 @@
                     <h1 class="text-xl font-bold text-gray-800">Pemberitahuan Pendaftaran</h1>
                     
                     <div class="flex items-center space-x-4">
-                        <button class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
-                            <i class="fas fa-plus mr-2"></i> Buat Agenda Baru
-                        </button>
+                        <a href="buat_event.html" class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
+                            <i class="fas fa-plus mr-2"></i> Buat Event Baru
+                        </a>
                         
                         <a href="notifikasi.html" id="notification-link" class="text-gray-600 hover:text-gray-900 relative p-2">
                             <i class="fas fa-bell text-xl"></i>
                             <span id="notification-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full d-none">0</span>
                         </a>
                         
-                        <div class="profile-indicator flex items-center">
-                            <div class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</div>
-                            <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base">A</div>
+                        <div class="relative">
+                            <button id="profile-dropdown-button" class="flex items-center text-gray-600 hover:text-gray-900 focus:outline-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="profile-indicator flex items-center">
+                                    <div class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</div>
+                                    <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base">A</div>
+                                </div>
+                            </button>
+                            
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="profile-dropdown-button" style="min-width: 180px;">
+                                <li class="px-3 py-2 text-sm text-gray-700 font-semibold border-b border-gray-100">
+                                    Halo, Admin!
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="profile_admin.html">
+                                        <i class="fas fa-user-circle mr-2 w-5 text-[var(--clr-primary-brand)]"></i> Lihat Profil
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#" id="btn-logout-dropdown">
+                                        <i class="fas fa-arrow-right-from-bracket mr-2 w-5 text-red-500"></i> Keluar
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -161,10 +182,10 @@
         </div>
         <nav class="flex-1 flex flex-col mt-4 px-2">
             <a href="admin.html" class="nav-item-custom active-dark-bg"><i class="fas fa-chart-line"></i> DASHBOARD</a>
-            <a href="#" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
-            <a href="#" class="nav-item-custom"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
-            <a href="#" class="nav-item-custom"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
-            <a href="#" class="nav-item-custom"><i class="fas fa-chart-bar"></i> Laporan Kegiatan</a>
+            <a href="kelola_anggota.html" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
+            <a href="kelola_event.html" class="nav-item-custom"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
+            <a href="kalender_kegiatan.html" class="nav-item-custom"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
+            <a href="laporan_kegiatan.html" class="nav-item-custom"><i class="fas fa-chart-bar"></i> Laporan Kegiatan</a>
         </nav>
         <div class="p-4 border-t mt-auto border-gray-700">
             <a href="#" id="btn-logout-mobile" class="btn-logout-custom w-full">

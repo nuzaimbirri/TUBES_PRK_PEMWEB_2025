@@ -36,27 +36,31 @@
             padding-left: calc(1rem - 4px);
         }
         
-        /* Styling tambahan untuk tombol aksi kalender */
-        .btn-add-event {
-            background-color: var(--clr-primary-brand);
-            color: white;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s;
-        }
-        .btn-add-event:hover {
-            background-color: var(--clr-hover-dark);
-        }
-
-        /* Kontainer Kalender - Hapus styling placeholder, biarkan FullCalendar yang menanganinya */
+        /* Styling FullCalendar */
         #calendar {
             padding: 1rem;
         }
-        /* Tambahkan style untuk FullCalendar agar responsif */
         .fc-toolbar-title { 
             font-size: 1.5rem !important; 
             font-weight: bold;
+        }
+        /* Mengganti warna default tombol FullCalendar */
+        .fc .fc-button-primary {
+            background-color: var(--clr-primary-brand);
+            border-color: var(--clr-primary-brand);
+        }
+        .fc .fc-button-primary:hover {
+            background-color: var(--clr-hover-dark);
+            border-color: var(--clr-hover-dark);
+        }
+        /* Style untuk kartu event yang akan datang (seperti mockup image_1518b7.png) */
+        .event-card {
+            background-color: white;
+            border-left: 5px solid var(--clr-primary-brand);
+            border-radius: 0.25rem;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
     </style>
 </head>
@@ -69,8 +73,7 @@
                 <span class="text-2xl font-extrabold text-white">SIMORA</span> 
             </div>
             <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
-                <a href="admin_dashboard.html" class="nav-item-custom"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
-                <a href="notifikasi.html" class="nav-item-custom"> <i class="fas fa-bell"></i> Notifikasi </a> 
+                <a href="admin.html" class="nav-item-custom"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
                 <a href="kelola_anggota.html" class="nav-item-custom"> <i class="fas fa-users"></i> Kelola Anggota </a>
                 <a href="kelola_event.html" class="nav-item-custom"> <i class="fas fa-calendar-alt"></i> Kelola Event </a>
                 <a href="kalender_kegiatan.html" class="nav-item-custom nav-item-kalender-kegiatan active-dark-bg"> <i class="fas fa-calendar-check"></i> Kalender Kegiatan </a>
@@ -136,10 +139,30 @@
 
             <div class="p-6">
                 
-                <div class="bg-white shadow-lg rounded-xl overflow-hidden p-4 md:p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     
-                    <div id='calendar'></div>
-                    
+                    <div class="lg:col-span-1">
+                        <div class="bg-white p-4 rounded-xl shadow-lg border border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-800 mb-3">Kegiatan Terdekat</h2>
+                            
+                            <div class="mb-4">
+                                <select id="filter-view-select" class="form-select w-full form-select-sm">
+                                    <option value="month" selected>Bulan Ini</option>
+                                    <option value="week">Minggu Ini</option>
+                                </select>
+                            </div>
+
+                            <div id="event-list-sidebar" class="space-y-2">
+                                <p class="text-gray-500 text-sm">Memuat kegiatan...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-3">
+                        <div class="bg-white shadow-lg rounded-xl overflow-hidden p-4 md:p-6">
+                            <div id='calendar'></div>
+                        </div>
+                    </div>
                 </div>
                 
             </div>
@@ -153,8 +176,7 @@
             <span class="text-2xl font-extrabold text-white">SIMORA</span>
         </div>
         <nav class="flex-1 flex flex-col mt-4 px-2">
-            <a href="admin_dashboard.html" class="nav-item-custom"><i class="fas fa-chart-line"></i> DASHBOARD</a>
-            <a href="notifikasi.html" class="nav-item-custom"><i class="fas fa-bell"></i> Notifikasi</a>
+            <a href="admin.html" class="nav-item-custom"><i class="fas fa-chart-line"></i> DASHBOARD</a>
             <a href="kelola_anggota.html" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
             <a href="kelola_event.html" class="nav-item-custom"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
             <a href="kalender_kegiatan.html" class="nav-item-custom nav-item-kalender-kegiatan active-dark-bg"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
@@ -173,65 +195,100 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        // Logika untuk mengisi daftar event di sidebar dan menginisialisasi kalender
+        
+        const EVENT_DATA_SIMULASI = [
+            { id: 1, title: 'Rapat Divisi Baru', start: '2025-12-17T14:00:00', end: '2025-12-17T16:00:00', dateText: '17 DES', timeText: '14:00 - 16:00', color: 'var(--clr-primary-brand)' },
+            { id: 2, title: 'Workshop Kepemimpinan', start: '2025-12-20T09:00:00', end: '2025-12-20T17:00:00', dateText: '20 DES', timeText: '09:00 - 17:00', color: 'var(--clr-primary-brand)' },
+            { id: 3, title: 'Deadline Pendaftaran Panitia', start: '2025-12-10', dateText: '10 DES', timeText: 'Sepanjang Hari', display: 'background', color: 'var(--clr-btn-orange)' },
+        ];
+        
+        function renderSidebarEvents(events) {
+            const listContainer = document.getElementById('event-list-sidebar');
+            listContainer.innerHTML = ''; // Bersihkan sebelumnya
+
+            if (events.length === 0) {
+                listContainer.innerHTML = '<p class="text-gray-500 text-sm">Tidak ada kegiatan terdekat.</p>';
+                return;
+            }
+
+            events.forEach(event => {
+                const card = document.createElement('div');
+                card.className = 'event-card cursor-pointer hover:bg-gray-50';
+                card.innerHTML = `
+                    <div class="flex">
+                        <div class="text-center w-1/4 pr-3 border-r border-gray-200">
+                            <div class="font-bold text-lg">${event.dateText.split(' ')[0]}</div>
+                            <div class="text-xs text-gray-500">${event.dateText.split(' ')[1]}</div>
+                        </div>
+                        <div class="w-3/4 pl-3">
+                            <p class="font-semibold text-sm text-gray-800 mb-0">${event.title}</p>
+                            <p class="text-xs text-gray-600 mb-0"><i class="far fa-clock mr-1"></i> ${event.timeText}</p>
+                        </div>
+                    </div>
+                `;
+                // Menambahkan handler klik untuk melihat detail di kalender atau modal
+                card.addEventListener('click', () => {
+                    // Logika untuk menampilkan detail event yang diklik
+                    alert(`Detail Event: ${event.title}. Tanggal: ${event.dateText}`);
+                });
+                listContainer.appendChild(card);
+            });
+        }
+        
+        function initializeFullCalendar() {
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
-                // Konfigurasi dasar
                 initialView: 'dayGridMonth',
-                locale: 'id', // Atur bahasa ke Indonesia
+                locale: 'id',
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,listWeek' // Pilihan tampilan
+                    right: 'dayGridMonth,timeGridWeek,listWeek'
                 },
-                // Aktifkan interaksi
+                events: EVENT_DATA_SIMULASI, // Menggunakan data simulasi
                 editable: true,
                 selectable: true,
                 
-                // Contoh Data Event (Harus diganti dengan data dari API Anda)
-                events: [
-                    {
-                        title: 'Rapat Divisi Baru',
-                        start: '2025-12-17T14:00:00',
-                        end: '2025-12-17T16:00:00',
-                        color: '#01A29D' // Warna teal
-                    },
-                    {
-                        title: 'Deadline Pendaftaran Panitia EEA',
-                        start: '2025-12-10',
-                        display: 'background',
-                        color: '#FF853D' // Warna orange
-                    }
-                ],
-                
-                // Handler saat event diklik (untuk fitur Edit/Lihat Detail)
                 eventClick: function(info) {
                     alert('Event: ' + info.event.title + '\nAnda bisa membuka modal edit di sini.');
-                    // Di sini Anda bisa memicu modal Bootstrap untuk mengedit event.
                 },
                 
-                // Handler saat tanggal dipilih (untuk fitur Tambah Event)
                 select: function(info) {
-                    var title = prompt('Masukkan Judul Event Baru:');
-                    if (title) {
-                        calendar.addEvent({
-                            title: title,
-                            start: info.startStr,
-                            end: info.endStr,
-                            allDay: info.allDay,
-                            color: '#60A5FA' // Warna biru default
-                        });
-                        alert("Event berhasil ditambahkan ke kalender.");
+                    var isConfirmed = confirm('Buat Event Baru pada tanggal ' + info.startStr + '?');
+                    if (isConfirmed) {
+                       window.location.href = `buat_event.html?start=${info.startStr}`; 
                     }
-                }
+                },
             });
-
             calendar.render();
+            return calendar;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderSidebarEvents(EVENT_DATA_SIMULASI);
+            const calendar = initializeFullCalendar();
             
-            // --- Mengganti Navigasi Kustom dengan Navigasi FullCalendar (Opsional) ---
-            // Karena FullCalendar memiliki navigasi sendiri, tombol kustom di atas (prevCalendar, nextCalendar) 
-            // tidak diperlukan lagi. Kita menggunakan tombol navigasi bawaan FullCalendar di headerToolbar.
+            // Logika Filter Waktu (Dropdown Sidebar)
+            document.getElementById('filter-view-select').addEventListener('change', function() {
+                const value = this.value;
+                if (value === 'week') {
+                    calendar.changeView('timeGridWeek');
+                } else if (value === 'month') {
+                    calendar.changeView('dayGridMonth');
+                }
+                // Anda juga perlu memfilter data EVENT_DATA_SIMULASI untuk sidebar jika diperlukan
+            });
             
+            // Sidebar Toggle
+            window.toggleMobileSidebar = function() {
+                const sidebar = document.getElementById('sidebar-mobile');
+                const overlay = document.getElementById('sidebar-mobile-overlay');
+                
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.classList.toggle('overflow-hidden');
+            };
         });
     </script>
 </body>

@@ -53,6 +53,11 @@
             color: var(--clr-primary-brand);
             font-weight: 600;
         }
+        .absensi-row-hadir { border-left: 4px solid #10B981; }
+        .absensi-row-izin { border-left: 4px solid #F59E0B; }
+        .absensi-row-sakit { border-left: 4px solid #3B82F6; }
+        .absensi-row-alpa { border-left: 4px solid #EF4444; }
+
     </style>
 </head>
 <body class="bg-[var(--clr-base-bg)]">
@@ -64,8 +69,7 @@
                 <span class="text-2xl font-extrabold text-white">SIMORA</span> 
             </div>
             <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
-                <a href="admin_dashboard.html" class="nav-item-custom"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
-                <a href="notifikasi.html" class="nav-item-custom"> <i class="fas fa-bell"></i> Notifikasi </a> 
+                <a href="admin.html" class="nav-item-custom"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
                 <a href="kelola_anggota.html" class="nav-item-custom"> <i class="fas fa-users"></i> Kelola Anggota </a>
                 <a href="kelola_event.html" class="nav-item-custom"> <i class="fas fa-calendar-alt"></i> Kelola Event </a>
                 <a href="kalender_kegiatan.html" class="nav-item-custom"> <i class="fas fa-calendar-check"></i> Kalender Kegiatan </a>
@@ -92,7 +96,7 @@
                     <div class="flex items-center space-x-4">
                         
                         <a href="buat_event.html" class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
-                            <i class="fas fa-plus mr-2"></i> Buat Agenda Baru
+                            <i class="fas fa-plus mr-2"></i> Buat Event Baru
                         </a>
 
                         <a href="notifikasi.html" id="notification-link" class="text-gray-600 hover:text-gray-900 relative p-2">
@@ -178,14 +182,52 @@
 
     </div>
 
+    <div class="modal fade" id="absensiDetailModal" tabindex="-1" aria-labelledby="absensiDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-bold text-xl" id="absensiDetailModalLabel">Absensi Detail Kegiatan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="font-bold text-lg text-gray-800 mb-3" id="absensi-modal-title">Daftar Kehadiran Peserta (Total 0)</h6>
+                    
+                    <div id="absensi-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="buktiModal" tabindex="-1" aria-labelledby="buktiModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-bold text-lg" id="buktiModalLabel">Foto Bukti Keterangan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="bukti-image" src="" alt="Foto Bukti" class="img-fluid rounded shadow" style="max-height: 400px; object-fit: contain;">
+                    <p id="bukti-keterangan" class="mt-3 text-sm text-gray-600">Surat Izin / Surat Dokter terlampir.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div id="sidebar-mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
     <aside id="sidebar-mobile" class="sidebar-custom fixed top-0 left-0 h-full w-64 transform -translate-x-full z-50 lg:hidden transition-transform duration-300 ease-in-out">
         <div class="p-4 flex items-center justify-start h-16">
             <span class="text-2xl font-extrabold text-white">SIMORA</span>
         </div>
         <nav class="flex-1 flex flex-col mt-4 px-2">
-            <a href="admin_dashboard.html" class="nav-item-custom"><i class="fas fa-chart-line"></i> DASHBOARD</a>
-            <a href="notifikasi.html" class="nav-item-custom"><i class="fas fa-bell"></i> Notifikasi</a>
+            <a href="admin.html" class="nav-item-custom"><i class="fas fa-chart-line"></i> DASHBOARD</a>
             <a href="kelola_anggota.html" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
             <a href="kelola_event.html" class="nav-item-custom"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
             <a href="kalender_kegiatan.html" class="nav-item-custom"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
@@ -201,160 +243,255 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        // Logika JavaScript Laporan Kegiatan
+        
+        // --- URL Konfigurasi (Placeholder) ---
+        const LOGIN_PAGE_URL = "http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/auth/login.html"; 
+        
+        // Elemen Halaman
+        const laporanList = document.getElementById('laporan-list');
+        const summaryTotalEvent = document.getElementById('summary-total-event');
+        const summaryHadir = document.getElementById('summary-hadir');
+        const summaryIzinSakit = document.getElementById('summary-izin-sakit');
+        const summaryAlpa = document.getElementById('summary-alpa');
+        const absensiListContainer = document.getElementById('absensi-list-container');
+
+        const logoutButtonDropdown = document.getElementById('btn-logout-dropdown');
+        const logoutButtonMobile = document.getElementById('btn-logout-mobile');
+        const logoutButtonDesktop = document.getElementById('btn-logout-desktop');
+        
+        // Cek halaman
+        const IS_REPORT_PAGE = !!laporanList;
+
+        // --- DATA DUMMY: LAPORAN KEGIATAN ---
+        const reportData = [
+            { 
+                id: 1,
+                date: "10 Des 2025", 
+                title: "Rapat Koordinasi Akhir Tahun", 
+                total_members: 40,
+                hadir: 35, izin: 3, sakit: 1, alpa: 1,
+                bahasan: "Finalisasi anggaran 2026, Penunjukan PJ Event Besar.",
+                absensi: [
+                    { name: "Budi Santoso", status: "HADIR", time: "09:00 WIB", bukti: null },
+                    { name: "Siti Aisyah", status: "IZIN", time: "-", bukti: { photo: "path/to/surat_izin_siti.jpg", note: "Ada Ujian Susulan" } },
+                    { name: "Michael Chen", status: "ALPA", time: "-", bukti: null },
+                    { name: "Fahmi Rasyid", status: "SAKIT", time: "-", bukti: { photo: "path/to/surat_dokter_fahmi.jpg", note: "Surat Dokter terlampir" } },
+                    { name: "Ahmad Yani", status: "HADIR", time: "09:05 WIB", bukti: null },
+                    // ... 35 anggota lainnya
+                ]
+            },
+            { 
+                id: 2,
+                date: "03 Des 2025", 
+                title: "Pelatihan Dasar Kepemimpinan", 
+                total_members: 120,
+                hadir: 108, izin: 5, sakit: 3, alpa: 4,
+                bahasan: "Workshop kepemimpinan, Pembagian mentor kelompok.",
+                absensi: [] // Placeholder
+            },
+            { 
+                id: 3,
+                date: "01 Des 2025", 
+                title: "Rapat Pleno Awal Tahun", 
+                total_members: 38,
+                hadir: 30, izin: 5, sakit: 2, alpa: 1,
+                bahasan: "Pembahasan RKP Divisi, Jadwal Launching Program Besar.",
+                absensi: [] // Placeholder
+            },
+        ];
+        // ---------------------------------------------
+
+        // --- HELPER UNTUK MODAL ABSENSI ---
+        function getStatusClass(status) {
+            switch (status) {
+                case 'HADIR': return 'absensi-row-hadir';
+                case 'IZIN': return 'absensi-row-izin';
+                case 'SAKIT': return 'absensi-row-sakit';
+                case 'ALPA': return 'absensi-row-alpa';
+                default: return '';
+            }
+        }
+
+        function getStatusIcon(status) {
+            switch (status) {
+                case 'HADIR': return 'fas fa-check-circle';
+                case 'IZIN': return 'fas fa-file-alt';
+                case 'SAKIT': return 'fas fa-notes-medical';
+                case 'ALPA': return 'fas fa-times-circle';
+                default: return 'fas fa-question-circle';
+            }
+        }
+        // ------------------------------------
+
+
+        // --- LOGIKA UTAMA LAPORAN KEGIATAN ---
+        
+        function updateSummary(data) {
+            if (!summaryTotalEvent) return;
+
+            let totalHadir = 0, totalIzin = 0, totalSakit = 0, totalAlpa = 0;
             
-            // --- URL Konfigurasi (Placeholder) ---
-            const ACTIVITY_REPORT_API_URL = "/path/to/your/api/auth.php?action=activity_report"; 
-            const LOGIN_PAGE_URL = "http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/auth/login.html"; 
-            const LOGOUT_API_URL = "/path/to/your/api/auth.php?action=logout";
-
-            // Elemen Halaman
-            const laporanList = document.getElementById('laporan-list');
-            const summaryTotalEvent = document.getElementById('summary-total-event');
-            const summaryHadir = document.getElementById('summary-hadir');
-            const summaryIzinSakit = document.getElementById('summary-izin-sakit');
-            const summaryAlpa = document.getElementById('summary-alpa');
-            const logoutButtonDropdown = document.getElementById('btn-logout-dropdown');
-            const logoutButtonMobile = document.getElementById('btn-logout-mobile');
-            const logoutButtonDesktop = document.getElementById('btn-logout-desktop');
+            data.forEach(item => {
+                totalHadir += item.hadir;
+                totalIzin += item.izin;
+                totalSakit += item.sakit;
+                totalAlpa += item.alpa;
+            });
             
-            // Cek halaman
-            const IS_REPORT_PAGE = !!laporanList;
-
-            // --- DATA SIMULASI: LAPORAN KEGIATAN ---
-            const reportData = [
-                { 
-                    date: "10 Des 2025", 
-                    title: "Rapat Koordinasi Akhir Tahun", 
-                    total_members: 40,
-                    hadir: 35, izin: 3, sakit: 1, alpa: 1,
-                    bahasan: "Finalisasi anggaran 2026, Penunjukan PJ Event Besar."
-                },
-                { 
-                    date: "03 Des 2025", 
-                    title: "Pelatihan Dasar Kepemimpinan", 
-                    total_members: 120,
-                    hadir: 108, izin: 5, sakit: 3, alpa: 4,
-                    bahasan: "Workshop kepemimpinan, Pembagian mentor kelompok."
-                },
-                { 
-                    date: "01 Des 2025", 
-                    title: "Rapat Pleno Awal Tahun", 
-                    total_members: 38,
-                    hadir: 30, izin: 5, sakit: 2, alpa: 1,
-                    bahasan: "Pembahasan RKP Divisi, Jadwal Launching Program Besar."
-                },
-            ];
-            // ---------------------------------------------
-
-            // --- Helper Functions (Sederhana) ---
-            const safeJson = async (res) => { 
-                try { return await res.json(); } catch (e) { console.error('JSON Parse Error:', e); return null; } 
-            };
-            const updateNotificationBadge = (count) => { 
-                const badge = document.getElementById('notification-badge');
-                if (badge) {
-                    badge.textContent = count > 99 ? '99+' : count;
-                    if (count > 0) { badge.classList.remove('d-none'); } else { badge.classList.add('d-none'); }
-                }
-            };
-
-            // --- LOGIKA UTAMA LAPORAN KEGIATAN ---
+            const grandTotalAbsensi = totalHadir + totalIzin + totalSakit + totalAlpa;
             
-            function updateSummary(data) {
-                if (!summaryTotalEvent) return;
+            const avgHadir = grandTotalAbsensi > 0 ? ((totalHadir / grandTotalAbsensi) * 100).toFixed(1) : 0;
+            const avgIzinSakit = grandTotalAbsensi > 0 ? (((totalIzin + totalSakit) / grandTotalAbsensi) * 100).toFixed(1) : 0;
+            const avgAlpa = grandTotalAbsensi > 0 ? ((totalAlpa / grandTotalAbsensi) * 100).toFixed(1) : 0;
 
-                let totalHadir = 0, totalIzin = 0, totalSakit = 0, totalAlpa = 0;
+            summaryTotalEvent.textContent = data.length;
+            summaryHadir.textContent = `${avgHadir}%`;
+            summaryIzinSakit.textContent = `${avgIzinSakit}%`;
+            summaryAlpa.textContent = `${avgAlpa}%`;
+        }
+
+        async function fetchAndRenderActivityReport() {
+            if (!IS_REPORT_PAGE || !laporanList) return;
+
+            laporanList.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Memuat data laporan...</td></tr>';
+            
+            try {
+                const reports = reportData;
                 
-                data.forEach(item => {
-                    totalHadir += item.hadir;
-                    totalIzin += item.izin;
-                    totalSakit += item.sakit;
-                    totalAlpa += item.alpa;
+                if (reports.length === 0) {
+                    laporanList.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Tidak ada laporan kegiatan untuk periode ini.</td></tr>';
+                    updateSummary([]);
+                    return;
+                }
+
+                laporanList.innerHTML = '';
+                reports.forEach(report => {
+                    const absensiDetail = `<span class="status-hadir">${report.hadir} Hadir</span> / ${report.izin} Izin / ${report.sakit} Sakit / <span class="status-alpa">${report.alpa} TK</span>`;
+                    
+                    const row = `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 text-sm text-gray-700">${report.date}</td>
+                            <td class="px-4 py-3"><a href="#" class="event-title-link">${report.title}</a></td>
+                            <td class="px-4 py-3 text-sm">${absensiDetail}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">${report.bahasan}</td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm" data-bs-toggle="modal" data-bs-target="#absensiDetailModal" data-event-id="${report.id}">Lihat Absensi</button>
+                            </td>
+                        </tr>
+                    `;
+                    laporanList.innerHTML += row;
                 });
                 
-                const grandTotalAbsensi = totalHadir + totalIzin + totalSakit + totalAlpa;
-                
-                const avgHadir = grandTotalAbsensi > 0 ? ((totalHadir / grandTotalAbsensi) * 100).toFixed(1) : 0;
-                const avgIzinSakit = grandTotalAbsensi > 0 ? (((totalIzin + totalSakit) / grandTotalAbsensi) * 100).toFixed(1) : 0;
-                const avgAlpa = grandTotalAbsensi > 0 ? ((totalAlpa / grandTotalAbsensi) * 100).toFixed(1) : 0;
+                updateSummary(reports); 
 
-                summaryTotalEvent.textContent = data.length;
-                summaryHadir.textContent = `${avgHadir}%`;
-                summaryIzinSakit.textContent = `${avgIzinSakit}%`;
-                summaryAlpa.textContent = `${avgAlpa}%`;
+            } catch (error) {
+                console.error('Network Error:', error);
+                laporanList.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Kesalahan jaringan atau server.</td></tr>';
+                updateSummary([]);
             }
+        }
+        
+        // --- Logika Logout (Sederhana) ---
+        async function handleLogout(e) {
+            e.preventDefault();
+            setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 500);
+        }
+        
+        // --- Modal Absensi Detail Logic ---
+        
+        document.getElementById('absensiDetailModal').addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const eventId = button.getAttribute('data-event-id');
+            const eventData = reportData.find(e => e.id == eventId);
+            const absensiContainer = document.getElementById('absensi-list-container');
+            const totalCount = eventData ? (eventData.hadir + eventData.izin + eventData.sakit + eventData.alpa) : 0;
+            
+            document.getElementById('absensiDetailModalLabel').textContent = `Absensi Detail: ${eventData ? eventData.title : 'Kegiatan Tidak Ditemukan'}`;
+            document.getElementById('absensi-modal-title').textContent = `Daftar Kehadiran Peserta (Total ${totalCount})`;
+            
+            absensiContainer.innerHTML = '';
 
-            async function fetchAndRenderActivityReport() {
-                if (!IS_REPORT_PAGE || !laporanList) return;
+            if (eventData && eventData.absensi && eventData.absensi.length > 0) {
+                eventData.absensi.forEach(member => {
+                    const statusClass = getStatusClass(member.status);
+                    const statusIcon = getStatusIcon(member.status);
+                    const hasBukti = member.bukti && member.bukti.photo;
 
-                laporanList.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Memuat data laporan...</td></tr>';
-                
-                try {
-                    // --- Menggunakan Data Simulasi ---
-                    const reports = reportData;
+                    const buktiButton = hasBukti ? 
+                        `<button class="text-blue-600 hover:text-blue-800 text-sm" data-bs-toggle="modal" data-bs-target="#buktiModal" data-bukti-photo="${member.bukti.photo}" data-bukti-note="${member.bukti.note}">Lihat Bukti</button>` : 
+                        '';
                     
-                    if (reports.length === 0) {
-                        laporanList.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Tidak ada laporan kegiatan untuk periode ini.</td></tr>';
-                        updateSummary([]);
-                        return;
-                    }
+                    const item = `
+                        <div class="bg-white p-3 rounded-lg shadow-md flex space-x-3 ${statusClass}">
+                            <div class="flex-shrink-0">
+                                <i class="${statusIcon} text-lg ${statusClass.replace('absensi-row-', 'status-')} mt-1"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-sm mb-0">${member.name}</p>
+                                <p class="text-xs text-gray-500 mb-0">Status: <span class="${statusClass.replace('absensi-row-', 'status-')} font-semibold">${member.status}</span></p>
+                                <p class="text-xs text-gray-500 mb-0">Waktu: ${member.time}</p>
+                            </div>
+                            <div class="flex-shrink-0 text-right">
+                                ${buktiButton}
+                            </div>
+                        </div>
+                    `;
+                    absensiContainer.innerHTML += item;
+                });
+            } else {
+                 absensiContainer.innerHTML = '<p class="text-center col-span-full py-4 text-gray-500">Data absensi tidak tersedia atau kosong.</p>';
+            }
+        });
+        
+        // Modal Foto Bukti Logic
+        document.getElementById('buktiModal').addEventListener('show.bs.modal', function (event) {
+             const button = event.relatedTarget;
+             const photoUrl = button.getAttribute('data-bukti-photo');
+             const note = button.getAttribute('data-bukti-note');
 
-                    laporanList.innerHTML = '';
-                    reports.forEach(report => {
-                        // Memastikan tampilan absensi sesuai dengan format
-                        const absensiDetail = `<span class="status-hadir">${report.hadir} Hadir</span> / ${report.izin} Izin / ${report.sakit} Sakit / <span class="status-alpa">${report.alpa} TK</span>`;
-                        
-                        const row = `
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3 text-sm text-gray-700">${report.date}</td>
-                                <td class="px-4 py-3"><a href="#" class="event-title-link">${report.title}</a></td>
-                                <td class="px-4 py-3 text-sm">${absensiDetail}</td>
-                                <td class="px-4 py-3 text-sm text-gray-700">${report.bahasan}</td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <button class="text-blue-600 hover:text-blue-800 text-sm">Lihat Absensi</button>
-                                </td>
-                            </tr>
-                        `;
-                        laporanList.innerHTML += row;
+             document.getElementById('bukti-image').src = photoUrl || 'path/to/default_no_image.png';
+             document.getElementById('bukti-keterangan').textContent = note || 'Tidak ada keterangan tambahan.';
+             
+             // Sembunyikan modal pertama
+             var absensiModal = bootstrap.Modal.getInstance(document.getElementById('absensiDetailModal'));
+             if (absensiModal) {
+                 absensiModal.hide();
+             }
+        });
+
+        document.getElementById('buktiModal').addEventListener('hide.bs.modal', function () {
+             // Tampilkan kembali modal pertama saat modal kedua ditutup
+             var absensiModal = bootstrap.Modal.getInstance(document.getElementById('absensiDetailModal'));
+             if (absensiModal) {
+                 absensiModal.show();
+             }
+        });
+
+
+        // --- Initialization ---
+        function initialize() {
+            if (IS_REPORT_PAGE) {
+                // Tambahkan lebih banyak data dummy agar modal tidak kosong
+                for(let i=0; i<35; i++) {
+                    reportData[0].absensi.push({
+                        name: `Anggota ${i + 5}`, // Nama Anggota 5 sampai 40
+                        status: i % 4 === 0 ? "HADIR" : (i % 4 === 1 ? "ALPA" : (i % 4 === 2 ? "SAKIT" : "IZIN")),
+                        time: i % 4 === 0 ? "09:02 WIB" : "-",
+                        bukti: (i % 4 === 2 || i % 4 === 3) ? { photo: "path/to/bukti_placeholder.jpg", note: `Keterangan anggota ${i+5}` } : null
                     });
-                    
-                    updateSummary(reports); // Memperbarui ringkasan
-
-                } catch (error) {
-                    console.error('Network Error:', error);
-                    laporanList.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Kesalahan jaringan atau server.</td></tr>';
-                    updateSummary([]);
                 }
-            }
-            
-            // --- Logika Logout (Sederhana) ---
-            async function handleLogout(e) {
-                e.preventDefault();
-                console.log('Logging out...');
 
-                // Anda dapat menambahkan fetch(LOGOUT_API_URL, ...) di sini
-                
-                setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 500);
-            }
-            
-            // --- Initialization ---
-            function initialize() {
-                if (IS_REPORT_PAGE) {
-                    fetchAndRenderActivityReport();
-                }
-                
-                // Setup Logout Listeners
-                if (logoutButtonDesktop) { logoutButtonDesktop.addEventListener('click', handleLogout); }
-                if (logoutButtonMobile) { logoutButtonMobile.addEventListener('click', handleLogout); }
-                if (logoutButtonDropdown) { logoutButtonDropdown.addEventListener('click', handleLogout); }
-                
-                // Di sini Anda juga dapat memanggil fetchPendingMembers() jika Anda ingin badge notifikasi terisi di halaman ini.
-            }
-            
-            initialize();
 
-            // Sidebar Toggle
+                fetchAndRenderActivityReport();
+            }
+            
+            // Setup Logout Listeners
+            if (logoutButtonDesktop) { logoutButtonDesktop.addEventListener('click', handleLogout); }
+            if (logoutButtonMobile) { logoutButtonMobile.addEventListener('click', handleLogout); }
+            if (logoutButtonDropdown) { logoutButtonDropdown.addEventListener('click', handleLogout); }
+            
+             // Sidebar Toggle
             window.toggleMobileSidebar = function() { 
                 const sidebar = document.getElementById('sidebar-mobile');
                 const overlay = document.getElementById('sidebar-mobile-overlay');
@@ -363,8 +500,10 @@
                 overlay.classList.toggle('active');
                 document.body.classList.toggle('overflow-hidden');
             }
+        }
+        
+        initialize();
 
-        });
     </script>
 </body>
 </html>
