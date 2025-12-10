@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SIMORA | Pendaftaran Kegiatan</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Global CSS (pastikan path relatif benar) -->
+  <link rel="stylesheet" href="css/anggota_app.css">
+
+  <style>
+    /* Page specific small overrides */
+    .event-card { transition: transform .28s ease, box-shadow .28s ease; }
+    .event-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.25); }
+    .event-meta { color:var(--text-secondary); font-size:0.9rem; }
+    .status-joined { background: linear-gradient(90deg, rgba(16,185,129,0.12), rgba(59,130,246,0.04)); color:var(--accent-green); font-weight:800; padding:6px 10px; border-radius:10px; }
+    .status-closed { color:var(--text-secondary); font-weight:700; padding:6px 10px; border-radius:10px; background: rgba(255,255,255,0.02); }
+    .filter-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .skeleton-card { height:120px; border-radius:12px; margin-bottom:12px; }
+    .modal-large { max-width:840px; }
+    .form-note { font-size:0.9rem; color:var(--text-secondary); margin-top:6px; }
+  </style>
+</head>
+<body>
+
+  <main class="container mt-24">
+    <section class="section-header">
+      <div>
+        <h2 class="section-title">Pendaftaran Kegiatan</h2>
+        <div class="section-sub">Pilih kegiatan yang ingin Anda ikuti. Klik "Daftar" untuk mengajukan kehadiran.</div>
+      </div>
+      <div class="simple-nav">
+        <a href="dashboard.html" class="nav-link">Kembali ke Dashboard</a>
+      </div>
+    </section>
+
+    <section class="card mt-12">
+      <!-- Filters / search -->
+      <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+          <div class="search-box" style="min-width:320px; max-width:480px;">
+            <input id="searchEventsInput" class="search-input" type="search" placeholder="Cari kegiatan: nama, lokasi, kata kunci..." aria-label="Cari kegiatan" />
+            <button id="searchEventsBtn" class="search-btn">Cari</button>
+          </div>
+
+          <select id="categorySelect" class="input">
+            <option value="">Semua Kategori</option>
+            <option value="workshop">Workshop</option>
+            <option value="seminar">Seminar</option>
+            <option value="gathering">Gathering</option>
+            <option value="competition">Kompetisi</option>
+          </select>
+
+          <select id="dateFilter" class="input">
+            <option value="upcoming">Mendatang</option>
+            <option value="this_month">Bulan ini</option>
+            <option value="past">Selesai</option>
+          </select>
+
+          <button id="clearFilters" class="btn btn-ghost btn-sm">Reset</button>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="text-muted caption">Urutkan:</div>
+          <select id="sortEvents" class="input">
+            <option value="recommended">Direkomendasikan</option>
+            <option value="date_asc">Tanggal Terdekat</option>
+            <option value="date_desc">Tanggal Terjauh</option>
+            <option value="name_asc">Nama A–Z</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Results area -->
+      <div id="eventsArea" class="mt-16">
+        <!-- skeleton loader -->
+        <div id="eventsSkeleton" class="mb-12"></div>
+
+        <!-- grid of event cards -->
+        <div id="eventsGrid" class="events-grid"></div>
+
+        <!-- table fallback -->
+        <div id="eventsTableWrapper" class="table-wrapper hidden mt-12">
+          <table class="table" id="eventsTable">
+            <thead>
+              <tr>
+                <th>Nama Kegiatan</th>
+                <th>Tanggal</th>
+                <th>Lokasi</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="eventsTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- empty state -->
+        <div id="eventsEmpty" class="empty mt-12 hidden">
+          <h4>Tidak ada kegiatan</h4>
+          <p>Coba ubah kata kunci atau filter. Atau cek kembali nanti.</p>
+        </div>
+
+        <!-- pagination -->
+        <div class="mt-12" style="display:flex;gap:8px;align-items:center;justify-content:center;">
+          <button id="prevEventsPage" class="btn btn-ghost btn-sm">Prev</button>
+          <div id="eventsPagination" class="pagination"></div>
+          <button id="nextEventsPage" class="btn btn-ghost btn-sm">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- small helper -->
+    <section class="mt-16">
+      <div class="card-sm helper">
+        <strong>Catatan:</strong> Jika pendaftaran membutuhkan konfirmasi atau biaya, status akan berubah setelah admin memverifikasi.
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal: Detail event & register form -->
+  <div id="registerModalBackdrop" class="modal-backdrop"></div>
+  <div id="registerModal" class="modal modal-large" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-header">
+      <h3 id="registerModalTitle">Daftar Kegiatan</h3>
+      <button id="closeRegisterModal" class="btn btn-ghost">Tutup</button>
+    </div>
+
+    <div class="modal-body" id="registerModalBody">
+      <!-- content injected by JS -->
+      <div id="modalContentSkeleton"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button id="registerCancelBtn" class="btn btn-ghost">Batal</button>
+      <button id="registerConfirmBtn" class="btn btn-primary">Konfirmasi Daftar</button>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Core JS: pendaftaran logic -->
+  <script src="js/pendaftaran.js"></script>
+</body>
+</html>

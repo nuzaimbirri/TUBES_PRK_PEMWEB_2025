@@ -1,33 +1,48 @@
 /* ========================================
    SIMORA Dashboard - CSS Variables
+   Fresh Mint Theme (Light Mode)
    ======================================== */
 :root {
-    /* Colors - Dark Theme */
-    --bg-primary: #0a0e1a;
-    --bg-secondary: #0f172a;
-    --bg-card: #1a2234;
-    --bg-card-hover: #232d42;
+    /* Fresh Mint Color Palette */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F0FDFA;
+    --bg-card: #FFFFFF;
+    --bg-card-hover: #F0FDFA;
+    --bg-mint-light: #CCFBF1;
+    
+    /* Primary Colors - Teal/Emerald */
+    --teal-600: #0D9488;
+    --teal-700: #0F766E;
+    --teal-100: #CCFBF1;
+    --teal-50: #F0FDFA;
     
     /* Accent Colors */
-    --accent-blue: #3b82f6;
+    --accent-blue: #0EA5E9;
     --accent-green: #10b981;
     --accent-purple: #8b5cf6;
     --accent-red: #ef4444;
     --accent-orange: #f97316;
+    --emerald-600: #059669;
+    --emerald-700: #047857;
     
     /* Soft Backgrounds for Icons */
-    --blue-soft: rgba(59, 130, 246, 0.15);
-    --green-soft: rgba(16, 185, 129, 0.15);
-    --purple-soft: rgba(139, 92, 246, 0.15);
-    --red-soft: rgba(239, 68, 68, 0.15);
+    --blue-soft: rgba(14, 165, 233, 0.1);
+    --green-soft: rgba(16, 185, 129, 0.1);
+    --purple-soft: rgba(139, 92, 246, 0.1);
+    --red-soft: rgba(239, 68, 68, 0.1);
+    --teal-soft: rgba(13, 148, 136, 0.1);
+    --emerald-soft: rgba(5, 150, 105, 0.1);
     
     /* Text Colors */
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
     
-    /* Borders */
-    --border-color: rgba(255, 255, 255, 0.06);
+    /* Borders & Shadows */
+    --border-color: #E2E8F0;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     
     /* Spacing */
     --navbar-height: 70px;
@@ -56,8 +71,7 @@ html {
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-    background-attachment: fixed;
+    background: var(--bg-secondary);
     color: var(--text-primary);
     min-height: 100vh;
     line-height: 1.6;
@@ -78,9 +92,11 @@ body {
     left: 0;
     right: 0;
     height: var(--navbar-height);
-    background: var(--bg-card);
+    background: var(--bg-primary);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
     z-index: 1000;
     display: flex;
     align-items: center;
@@ -100,7 +116,7 @@ body {
 .nav-logo {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--accent-blue);
+    color: var(--teal-600);
     text-decoration: none;
     letter-spacing: -0.5px;
 }
@@ -126,12 +142,12 @@ body {
 
 .nav-link:hover {
     color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-mint-light);
 }
 
 .nav-link.active {
-    color: var(--text-primary);
-    background: rgba(59, 130, 246, 0.15);
+    color: var(--teal-700);
+    background: var(--teal-100);
 }
 
 .nav-user {
@@ -144,13 +160,13 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    background: var(--teal-100);
+    color: var(--teal-700);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
     font-size: 0.875rem;
-    color: white;
 }
 
 .user-name {
@@ -160,7 +176,7 @@ body {
 }
 
 .btn-logout {
-    background: var(--accent-red);
+    background: var(--teal-600);
     color: white;
     border: none;
     padding: 10px 20px;
@@ -172,8 +188,9 @@ body {
 }
 
 .btn-logout:hover {
-    background: #dc2626;
+    background: var(--teal-700);
     transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
 }
 
 /* Mobile Toggle */
@@ -232,7 +249,8 @@ body {
     border-radius: var(--border-radius-lg);
     overflow: hidden;
     background: var(--bg-card);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
 }
 
 .slider-wrapper {
@@ -251,7 +269,7 @@ body {
     visibility: hidden;
     transform: translateX(30px);
     transition: all var(--transition-slow);
-    background: linear-gradient(135deg, var(--bg-card) 0%, #1e293b 100%);
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--teal-50) 100%);
 }
 
 .slide.active {
@@ -267,8 +285,8 @@ body {
 
 .slide-badge {
     display: inline-block;
-    background: var(--blue-soft);
-    color: var(--accent-blue);
+    background: var(--teal-soft);
+    color: var(--teal-700);
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -282,8 +300,8 @@ body {
 }
 
 .slide-badge.green {
-    background: var(--green-soft);
-    color: var(--accent-green);
+    background: var(--emerald-soft);
+    color: var(--emerald-700);
 }
 
 .slide-title {
@@ -332,20 +350,22 @@ body {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
     color: var(--text-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all var(--transition-fast);
+    box-shadow: var(--shadow-md);
     z-index: 10;
 }
 
 .slider-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: var(--teal-600);
+    border-color: var(--teal-600);
+    color: white;
 }
 
 .slider-prev {
@@ -371,18 +391,18 @@ body {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--border-color);
     border: none;
     cursor: pointer;
     transition: all var(--transition-fast);
 }
 
 .dot:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--text-muted);
 }
 
 .dot.active {
-    background: var(--accent-blue);
+    background: var(--teal-600);
     width: 28px;
     border-radius: 5px;
 }
@@ -408,13 +428,14 @@ body {
     justify-content: space-between;
     align-items: center;
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
     transition: all var(--transition-normal);
 }
 
 .stat-card:hover {
     background: var(--bg-card-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
 }
 
 .stat-label {
@@ -441,13 +462,13 @@ body {
 }
 
 .stat-icon.blue {
-    background: var(--blue-soft);
-    color: var(--accent-blue);
+    background: var(--teal-soft);
+    color: var(--teal-600);
 }
 
 .stat-icon.green {
-    background: var(--green-soft);
-    color: var(--accent-green);
+    background: var(--emerald-soft);
+    color: var(--emerald-600);
 }
 
 .stat-icon.purple {
@@ -480,6 +501,7 @@ body {
     border-radius: var(--border-radius);
     padding: 24px;
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
     display: flex;
     gap: 20px;
     align-items: flex-start;
@@ -488,8 +510,9 @@ body {
 
 .event-card:hover {
     background: var(--bg-card-hover);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--teal-600);
 }
 
 .event-date-badge {
@@ -505,15 +528,18 @@ body {
 }
 
 .event-date-badge.blue {
-    background: var(--blue-soft);
+    background: var(--teal-soft);
+    color: var(--teal-700);
 }
 
 .event-date-badge.purple {
     background: var(--purple-soft);
+    color: var(--accent-purple);
 }
 
 .event-date-badge.green {
-    background: var(--green-soft);
+    background: var(--emerald-soft);
+    color: var(--emerald-700);
 }
 
 .date-number {
@@ -594,11 +620,12 @@ body {
         top: var(--navbar-height);
         left: 0;
         right: 0;
-        background: var(--bg-card);
+        background: var(--bg-primary);
         flex-direction: column;
         padding: 20px;
         gap: 8px;
         border-bottom: 1px solid var(--border-color);
+        box-shadow: var(--shadow-md);
         transform: translateY(-100%);
         opacity: 0;
         visibility: hidden;
