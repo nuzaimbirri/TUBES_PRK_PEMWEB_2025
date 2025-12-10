@@ -55,7 +55,8 @@
     background-color: var(--clr-menu-active-bg-dark); /* HIJAU GELAP SOLID */
     color: white; 
     font-weight: 700;
-    border-left: 4px solid white; /* Aksen putih di kiri */
+    /* Meniru tampilan di gambar */
+    border-left: 4px solid #F3F4F6; /* Aksen abu-abu muda di kiri (lebih cocok dengan gambar) */
     padding-left: calc(1rem - 4px); /* Kompensasi padding untuk border */
 }
 .nav-item-custom.active-dark-bg i {
@@ -113,8 +114,11 @@ header {
 
 /* TOMBOL BUAT KEGIATAN (Warna Orange) */
 .btn-action-orange {
-    background-color: var(--clr-btn-orange); 
-    color: white;
+    /* KUNCI: Memastikan latar belakang oranye */
+    background-color: var(--clr-btn-orange) !important; 
+    /* KUNCI: Memastikan teks berwarna putih */
+    color: white !important;
+    
     font-weight: 600;
     border: none;
     border-radius: 0.5rem; 
@@ -143,13 +147,14 @@ header {
 /* --- CARD & WIDGET STYLES --- */
 
 .card-ringkasan-base, .agenda-card-animated, .activity-card-animated {
-    /* Aksen border initial primary brand */
-    border: 1px solid var(--clr-primary-brand); 
+    /* Mengubah menjadi border abu-abu lembut agar lebih mirip gambar */
+    border: 1px solid #F3F4F6; 
     background-color: white; 
-    border-radius: 1rem; 
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); 
+    border-radius: 0.75rem; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); 
     transition: all 0.4s cubic-bezier(0.2, 0.7, 0.4, 1.2); 
     position: relative;
+    padding: 1.5rem; 
 }
 
 /* Icon Container */
@@ -163,6 +168,8 @@ header {
     justify-content: center;
     font-size: 1.25rem;
     transition: background 0.3s;
+    /* Mengubah ikon menjadi border-radius penuh, bukan box-shadow tebal */
+    box-shadow: none;
 }
 .card-icon-circle i {
     color: white;
@@ -171,51 +178,53 @@ header {
 /* --- HOVER KHUSUS PADA KARTU (CARD) --- */
 /* Efek angkat (sama untuk semua kartu) */
 .card-ringkasan-base:hover, .agenda-card-animated:hover, .activity-card-animated:hover {
-    transform: translateY(-8px); 
+    transform: translateY(-4px); /* Mengurangi angkat agar lebih halus */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); 
 }
 
 /* 1. TOTAL ANGGOTA (Biru) */
 #stats-card-1 .card-icon-circle {
-    background: var(--clr-total-anggota-bg); 
+    background: #60A5FA; /* Warna biru solid, sesuai dengan gradien yang diberikan */
+    box-shadow: 0 5px 15px rgba(96, 165, 250, 0.4);
 }
 #stats-card-1:hover {
-    /* Box shadow biru tebal saat hover */
-    box-shadow: 0 20px 40px rgba(65, 105, 225, 0.4); 
+    box-shadow: 0 10px 20px rgba(96, 165, 250, 0.4); 
 }
 
 /* 2. AGENDA BULAN INI (Teal/Hijau) */
 #stats-card-2 .card-icon-circle {
-    background: var(--clr-agenda-bg);
+    background: #01A29D; /* Warna Teal Solid */
+    box-shadow: 0 5px 15px rgba(1, 162, 157, 0.4);
 }
 #stats-card-2:hover {
-    /* Box shadow teal/hijau tebal saat hover */
-    box-shadow: 0 20px 40px rgba(1, 162, 157, 0.4); 
+    box-shadow: 0 10px 20px rgba(1, 162, 157, 0.4); 
 }
 
 /* 3. ANGGOTA NON-AKTIF (Orange/Merah) */
 #stats-card-3 .card-icon-circle {
-    background: var(--clr-nonaktif-bg);
+    background: #FF853D; /* Warna Orange Solid */
+    box-shadow: 0 5px 15px rgba(255, 133, 61, 0.4);
 }
 #stats-card-3:hover {
-    /* Box shadow merah/orange tebal saat hover */
-    box-shadow: 0 20px 40px rgba(255, 133, 61, 0.4); 
+    box-shadow: 0 10px 20px rgba(255, 133, 61, 0.4); 
 }
 
-/* 4. RATA-RATA PRESENSI (Ungu) */
+/* Tambahkan styling card 4 agar sesuai dengan gambar */
 #stats-card-4 .card-icon-circle {
-    background: var(--clr-presensi-bg);
+    background: #8B5CF6; /* Ungu Solid */
+    box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
 }
 #stats-card-4:hover {
-    /* Box shadow ungu tebal saat hover */
-    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.4); 
+    box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4);
 }
 /* ------------------------------------------------------------------------ */
 
 
 /* Status Text Coloring */
-.status-text-positive { color: var(--clr-primary-brand); font-weight: 700; }
-.status-text-negative { color: var(--clr-btn-red); font-weight: 700; }
-.status-text-neutral { color: #4b5563; font-weight: 600; }
+/* Menggunakan font-size yang lebih kecil seperti di gambar */
+.status-text-positive { color: #10B981; font-weight: 600; font-size: 0.875rem; }
+.status-text-negative { color: var(--clr-btn-red); font-weight: 600; font-size: 0.875rem; }
+.status-text-neutral { color: #4b5563; font-weight: 500; font-size: 0.875rem; }
 
 /* Agenda/Laporan Buttons */
 .btn-agenda-action, .btn-laporan, .btn-primary {
@@ -230,13 +239,34 @@ header {
     text-decoration: none;
     display: inline-block;
 }
+
+/* Mengubah tombol di daftar agenda agar sesuai dengan gambar (Lihat Detail) */
+.btn-agenda-action {
+    background-color: var(--clr-primary-brand); 
+    color: white;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.875rem;
+    height: fit-content;
+}
+
+.btn-laporan {
+    /* Tombol laporan di kartu Laporan Kegiatan Per Bulan */
+    background-color: #3B82F6; /* Biru muda agar beda dengan teal utama */
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+}
+
 .btn-agenda-action:hover, .btn-laporan:hover, .btn-primary:hover {
     background-color: var(--clr-hover-dark);
     border-color: var(--clr-hover-dark);
     transform: translateY(-1px);
 }
+.btn-laporan:hover {
+     background-color: #2563EB;
+}
 
-/* --- STYLING KHUSUS UNTUK TABEL PERSETUJUAN ANGGOTA --- */
+
+/* --- STYLING KHUSUS UNTUK TABEL PERSETUJUAN ANGGOTA (Dihilangkan di HTML final agar tampilan mirip gambar) --- */
+/* (Biarkan di CSS untuk jaga-jaga) */
 .btn-approve { background-color: #10B981; transition: background-color 0.2s; }
 .btn-approve:hover { background-color: #059669; }
 
@@ -253,6 +283,29 @@ header {
 .alert-success { background-color: #D1FAE5; color: #065F46; border-color: #34D399; }
 .alert-danger { background-color: #FEE2E2; color: #991B1B; border-color: #F87171; }
 .alert-warning { background-color: #FEF3C7; color: #92400E; border-color: #FBBF24; }
+
+/* Kustomisasi Tata Letak Dashboard agar 2 kolom besar di bawah */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+    /* Di Desktop, buat 3 kolom untuk stats di atas, dan layout 2 kolom di bawah */
+    .stats-grid {
+        /* Disesuaikan menjadi 3 kolom di HTML, tapi CSS ini mempertahankan 4 kolom untuk jaga-jaga */
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr)); 
+        gap: 1.5rem;
+    }
+    
+    .dashboard-grid-main {
+        display: grid;
+        grid-template-columns: 2fr 1fr; /* Kolom 2:1 */
+        gap: 1.5rem;
+    }
+}
 
 
 /* --- MOBILE STYLES & OVERLAY --- */

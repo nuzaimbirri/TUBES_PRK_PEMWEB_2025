@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMORA | Kelola Event & Agenda</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/admin.css">
+
+    <style>
+        /* Mendefinisikan Variable Warna Utama */
+        :root {
+            --clr-primary-brand: #01A29D;
+            --clr-hover-dark: #005A54;
+            --clr-sidebar-bg: #01A29D;
+            --clr-sidebar-base-text: #E5E7EB;
+            --clr-sidebar-active-text: #FFFFFF;
+            --clr-menu-active-bg-dark: #00877C;
+            --clr-base-bg: #F4FBF9;
+            --clr-btn-red: #F75B50;
+            --clr-btn-orange: #FF853D;
+        }
+        .d-none { display: none !important; }
+
+        /* Style untuk menjaga item sidebar Kelola Event aktif */
+        .nav-item-data-event.active-dark-bg { 
+            background-color: var(--clr-menu-active-bg-dark); 
+            color: white; 
+            font-weight: 700;
+            border-left: 4px solid #F3F4F6;
+            padding-left: calc(1rem - 4px);
+        }
+        /* Style untuk Nav Tabs */
+        .nav-tabs-custom {
+            border-bottom: 1px solid #E5E7EB;
+            margin-bottom: 1.5rem;
+        }
+        .nav-link-custom {
+            font-weight: 600;
+            color: #6B7280; /* Gray text default */
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s;
+        }
+        .nav-link-custom:hover {
+            color: var(--clr-primary-brand);
+        }
+        .nav-link-custom.active {
+            color: var(--clr-primary-brand);
+            border-bottom: 3px solid var(--clr-primary-brand);
+            background-color: transparent;
+        }
+        /* Style untuk tombol Lihat Laporan di card */
+        .btn-lihat-laporan {
+            background-color: #3B82F6; 
+            color: white;
+            font-weight: 600;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .btn-lihat-laporan:hover {
+            background-color: #2563EB;
+        }
+        /* Style untuk tombol pendaftaran panitia */
+        .btn-manage-pendaftaran {
+             background-color: #fcd34d; /* Kuning */
+             color: #78350f; /* Cokelat gelap */
+             font-weight: 600;
+             padding: 0.4rem 0.8rem;
+             border-radius: 0.5rem;
+             font-size: 0.8rem;
+             transition: background-color 0.2s;
+        }
+        .btn-manage-pendaftaran:hover {
+            background-color: #fbbf24;
+        }
+    </style>
+</head>
+<body class="bg-[var(--clr-base-bg)]">
+
+    <div class="flex h-screen bg-gray-50 overflow-hidden">
+
+        <aside id="sidebar-desktop" class="sidebar-custom hidden lg:flex flex-col flex-shrink-0">
+            <div class="p-4 flex items-center justify-start h-16">
+                <span class="text-2xl font-extrabold text-white">SIMORA</span> 
+            </div>
+            <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
+                <a href="admin_dashboard.html" class="nav-item-custom"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
+                <a href="notifikasi.html" class="nav-item-custom"> <i class="fas fa-bell"></i> Notifikasi </a> 
+                <a href="data_anggota.html" class="nav-item-custom"> <i class="fas fa-users"></i> Kelola Anggota </a>
+                <a href="data_event.html" class="nav-item-custom nav-item-data-event active-dark-bg"> <i class="fas fa-calendar-alt"></i> Kelola Event </a>
+                <a href="#" class="nav-item-custom"> <i class="fas fa-calendar-check"></i> Kalender Kegiatan </a>
+                <a href="#" class="nav-item-custom"> <i class="fas fa-chart-bar"></i> Laporan Kegiatan </a>
+            </nav>
+            <div class="p-4 border-t mt-auto border-gray-700">
+                <a href="#" id="btn-logout-desktop" class="btn-logout-custom w-full">
+                    <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            
+            <header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-30 h-16 border-b border-gray-100">
+                <button id="mobile-menu-button" class="lg:hidden text-gray-600 hover:text-gray-900" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <div class="flex-1 flex items-center justify-between ml-0 lg:ml-4">
+                    
+                    <div class="input-group search-input-group w-96 max-w-full">
+                        <input type="text" class="form-control" placeholder="Cari Anggota/Kegiatan...">
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        
+                        <button class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
+                            <i class="fas fa-plus mr-2"></i> Buat Event Baru
+                        </button>
+
+                        <a href="notifikasi.html" id="notification-link" class="text-gray-600 hover:text-gray-900 relative p-2">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notification-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full d-none">0</span>
+                        </a>
+                        
+                        <div class="profile-indicator flex items-center">
+                            <div class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</div>
+                            <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base">A</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6">
+                
+                <h1 class="text-xl font-semibold text-gray-800 mb-6">Data Event & Agenda</h1>
+                
+                <ul class="nav nav-tabs nav-tabs-custom" id="eventTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link nav-link-custom" id="tab-mendatang" data-bs-toggle="tab" data-bs-target="#content-mendatang" type="button" role="tab" aria-controls="content-mendatang" aria-selected="false">Agenda Akan Datang</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link nav-link-custom active" id="tab-berlalu" data-bs-toggle="tab" data-bs-target="#content-berlalu" type="button" role="tab" aria-controls="content-berlalu" aria-selected="true">Agenda Sudah Berlalu</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a href="buat_event.html" class="nav-link nav-link-custom">Buat Event Baru</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="eventTabContent">
+                    
+                    <div class="tab-pane fade show active" id="content-berlalu" role="tabpanel" aria-labelledby="tab-berlalu">
+                        
+                        <p class="text-gray-600 mb-4">Total 88 Agenda yang Sudah Selesai. Gunakan laporan detail untuk rekapitulasi.</p>
+
+                        <div class="bg-white p-5 rounded-xl shadow-md border border-gray-100">
+                            <div class="flex justify-between items-start">
+                                <div class="w-3/4">
+                                    <h3 class="text-lg font-bold text-gray-900 mb-1">Pembentukan Divisi Baru 2025</h3>
+                                    <p class="text-sm text-gray-600 mb-2">Proses wawancara dan pembentukan struktur divisi baru.</p>
+                                    
+                                    <p class="text-sm text-gray-500 mb-2">
+                                        <i class="fas fa-user-gear mr-1 text-red-500"></i> Pendaftaran Panitia: <span class="text-red-500 font-semibold">Tutup</span>
+                                    </p>
+                                    <p class="text-sm text-gray-500">
+                                        <i class="fas fa-check-circle mr-1 text-green-500"></i> Selesai: 01 Nov 2025
+                                    </p>
+                                </div>
+                                <div class="flex-shrink-0 flex flex-col space-y-2 items-end">
+                                    <button class="btn-lihat-laporan">Lihat Laporan</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="agenda-berlalu-list" class="mt-4 space-y-4">
+                            </div>
+
+                    </div>
+
+                    <div class="tab-pane fade" id="content-mendatang" role="tabpanel" aria-labelledby="tab-mendatang">
+                        <p class="text-gray-600">Daftar agenda yang akan datang atau sedang berlangsung.</p>
+                        
+                        <div class="bg-white p-5 rounded-xl shadow-md border border-gray-100 mt-4">
+                            <div class="flex justify-between items-start">
+                                <div class="w-3/4">
+                                    <h3 class="text-lg font-bold text-gray-900 mb-1">Electrical Engineering in Action (EEA) 2025</h3>
+                                    <p class="text-sm text-gray-600 mb-2">Pembukaan program kerja besar himpunan.</p>
+                                    
+                                    <p class="text-sm text-gray-500 mb-2">
+                                        <i class="fas fa-user-gear mr-1 text-green-500"></i> Pendaftaran Panitia: <span class="text-green-600 font-semibold">Buka s.d. 10/12/2025</span>
+                                    </p>
+                                    <p class="text-sm text-gray-500">
+                                        <i class="fas fa-calendar-day mr-1"></i> Tanggal Acara: 15 Des 2025
+                                    </p>
+                                </div>
+                                <div class="flex-shrink-0 flex flex-col space-y-2 items-end">
+                                    <button class="btn-lihat-laporan text-sm">Lihat Detail</button>
+                                    <button class="btn-manage-pendaftaran">Kelola Pendaftar Panitia</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="agenda-mendatang-list" class="mt-4 space-y-4">
+                            </div>
+                    </div>
+
+                </div>
+                
+            </div>
+        </main>
+
+    </div>
+
+    <div id="sidebar-mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
+    <aside id="sidebar-mobile" class="sidebar-custom fixed top-0 left-0 h-full w-64 transform -translate-x-full z-50 lg:hidden transition-transform duration-300 ease-in-out">
+        <div class="p-4 flex items-center justify-start h-16">
+            <span class="text-2xl font-extrabold text-white">SIMORA</span>
+        </div>
+        <nav class="flex-1 flex flex-col mt-4 px-2">
+            <a href="admin_dashboard.html" class="nav-item-custom"><i class="fas fa-chart-line"></i> DASHBOARD</a>
+            <a href="notifikasi.html" class="nav-item-custom"><i class="fas fa-bell"></i> Notifikasi</a>
+            <a href="data_anggota.html" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
+            <a href="data_event.html" class="nav-item-custom nav-item-data-event active-dark-bg"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
+            <a href="#" class="nav-item-custom"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
+            <a href="#" class="nav-item-custom"><i class="fas fa-chart-bar"></i> Laporan Kegiatan</a>
+        </nav>
+        <div class="p-4 border-t mt-auto border-gray-700">
+            <a href="#" id="btn-logout-mobile" class="btn-logout-custom w-full">
+                <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+            </a>
+        </div>
+    </aside>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/admin.js"></script> 
+</body>
+</html>

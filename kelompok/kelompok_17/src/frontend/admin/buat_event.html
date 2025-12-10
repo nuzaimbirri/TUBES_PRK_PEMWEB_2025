@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMORA | Buat Agenda Baru</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/admin.css">
+
+    <style>
+        /* Mendefinisikan Variable Warna Utama */
+        :root {
+            --clr-primary-brand: #01A29D;
+            --clr-hover-dark: #005A54;
+            --clr-sidebar-bg: #01A29D;
+            --clr-sidebar-base-text: #E5E7EB;
+            --clr-menu-active-bg-dark: #00877C;
+            --clr-base-bg: #F4FBF9;
+            --clr-btn-orange: #FF853D;
+        }
+        /* Style untuk menjaga item sidebar Kelola Event aktif */
+        .nav-item-data-event.active-dark-bg { 
+            background-color: var(--clr-menu-active-bg-dark); 
+            color: white; 
+            font-weight: 700;
+            border-left: 4px solid #F3F4F6;
+            padding-left: calc(1rem - 4px);
+        }
+        .btn-action-primary {
+            background-color: var(--clr-primary-brand);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .btn-action-primary:hover {
+            background-color: var(--clr-hover-dark);
+        }
+        .form-check-input:checked {
+            background-color: var(--clr-primary-brand);
+            border-color: var(--clr-primary-brand);
+        }
+    </style>
+</head>
+<body class="bg-[var(--clr-base-bg)]">
+
+    <div class="flex h-screen bg-gray-50 overflow-hidden">
+
+        <aside id="sidebar-desktop" class="sidebar-custom hidden lg:flex flex-col flex-shrink-0">
+            <div class="p-4 flex items-center justify-start h-16">
+                <span class="text-2xl font-extrabold text-white">SIMORA</span> 
+            </div>
+            <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
+                <a href="admin_dashboard.html" class="nav-item-custom"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
+                <a href="notifikasi.html" class="nav-item-custom"> <i class="fas fa-bell"></i> Notifikasi </a> 
+                <a href="kelola_anggota.html" class="nav-item-custom"> <i class="fas fa-users"></i> Kelola Anggota </a>
+                <a href="kelola_event.html" class="nav-item-custom nav-item-data-event active-dark-bg"> <i class="fas fa-calendar-alt"></i> Kelola Event </a>
+                <a href="kalender_kegiatan.html" class="nav-item-custom"> <i class="fas fa-calendar-check"></i> Kalender Kegiatan </a>
+                <a href="laporan_kegiatan.html" class="nav-item-custom"> <i class="fas fa-chart-bar"></i> Laporan Kegiatan </a>
+            </nav>
+            <div class="p-4 border-t mt-auto border-gray-700">
+                <a href="#" id="btn-logout-desktop" class="btn-logout-custom w-full">
+                    <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            
+            <header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-30 h-16 border-b border-gray-100">
+                <button id="mobile-menu-button" class="lg:hidden text-gray-600 hover:text-gray-900" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <div class="flex-1 flex items-center justify-between ml-0 lg:ml-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Buat Agenda Baru</h2>
+                    <div class="flex items-center space-x-4">
+                        <div class="profile-indicator flex items-center">
+                            <div class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</div>
+                            <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base bg-gray-300 text-gray-800 rounded-full">A</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6">
+                
+                <h1 class="text-xl font-semibold text-gray-800 mb-4">Formulir Agenda Baru</h1>
+                
+                <form id="form-buat-agenda" class="space-y-6">
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Detail Acara</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="judul_agenda" class="form-label font-medium text-gray-700">Judul Agenda (Wajib)</label>
+                                <input type="text" class="form-control" id="judul_agenda" required placeholder="Contoh: Electrical Engineering in Action (EEA) 2025">
+                            </div>
+                            <div>
+                                <label for="deskripsi_agenda" class="form-label font-medium text-gray-700">Deskripsi Singkat</label>
+                                <textarea class="form-control" id="deskripsi_agenda" rows="3" placeholder="Jelaskan ringkasan atau tujuan acara."></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label for="tanggal_mulai" class="form-label font-medium text-gray-700">Tanggal Mulai</label>
+                                    <input type="date" class="form-control" id="tanggal_mulai" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="tanggal_selesai" class="form-label font-medium text-gray-700">Tanggal Selesai</label>
+                                    <input type="date" class="form-control" id="tanggal_selesai">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Pendaftaran Panitia (Open Registration)</h2>
+                        
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" id="toggle_pendaftaran_panitia" onchange="togglePanitiaOptions(this)">
+                            <label class="form-check-label font-medium text-gray-700" for="toggle_pendaftaran_panitia">
+                                **Buka Pendaftaran Panitia** untuk Agenda Ini
+                            </label>
+                        </div>
+
+                        <div id="opsi_pendaftaran_panitia" class="space-y-4 border p-4 rounded-lg bg-gray-50 hidden">
+                            
+                            <div>
+                                <label for="batas_waktu_pendaftaran" class="form-label font-medium text-gray-700">Batas Waktu Pendaftaran</label>
+                                <input type="datetime-local" class="form-control" id="batas_waktu_pendaftaran">
+                                <small class="text-gray-500">Tanggal dan jam terakhir pendaftar dapat mendaftar sebagai panitia.</small>
+                            </div>
+
+                            <div>
+                                <label class="form-label font-medium text-gray-700 mb-2">Kebutuhan Jumlah Panitia</label>
+                                <div class="space-y-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="jumlah_panitia_option" id="panitia_tak_terbatas" value="unlimited" checked onchange="toggleJumlahSpesifik()">
+                                        <label class="form-check-label text-gray-700" for="panitia_tak_terbatas">
+                                            **Tak Terbatas** (Semua pendaftar diterima)
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="jumlah_panitia_option" id="panitia_jumlah_spesifik" value="specific" onchange="toggleJumlahSpesifik()">
+                                        <label class="form-check-label text-gray-700" for="panitia_jumlah_spesifik">
+                                            **Jumlah Spesifik**
+                                        </label>
+                                    </div>
+                                    
+                                    <div id="input_jumlah_panitia" class="mt-2 pl-6 hidden">
+                                        <label for="jumlah_panitia_required" class="form-label font-medium text-gray-700">Jumlah Orang yang Dibutuhkan</label>
+                                        <input type="number" class="form-control w-full md:w-1/2" id="jumlah_panitia_required" min="1" placeholder="Masukkan angka kebutuhan">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" class="btn btn-outline-secondary font-medium" onclick="history.back()">Batal</button>
+                        <button type="submit" class="btn-action-primary">
+                            <i class="fas fa-save mr-2"></i> Simpan Agenda
+                        </button>
+                    </div>
+
+                </form>
+                
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        // Fungsi untuk menampilkan/menyembunyikan opsi Pendaftaran Panitia
+        function togglePanitiaOptions(checkbox) {
+            const optionsDiv = document.getElementById('opsi_pendaftaran_panitia');
+            if (checkbox.checked) {
+                optionsDiv.classList.remove('hidden');
+            } else {
+                optionsDiv.classList.add('hidden');
+                // Reset ke default (Tak Terbatas) saat ditutup
+                document.getElementById('panitia_tak_terbatas').checked = true;
+                document.getElementById('input_jumlah_panitia').classList.add('hidden');
+            }
+        }
+
+        // Fungsi untuk menampilkan/menyembunyikan input jumlah spesifik
+        function toggleJumlahSpesifik() {
+            const specificRadio = document.getElementById('panitia_jumlah_spesifik');
+            const inputDiv = document.getElementById('input_jumlah_panitia');
+            
+            if (specificRadio.checked) {
+                inputDiv.classList.remove('hidden');
+            } else {
+                inputDiv.classList.add('hidden');
+                document.getElementById('jumlah_panitia_required').value = ''; // Kosongkan input
+            }
+        }
+        
+        // Pastikan input jumlah spesifik tersembunyi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleJumlahSpesifik();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/admin.js"></script> 
+</body>
+</html>
