@@ -28,6 +28,13 @@ try {
             $controller->upcoming();
             break;
 
+        case 'latest':
+            if (!Request::isGet()) {
+                Response::methodNotAllowed('Gunakan method GET');
+            }
+            $controller->latest();
+            break;
+
         case 'show':
             if (!Request::isGet()) {
                 Response::methodNotAllowed('Gunakan method GET');
@@ -89,8 +96,15 @@ try {
             $controller->statistics();
             break;
 
+        case 'public-stats':
+            if (!Request::isGet()) {
+                Response::methodNotAllowed('Gunakan method GET');
+            }
+            $controller->publicStats();
+            break;
+
         default:
-            Response::error('Action tidak ditemukan. Gunakan: list, upcoming, show, create, update, upload-banner, delete, search, statistics', 404);
+            Response::error('Action tidak ditemukan. Gunakan: list, upcoming, latest, show, create, update, upload-banner, delete, search, statistics, public-stats', 404);
     }
 } catch (Exception $e) {
     error_log("Events API Error: " . $e->getMessage());

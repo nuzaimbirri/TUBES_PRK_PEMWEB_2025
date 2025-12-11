@@ -107,6 +107,14 @@ class ProfileController
             }
         }
         
+        if (isset($data['phone_number'])) {
+            $updateData['phone_number'] = sanitize_string($data['phone_number']);
+        }
+        
+        if (isset($data['address'])) {
+            $updateData['address'] = sanitize_string($data['address']);
+        }
+        
         if (isset($data['activity_status'])) {
             if (!validate_in_array($data['activity_status'], [STATUS_ACTIVE, STATUS_INACTIVE])) {
                 $errors['activity_status'] = 'Status aktivitas tidak valid';
@@ -158,6 +166,7 @@ class ProfileController
         
         Response::success([
             'filename' => $result['filename'],
+            'photo'    => $result['filename'],
             'url'      => get_upload_url($result['filename'], 'profile')
         ], 'Foto profil berhasil diupload');
     }
@@ -205,5 +214,74 @@ class ProfileController
         $profiles = $this->profileModel->getByStatus($status, $page, $limit);
         
         Response::success($profiles);
+    }
+
+    /**
+     * Get single member profile by user_id (for admin)
+     */
+    public function get(int $userId): void
+    {
+        require_admin();
+        
+        // Use findFullMemberData to get complete data even if profile doesn't exist
+        $member = $this->profileModel->findFullMemberData($userId);
+        
+        if (!$member) {
+            Response::notFound('Anggota tidak ditemukan');
+        }
+        
+        // Set default activity_status if null
+        if (empty($member['activity_status'])) {
+            $member['activity_status'] = STATUS_ACTIVE;
+        }
+        
+        Response::success($member);
+    }
+
+    /**
+     * Update member activity status (admin only)
+     * Status: 'aktif', 'sp1', 'sp2', 'non-aktif'
+     */
+    public function updateStatus(array $data): void
+    {
+        require_admin();
+        
+        $userId = (int) ($data['user_id'] ?? 0);
+        $newStatus = $data['activity_status'] ?? '';
+        
+        if ($userId <= 0) {
+            Response::error('User ID diperlukan', 400);
+        }
+        
+        // Valid status values
+        $validStatuses = ['aktif', 'sp1', 'sp2', 'non-aktif'];
+        
+        if (!in_array($newStatus, $validStatuses)) {
+            Response::error('Status tidak valid. Gunakan: aktif, sp1, sp2, non-aktif', 400);
+        }
+        
+        // Check if user exists
+        $user = $this->userModel->findById($userId);
+        if (!$user) {
+            Response::notFound('Anggota tidak ditemukan');
+        }
+        
+        // Check if profile exists
+        $profile = $this->profileModel->findByUserId($userId);
+        
+        if (!$profile) {
+            // Create profile if not exists
+            $this->profileModel->create([
+                'user_id'         => $userId,
+                'activity_status' => $newStatus
+            ]);
+        } else {
+            // Update existing profile
+            $this->profileModel->upsert($userId, [
+                'activity_status' => $newStatus
+            ]);
+        }
+        
+        Response::success(null, 'Status anggota berhasil diubah menjadi ' . $newStatus);
     }
 }

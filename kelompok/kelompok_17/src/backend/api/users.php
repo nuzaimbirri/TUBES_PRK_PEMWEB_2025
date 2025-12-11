@@ -72,8 +72,18 @@ try {
             $controller->statistics();
             break;
 
+        case 'update-status':
+            if (!Request::isPost()) {
+                Response::methodNotAllowed('Gunakan method POST');
+            }
+            if ($id <= 0) {
+                Response::error('ID user diperlukan', 400);
+            }
+            $controller->updateStatus($id, $data);
+            break;
+
         default:
-            Response::error('Action tidak ditemukan. Gunakan: list, show, create, update, delete, search, statistics', 404);
+            Response::error('Action tidak ditemukan. Gunakan: list, show, create, update, update-status, delete, search, statistics', 404);
     }
 } catch (Exception $e) {
     error_log("Users API Error: " . $e->getMessage());

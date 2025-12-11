@@ -5,10 +5,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     const loginForm = document.getElementById("loginForm");
     const registerForm = document.getElementById("registerForm");
 
-    // BASE API (Pastikan URL ini benar)
-    const BASE_API_URL =
-        "http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/backend/api/auth.php";
-
+    // BASE API - Auto detect path based on hostname
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isDotTest = hostname.endsWith('.test');
+    
+    let basePath = '';
+    if (isLocalhost) {
+        basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+    } else if (isDotTest) {
+        basePath = '/kelompok/kelompok_17/src';
+    }
+    
+    const BASE_API_URL = `${basePath}/backend/api/auth.php`;
+    const ADMIN_DASHBOARD = `${basePath}/frontend/admin/admin.html`;
+    const ANGGOTA_DASHBOARD = `${basePath}/frontend/anggota/dashboard.html`;
+    
     const LOGIN_API_URL = `${BASE_API_URL}?action=login`;
     const REGISTER_API_URL = `${BASE_API_URL}?action=register`;
     const SESSION_API_URL = `${BASE_API_URL}?action=check`;
@@ -137,9 +149,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                         
                         // Periksa peran dan redirect ke dashboard yang sesuai
                         if (finalRole && finalRole.toLowerCase() === "admin") {
-                            location.replace("/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/admin/admin.html");
+                            location.replace(ADMIN_DASHBOARD);
                         } else {
-                            location.replace("/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/anggota/dashboard.html");
+                            location.replace(ANGGOTA_DASHBOARD);
                         }
                         return;
 

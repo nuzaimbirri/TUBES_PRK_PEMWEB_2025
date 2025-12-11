@@ -7,14 +7,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ========================================
     // CONFIGURATION
     // ========================================
-    const API_BASE = '../../backend/api';
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isDotTest = hostname.endsWith('.test');
+    
+    let basePath = '';
+    if (isLocalhost) {
+        basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+    } else if (isDotTest) {
+        basePath = '/kelompok/kelompok_17/src';
+    }
+    
+    const API_BASE = `${basePath}/backend/api`;
+    const UPLOAD_BASE = basePath.replace('/src', '/upload');
+    const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
     
     // ========================================
     // STATE MANAGEMENT
     // ========================================
     let allEvents = [];
-    let myRegistrations = []; // Track user's event registrations with status
-    let currentUser = { id: 1, name: 'Budi Santoso' }; // Mock user
+    let myRegistrations = [];
+    let myAttendances = [];
+    let currentUser = null;
     let searchQuery = '';
     let filterStatus = '';
     let currentEventId = null;
@@ -56,107 +70,136 @@ document.addEventListener('DOMContentLoaded', async () => {
     const toast = document.getElementById('toast');
 
     // ========================================
-    // MOCK DATA
-    // ========================================
-    const mockEvents = [
-        {
-            id: 1,
-            title: 'Workshop Web Development',
-            description: 'Belajar fundamental web development dengan HTML, CSS, dan JavaScript. Cocok untuk pemula yang ingin memulai karir di dunia web development.',
-            date: '2025-01-15',
-            time: '09:00 - 16:00',
-            location: 'Lab Komputer Gedung A',
-            status: 'upcoming',
-            type: 'workshop',
-            registered_count: 45,
-            total_capacity: 50,
-            attended_count: 0
-        },
-        {
-            id: 2,
-            title: 'Seminar IT Security - SEDANG BERLANGSUNG',
-            description: 'Membahas keamanan siber dan best practices dalam mengamankan aplikasi web dari berbagai ancaman cyber.',
-            date: '2025-12-09',
-            time: '13:00 - 15:00',
-            location: 'Auditorium Utama',
-            status: 'ongoing',
-            type: 'seminar',
-            registered_count: 120,
-            total_capacity: 150,
-            attended_count: 0
-        },
-        {
-            id: 3,
-            title: 'Gathering Anggota 2025',
-            description: 'Acara berkumpul bersama semua anggota organisasi untuk mempererat silaturahmi dan membahas program kerja tahun depan.',
-            date: '2025-02-10',
-            time: '10:00 - 14:00',
-            location: 'Taman Kampus',
-            status: 'upcoming',
-            type: 'gathering',
-            registered_count: 85,
-            total_capacity: 100,
-            attended_count: 0
-        },
-        {
-            id: 4,
-            title: 'Training Git & GitHub',
-            description: 'Pelatihan version control menggunakan Git dan GitHub untuk kolaborasi tim yang lebih efektif.',
-            date: '2025-01-25',
-            time: '14:00 - 17:00',
-            location: 'Online via Zoom',
-            status: 'upcoming',
-            type: 'training',
-            registered_count: 60,
-            total_capacity: 80,
-            attended_count: 0
-        },
-        {
-            id: 5,
-            title: 'Webinar AI & Machine Learning',
-            description: 'Eksplorasi dunia AI dan ML dengan praktisi industri. Membahas trend terkini dan aplikasi praktis di dunia nyata.',
-            date: '2024-12-10',
-            time: '19:00 - 21:00',
-            location: 'Online via YouTube Live',
-            status: 'completed',
-            type: 'webinar',
-            registered_count: 200,
-            total_capacity: 250,
-            attended_count: 180
-        },
-        {
-            id: 6,
-            title: 'Competition Hackathon',
-            description: 'Kompetisi pemrograman 24 jam untuk membuat solusi inovatif terhadap permasalahan sosial.',
-            date: '2025-03-05',
-            time: '08:00 - 20:00',
-            location: 'Gedung Innovation Hub',
-            status: 'upcoming',
-            type: 'competition',
-            registered_count: 30,
-            total_capacity: 40,
-            attended_count: 0
-        }
-    ];
-
-    // Mock User Registrations with Status
-    // Status: pending, approved, rejected, cancelled
-    myRegistrations = [
-        { event_id: 1, status: 'pending', registered_at: '2025-01-05 10:30:00', last_viewed: null },
-        { event_id: 2, status: 'approved', registered_at: '2025-12-08 14:20:00', last_viewed: null }, // Event hari ini - approved
-        { event_id: 3, status: 'approved', registered_at: '2025-01-03 14:20:00', last_viewed: null },
-        { event_id: 5, status: 'approved', registered_at: '2024-12-01 09:15:00', last_viewed: null },
-    ];
-
-    // ========================================
     // INITIALIZATION
     // ========================================
     async function init() {
         showLoading();
+        
+        // Load current user first
+        const user = await loadCurrentUser();
+        if (!user) {
+            window.location.href = LOGIN_PAGE;
+            return;
+        }
+        currentUser = user;
+        
+        // Update navbar with user data
+        updateNavbarUser(user);
+        
         await loadEvents();
+        await loadMyRegistrations();
         setupEventListeners();
         renderAllSections();
         hideLoading();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventIdFromUrl = urlParams.get('event');
+        if (eventIdFromUrl) {
+            setTimeout(() => {
+                openEventDetail(parseInt(eventIdFromUrl));
+            }, 500);
+        }
+    }
+
+    function updateNavbarUser(user) {
+        const navUsername = document.getElementById('navUsername');
+        const userInitials = document.getElementById('userInitials');
+        const userAvatar = document.getElementById('userAvatar');
+        
+        if (navUsername) {
+            navUsername.textContent = user.full_name || user.username;
+        }
+        
+        if (userAvatar && user.profile_photo) {
+            userAvatar.innerHTML = `<img src="${UPLOAD_BASE}/profile/${user.profile_photo}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        } else if (userInitials) {
+            const name = user.full_name || user.username;
+            const initials = name.split(' ').map(w => w.charAt(0)).join('').substring(0, 2).toUpperCase();
+            userInitials.textContent = initials;
+        }
+    }
+
+    // ========================================
+    // LOAD CURRENT USER
+    // ========================================
+    async function loadCurrentUser() {
+        try {
+            const response = await fetch(`${API_BASE}/auth.php?action=me`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const result = await response.json();
+            
+            if (response.ok && result.status === 'success') {
+                return result.data;
+            }
+            return null;
+        } catch (error) {
+            console.error('Error loading user:', error);
+            return null;
+        }
+    }
+
+    // ========================================
+    // LOAD MY REGISTRATIONS
+    // ========================================
+    async function loadMyRegistrations() {
+        try {
+            const regResponse = await fetch(`${API_BASE}/registrations.php?action=my-registrations`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const regResult = await regResponse.json();
+            
+            if (regResponse.ok && regResult.status === 'success') {
+                const regs = regResult.data?.registrations || regResult.data || [];
+                myRegistrations = regs.map(reg => ({
+                    event_id: reg.event_id,
+                    status: reg.status,
+                    registered_at: reg.created_at || reg.registered_at,
+                    last_viewed: null,
+                    division: reg.division,
+                    registration_id: reg.registration_id
+                }));
+            } else {
+                myRegistrations = [];
+            }
+
+            const attResponse = await fetch(`${API_BASE}/attendance.php?action=my-attendance`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const attResult = await attResponse.json();
+            
+            if (attResponse.ok && attResult.status === 'success') {
+                const attData = attResult.data?.attendance?.data || attResult.data?.attendance || [];
+                myAttendances = attData.map(att => ({
+                    event_id: att.event_id,
+                    attendance_id: att.attendance_id,
+                    status: att.status,
+                    check_in_time: att.check_in_time,
+                    photo: att.photo
+                }));
+                
+                attData.forEach(att => {
+                    const existing = myRegistrations.find(r => r.event_id === att.event_id);
+                    if (!existing) {
+                        myRegistrations.push({
+                            event_id: att.event_id,
+                            status: 'approved',
+                            registered_at: att.check_in_time,
+                            last_viewed: null
+                        });
+                    }
+                });
+            } else {
+                myAttendances = [];
+            }
+        } catch (error) {
+            console.error('Error loading registrations:', error);
+            myRegistrations = [];
+            myAttendances = [];
+        }
     }
 
     // ========================================
@@ -164,13 +207,63 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ========================================
     async function loadEvents() {
         try {
-            // TODO: Replace with actual API call
-            await new Promise(resolve => setTimeout(resolve, 500));
-            allEvents = mockEvents;
+            const response = await fetch(`${API_BASE}/events.php?action=list&limit=50`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const result = await response.json();
+            
+            if (response.ok && result.status === 'success' && result.data && result.data.data) {
+                const now = Date.now();
+                
+                allEvents = result.data.data.map(event => {
+                    let eventStatus = 'upcoming';
+                    const eventDate = event.event_date;
+                    const startTime = event.start_time?.substring(0, 5) || '00:00';
+                    const endTime = event.end_time?.substring(0, 5) || '23:59';
+                    
+                    const eventStart = new Date(`${eventDate}T${startTime}:00`).getTime();
+                    const eventEnd = new Date(`${eventDate}T${endTime}:00`).getTime();
+                    
+                    if (event.status === 'completed') {
+                        eventStatus = 'completed';
+                    } else if (event.status === 'cancelled') {
+                        eventStatus = 'cancelled';
+                    } else if (now >= eventStart && now <= eventEnd) {
+                        eventStatus = 'ongoing';
+                    } else if (now > eventEnd) {
+                        eventStatus = 'completed';
+                    } else {
+                        eventStatus = 'upcoming';
+                    }
+                    
+                    return {
+                        id: event.event_id,
+                        title: event.title,
+                        description: event.description || 'Tidak ada deskripsi',
+                        date: event.event_date,
+                        time: `${startTime} - ${endTime}`,
+                        start_time: startTime,
+                        end_time: endTime,
+                        location: event.location || 'TBD',
+                        status: eventStatus,
+                        type: 'event',
+                        registered_count: 0,
+                        total_capacity: event.max_participants || 100,
+                        attended_count: 0,
+                        banner: event.banner || null,
+                        open_registration: event.open_registration === 1 || event.open_registration === '1',
+                        registration_deadline: event.registration_deadline || null,
+                        max_participants: event.max_participants || null
+                    };
+                });
+            } else {
+                allEvents = [];
+            }
         } catch (error) {
             console.error('Error loading events:', error);
             showToast('Gagal memuat data events', 'error');
-            allEvents = mockEvents;
+            allEvents = [];
         }
     }
 
@@ -246,17 +339,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         const eventIcon = getEventIcon(event.type);
         const statusBadge = getStatusBadge(event.status);
         
-        // Registration status badge for My Events
-        // TIDAK tampilkan badge untuk event ongoing dan completed
         let registrationBadge = '';
         if (isMyEvent && registration && event.status !== 'ongoing' && event.status !== 'completed') {
             registrationBadge = getRegistrationStatusBadge(registration.status);
         }
 
+        const bannerContent = event.banner 
+            ? `<img src="${UPLOAD_BASE}/event/${event.banner}" alt="${event.title}" class="event-card-banner-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+               <div class="event-card-icon" style="display:none;">${eventIcon}</div>`
+            : `<div class="event-card-icon">${eventIcon}</div>`;
+
+        const showParticipants = event.open_registration;
+
         return `
             <div class="event-card" data-event-id="${event.id}">
                 <div class="event-card-banner">
-                    <div class="event-card-icon">${eventIcon}</div>
+                    ${bannerContent}
                     ${registrationBadge}
                 </div>
                 <div class="event-card-content">
@@ -290,11 +388,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                             ${event.location}
                         </span>
                     </div>
+                    ${showParticipants ? `
                     <div class="event-card-footer">
                         <span class="participants-count">
                             ${event.registered_count}/${event.total_capacity} Peserta
                         </span>
                     </div>
+                    ` : ''}
                 </div>
             </div>
         `;
@@ -380,19 +480,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ========================================
     // OPEN EVENT DETAIL MODAL
     // ========================================
-    function openEventDetail(eventId) {
+    async function openEventDetail(eventId) {
         const event = allEvents.find(e => e.id === eventId);
         if (!event) return;
 
         currentEventId = eventId;
         const registration = myRegistrations.find(r => r.event_id === eventId);
         
-        // Update last_viewed untuk event yang terdaftar
+        const now = Date.now();
+        const eventStart = new Date(`${event.date}T${event.start_time}:00`).getTime();
+        const eventEnd = new Date(`${event.date}T${event.end_time}:00`).getTime();
+        
+        if (event.status !== 'cancelled' && event.status !== 'completed') {
+            if (now >= eventStart && now <= eventEnd) {
+                event.status = 'ongoing';
+            } else if (now > eventEnd) {
+                event.status = 'completed';
+            } else {
+                event.status = 'upcoming';
+            }
+        }
+        
         if (registration) {
             registration.last_viewed = new Date().toISOString();
         }
         
-        // Populate modal
         document.getElementById('detailTitle').textContent = event.title;
         document.getElementById('detailStatus').textContent = getStatusText(event.status);
         document.getElementById('detailStatus').className = `event-status-badge status-${event.status}`;
@@ -401,54 +513,149 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('detailTime').textContent = event.time;
         document.getElementById('detailLocation').textContent = event.location;
         document.getElementById('detailDescription').textContent = event.description;
-        document.getElementById('statHadir').textContent = event.attended_count;
-        document.getElementById('statTotal').textContent = event.registered_count;
-        document.getElementById('statTidakHadir').textContent = event.registered_count - event.attended_count;
+        
+        let attendanceStats = { total: 0, hadir: 0, izin: 0, sakit: 0 };
+        let registrationStats = { total: 0, approved: 0, pending: 0 };
+        
+        try {
+            const detailRes = await fetch(`${API_BASE}/events.php?action=show&id=${eventId}`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const detailResult = await detailRes.json();
+            if (detailRes.ok && detailResult.status === 'success' && detailResult.data) {
+                attendanceStats = detailResult.data.attendance_stats || attendanceStats;
+                registrationStats = detailResult.data.registration_stats || registrationStats;
+            }
+        } catch (err) {
+            console.error('Error fetching event detail:', err);
+        }
+        
+        const totalPanitia = event.open_registration ? registrationStats.approved : 0;
+        const hadirCount = attendanceStats.hadir || 0;
+        const tidakHadirCount = (attendanceStats.izin || 0) + (attendanceStats.sakit || 0);
+        
+        document.getElementById('statHadir').textContent = hadirCount;
+        document.getElementById('statTotal').textContent = totalPanitia || attendanceStats.total || 0;
+        document.getElementById('statTidakHadir').textContent = tidakHadirCount;
         
         const eventIcon = getEventIcon(event.type);
-        document.getElementById('detailBanner').innerHTML = `<div class="event-icon-large">${eventIcon}</div>`;
+        if (event.banner) {
+            document.getElementById('detailBanner').innerHTML = `
+                <img src="${UPLOAD_BASE}/event/${event.banner}" alt="${event.title}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="event-icon-large" style="display:none;">${eventIcon}</div>
+            `;
+        } else {
+            document.getElementById('detailBanner').innerHTML = `<div class="event-icon-large">${eventIcon}</div>`;
+        }
 
-        // Show appropriate buttons based on registration status
         btnRegister.style.display = 'none';
         btnPresensi.style.display = 'none';
         btnCancelRegistration.style.display = 'none';
         registrationStatusInfo.style.display = 'none';
         
         const eventIsOngoing = event.status === 'ongoing';
+        const eventIsUpcoming = event.status === 'upcoming';
+        const hasOpenRegistration = event.open_registration;
+        const myAttendance = myAttendances.find(a => a.event_id === eventId);
+        const hasAttended = !!myAttendance;
         
-        if (!registration && event.status === 'upcoming') {
-            // Not registered - show register button
+        if (hasAttended) {
+            registrationStatusInfo.style.display = 'block';
+            const statusLabels = { hadir: 'Hadir', izin: 'Izin', sakit: 'Sakit' };
+            registrationStatusInfo.innerHTML = `
+                <div class="registration-info-box approved">
+                    <div class="registration-info-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h4>Presensi Tercatat</h4>
+                    </div>
+                    <p>Status: <strong>${statusLabels[myAttendance.status] || myAttendance.status}</strong><br>
+                    Waktu: ${new Date(myAttendance.check_in_time).toLocaleString('id-ID')}</p>
+                </div>
+            `;
+        } else if (!hasOpenRegistration) {
+            if (eventIsOngoing) {
+                btnPresensi.style.display = 'flex';
+            } else if (eventIsUpcoming) {
+                registrationStatusInfo.style.display = 'block';
+                registrationStatusInfo.innerHTML = `
+                    <div class="registration-info-box approved">
+                        <div class="registration-info-header">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <h4>Event Terbuka untuk Semua</h4>
+                        </div>
+                        <p>Event ini tidak memerlukan pendaftaran. Silakan upload presensi saat event berlangsung.</p>
+                    </div>
+                `;
+            }
+        } else if (!registration && eventIsUpcoming) {
             btnRegister.style.display = 'flex';
         } else if (registration) {
-            // Registered - show status and appropriate buttons
-            
             if (registration.status === 'pending') {
-                // Pending: tampilkan info box + button batalkan
                 registrationStatusInfo.style.display = 'block';
                 registrationStatusInfo.innerHTML = getRegistrationStatusInfo(registration.status);
                 btnCancelRegistration.style.display = 'flex';
             } else if (registration.status === 'approved') {
-                // Approved + event ongoing: HANYA button presensi, TANPA info box
                 if (eventIsOngoing) {
                     btnPresensi.style.display = 'flex';
-                    // Info box TIDAK ditampilkan untuk event ongoing
                 } else {
-                    // Approved tapi belum ongoing: tampilkan info box
                     registrationStatusInfo.style.display = 'block';
                     registrationStatusInfo.innerHTML = getRegistrationStatusInfo(registration.status);
                 }
             } else {
-                // Status rejected/cancelled: tampilkan info box
                 registrationStatusInfo.style.display = 'block';
                 registrationStatusInfo.innerHTML = getRegistrationStatusInfo(registration.status);
             }
         }
 
-        // Update attendance card
         const attendanceCard = document.getElementById('attendanceCard');
         
-        // Untuk event ongoing dengan status approved, tampilkan info event saja
-        if (eventIsOngoing && registration && registration.status === 'approved') {
+        if (hasAttended) {
+            const statusLabels = { hadir: 'Hadir', izin: 'Izin', sakit: 'Sakit' };
+            const statusColors = { hadir: '#10b981', izin: '#f59e0b', sakit: '#ef4444' };
+            attendanceCard.innerHTML = `
+                <div class="attendance-status registered" style="border-color: ${statusColors[myAttendance.status] || '#10b981'}">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="${statusColors[myAttendance.status] || '#10b981'}" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <h4>Presensi: ${statusLabels[myAttendance.status] || 'Tercatat'}</h4>
+                    <p>Anda sudah melakukan presensi</p>
+                </div>
+            `;
+        } else if (!hasOpenRegistration) {
+            if (eventIsOngoing) {
+                attendanceCard.innerHTML = `
+                    <div class="attendance-status ongoing">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <h4>Event Sedang Berlangsung</h4>
+                        <p>Silakan upload presensi Anda</p>
+                    </div>
+                `;
+            } else {
+                attendanceCard.innerHTML = `
+                    <div class="attendance-status registered">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h4>Terbuka untuk Semua Anggota</h4>
+                        <p>Upload presensi saat event berlangsung</p>
+                    </div>
+                `;
+            }
+        } else if (eventIsOngoing && registration && registration.status === 'approved') {
             attendanceCard.innerHTML = `
                 <div class="attendance-status ongoing">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -607,39 +814,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ========================================
     async function registerEvent() {
         if (!currentEventId) return;
-
-        try {
-            btnRegister.disabled = true;
-            btnRegister.innerHTML = `<div class="spinner-sm"></div> Mendaftar...`;
-
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Add to registrations with pending status
-            myRegistrations.push({
-                event_id: currentEventId,
-                status: 'pending',
-                registered_at: new Date().toISOString()
-            });
-
-            showToast('Pendaftaran berhasil! Menunggu persetujuan admin.', 'success');
-            closeEventDetailModal();
-            renderAllSections();
-
-        } catch (error) {
-            console.error('Error registering event:', error);
-            showToast('Gagal mendaftar event', 'error');
-        } finally {
-            btnRegister.disabled = false;
-            btnRegister.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="8.5" cy="7" r="4"></circle>
-                    <line x1="20" y1="8" x2="20" y2="14"></line>
-                    <line x1="23" y1="11" x2="17" y2="11"></line>
-                </svg>
-                Daftar Event
-            `;
+        
+        const event = allEvents.find(e => e.id === currentEventId);
+        if (!event) return;
+        
+        if (event.open_registration) {
+            openRegistrationModal();
+        } else {
+            showToast('Event ini tidak memerlukan pendaftaran. Silakan upload presensi saat event berlangsung.', 'info');
         }
     }
 
@@ -649,28 +831,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function cancelRegistration() {
         if (!currentEventId) return;
         
-        if (!confirm('Yakin ingin membatalkan pendaftaran event ini?')) return;
+        showConfirmModal(
+            'Batalkan Pendaftaran',
+            'Yakin ingin membatalkan pendaftaran event ini? Anda mungkin perlu mendaftar ulang jika berubah pikiran.',
+            async () => {
+                await submitCancelRegistration();
+            }
+        );
+    }
+
+    async function submitCancelRegistration() {
+        btnCancelRegistration.disabled = true;
+        btnCancelRegistration.innerHTML = `<div class="spinner-sm"></div> Membatalkan...`;
 
         try {
-            btnCancelRegistration.disabled = true;
-            btnCancelRegistration.innerHTML = `<div class="spinner-sm"></div> Membatalkan...`;
-
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Update status to cancelled
             const registration = myRegistrations.find(r => r.event_id === currentEventId);
-            if (registration) {
-                registration.status = 'cancelled';
+            if (!registration || !registration.registration_id) {
+                showToast('Data pendaftaran tidak ditemukan', 'error');
+                return;
             }
 
-            showToast('Pendaftaran berhasil dibatalkan', 'info');
-            closeEventDetailModal();
-            renderAllSections();
+            const response = await fetch(`${API_BASE}/registrations.php?action=cancel&id=${registration.registration_id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
 
+            const result = await response.json();
+
+            if (response.ok && result.status === 'success') {
+                closeEventDetailModal();
+                await loadMyRegistrations();
+                renderAllSections();
+                showToast('Pendaftaran berhasil dibatalkan', 'info');
+            } else {
+                showToast(result.message || 'Gagal membatalkan pendaftaran', 'error');
+            }
         } catch (error) {
             console.error('Error cancelling registration:', error);
-            showToast('Gagal membatalkan pendaftaran', 'error');
+            showToast('Gagal terhubung ke server', 'error');
         } finally {
             btnCancelRegistration.disabled = false;
             btnCancelRegistration.innerHTML = `
@@ -773,40 +974,98 @@ document.addEventListener('DOMContentLoaded', async () => {
         resetPresensiForm();
     });
 
-    // ========================================
-    // SUBMIT PRESENSI FORM
-    // ========================================
+    document.querySelectorAll('input[name="attendance_status"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const status = e.target.value;
+            const photoHint = document.getElementById('photoHint');
+            const notesRequired = document.getElementById('notesRequired');
+            const notesField = document.getElementById('presensiNotes');
+            
+            if (status === 'hadir') {
+                photoHint.textContent = 'Upload foto selfie di lokasi event';
+                notesRequired.style.display = 'none';
+                notesField.removeAttribute('required');
+                notesField.placeholder = 'Tambahkan keterangan jika perlu...';
+            } else if (status === 'izin') {
+                photoHint.textContent = 'Upload bukti surat izin atau dokumen pendukung';
+                notesRequired.style.display = 'inline';
+                notesField.setAttribute('required', 'required');
+                notesField.placeholder = 'Jelaskan alasan izin Anda...';
+            } else if (status === 'sakit') {
+                photoHint.textContent = 'Upload foto surat dokter atau bukti sakit';
+                notesRequired.style.display = 'inline';
+                notesField.setAttribute('required', 'required');
+                notesField.placeholder = 'Jelaskan kondisi kesehatan Anda...';
+            }
+        });
+    });
+
     presensiForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const formData = new FormData(presensiForm);
-        formData.append('user_id', currentUser.id);
+        const eventId = document.getElementById('presensiEventId').value;
+        const photoFile = presensiPhoto.files[0];
+        const notes = document.getElementById('presensiNotes').value;
+        const attendanceStatus = document.querySelector('input[name="attendance_status"]:checked').value;
+
+        if (!photoFile) {
+            showToast('Mohon upload foto bukti', 'error');
+            return;
+        }
+
+        if ((attendanceStatus === 'izin' || attendanceStatus === 'sakit') && !notes.trim()) {
+            showToast('Mohon isi keterangan untuk izin/sakit', 'error');
+            return;
+        }
+
+        const statusLabels = { hadir: 'Hadir', izin: 'Izin', sakit: 'Sakit' };
+        showConfirmModal(
+            'Konfirmasi Presensi',
+            `Anda akan mengirim presensi dengan status "${statusLabels[attendanceStatus]}". Lanjutkan?`,
+            async () => {
+                await submitPresensi(eventId, photoFile, notes, attendanceStatus);
+            }
+        );
+    });
+
+    async function submitPresensi(eventId, photoFile, notes, attendanceStatus) {
+        const btnSubmit = document.getElementById('btnSubmitPresensi');
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = `<div class="spinner-sm"></div> Mengirim...`;
 
         try {
-            const btnSubmit = document.getElementById('btnSubmitPresensi');
-            btnSubmit.disabled = true;
-            btnSubmit.innerHTML = `<div class="spinner-sm"></div> Mengirim...`;
+            const formData = new FormData();
+            formData.append('event_id', eventId);
+            formData.append('photo', photoFile);
+            formData.append('status', attendanceStatus || 'hadir');
+            if (notes) formData.append('notes', notes);
 
-            const response = await fetch(`${API_BASE}/upload_presensi.php`, {
+            const response = await fetch(`${API_BASE}/attendance.php?action=checkin`, {
                 method: 'POST',
+                credentials: 'include',
                 body: formData
             });
 
             const result = await response.json();
 
-            if (result.success) {
-                showToast('Presensi berhasil diupload!', 'success');
+            if (response.ok && result.status === 'success') {
                 closePresensiModalFunc();
                 closeEventDetailModal();
+                const statusMessages = {
+                    hadir: 'Presensi kehadiran Anda telah berhasil dicatat.',
+                    izin: 'Permohonan izin Anda telah berhasil dikirim.',
+                    sakit: 'Keterangan sakit Anda telah berhasil dikirim. Semoga lekas sembuh!'
+                };
+                showSuccessModalFunc('Presensi Berhasil!', statusMessages[attendanceStatus] || 'Presensi telah dicatat.');
+                await loadMyRegistrations();
+                renderAllSections();
             } else {
-                throw new Error(result.message || 'Upload failed');
+                showToast(result.message || 'Gagal mengirim presensi', 'error');
             }
-
         } catch (error) {
             console.error('Error uploading presensi:', error);
-            showToast(error.message || 'Gagal upload presensi', 'error');
+            showToast('Gagal terhubung ke server', 'error');
         } finally {
-            const btnSubmit = document.getElementById('btnSubmitPresensi');
             btnSubmit.disabled = false;
             btnSubmit.innerHTML = `
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -815,7 +1074,156 @@ document.addEventListener('DOMContentLoaded', async () => {
                 Kirim Presensi
             `;
         }
+    }
+
+    // ========================================
+    // REGISTRATION MODAL HANDLERS
+    // ========================================
+    const registrationModal = document.getElementById('registrationModal');
+    const registrationModalOverlay = document.getElementById('registrationModalOverlay');
+    const closeRegistrationModal = document.getElementById('closeRegistrationModal');
+    const registrationForm = document.getElementById('registrationForm');
+    const btnCancelRegistration2 = document.getElementById('btnCancelRegistration2');
+
+    function openRegistrationModal() {
+        document.getElementById('regEventId').value = currentEventId;
+        registrationForm.reset();
+        registrationModal.classList.add('active');
+    }
+
+    function closeRegistrationModalFunc() {
+        registrationModal.classList.remove('active');
+        registrationForm.reset();
+    }
+
+    // Registration Form Submit
+    registrationForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const eventId = document.getElementById('regEventId').value;
+        const division = document.getElementById('regDivision').value;
+        const reason = document.getElementById('regReason').value;
+        const experience = document.getElementById('regExperience').value;
+
+        // Show confirmation modal
+        showConfirmModal(
+            'Konfirmasi Pendaftaran',
+            `Anda akan mendaftar sebagai panitia divisi "${getDivisionName(division)}". Lanjutkan?`,
+            async () => {
+                await submitRegistration(eventId, division, reason, experience);
+            }
+        );
     });
+
+    async function submitRegistration(eventId, division, reason, experience) {
+        const btnSubmit = document.getElementById('btnSubmitRegistration');
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<div class="spinner-sm"></div> Mengirim...';
+
+        try {
+            const response = await fetch(`${API_BASE}/registrations.php?action=register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    event_id: parseInt(eventId),
+                    division: division,
+                    reason: reason,
+                    experience: experience
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.status === 'success') {
+                closeRegistrationModalFunc();
+                closeEventDetailModal();
+                
+                await loadMyRegistrations();
+                renderAllSections();
+                showSuccessModalFunc('Pendaftaran Terkirim!', 'Pendaftaran Anda sedang menunggu persetujuan admin. Silakan cek kembali secara berkala.');
+            } else {
+                showToast(result.message || 'Gagal mendaftar', 'error');
+            }
+        } catch (error) {
+            console.error('Error submitting registration:', error);
+            showToast('Gagal terhubung ke server', 'error');
+        } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Kirim Pendaftaran
+            `;
+        }
+    }
+
+    function getDivisionName(code) {
+        const divisions = {
+            'acara': 'Acara',
+            'perkap': 'Perlengkapan',
+            'humas': 'Humas',
+            'pubdok': 'Publikasi & Dokumentasi',
+            'konsumsi': 'Konsumsi',
+            'dana': 'Dana',
+            'dekor': 'Dekorasi',
+            'keamanan': 'Keamanan',
+            'lainnya': 'Lainnya'
+        };
+        return divisions[code] || code;
+    }
+
+    // ========================================
+    // CONFIRMATION & SUCCESS MODALS
+    // ========================================
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmModalOverlay = document.getElementById('confirmModalOverlay');
+    const btnConfirmCancel = document.getElementById('btnConfirmCancel');
+    const btnConfirmOk = document.getElementById('btnConfirmOk');
+    let confirmCallback = null;
+
+    function showConfirmModal(title, message, callback) {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMessage').textContent = message;
+        confirmCallback = callback;
+        confirmModal.classList.add('active');
+    }
+
+    function closeConfirmModal() {
+        confirmModal.classList.remove('active');
+        confirmCallback = null;
+    }
+
+    btnConfirmCancel?.addEventListener('click', closeConfirmModal);
+    confirmModalOverlay?.addEventListener('click', closeConfirmModal);
+
+    btnConfirmOk?.addEventListener('click', async () => {
+        if (confirmCallback) {
+            await confirmCallback();
+        }
+        closeConfirmModal();
+    });
+
+    const successModal = document.getElementById('successModal');
+    const successModalOverlay = document.getElementById('successModalOverlay');
+    const btnSuccessOk = document.getElementById('btnSuccessOk');
+
+    function showSuccessModalFunc(title, message) {
+        document.getElementById('successTitle').textContent = title;
+        document.getElementById('successMessage').textContent = message;
+        successModal.classList.add('active');
+    }
+
+    function closeSuccessModal() {
+        successModal.classList.remove('active');
+    }
+
+    btnSuccessOk?.addEventListener('click', closeSuccessModal);
+    successModalOverlay?.addEventListener('click', closeSuccessModal);
 
     // ========================================
     // EVENT LISTENERS
@@ -843,11 +1251,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         presensiModalOverlay.addEventListener('click', closePresensiModalFunc);
         btnCancelPresensi.addEventListener('click', closePresensiModalFunc);
 
-        document.getElementById('btnLogout')?.addEventListener('click', () => {
-            if (confirm('Yakin ingin keluar?')) {
-                window.location.href = '../auth/login.html';
-            }
-        });
+        // Registration Modal Listeners
+        closeRegistrationModal?.addEventListener('click', closeRegistrationModalFunc);
+        registrationModalOverlay?.addEventListener('click', closeRegistrationModalFunc);
+        btnCancelRegistration2?.addEventListener('click', closeRegistrationModalFunc);
+
+        // LOGOUT LISTENER DIHAPUS - Dipindahkan ke logout-helper.js
+        // Logout sekarang menggunakan modal konfirmasi profesional mint green
 
         const navToggle = document.getElementById('navToggle');
         const navMenu = document.getElementById('navMenu');

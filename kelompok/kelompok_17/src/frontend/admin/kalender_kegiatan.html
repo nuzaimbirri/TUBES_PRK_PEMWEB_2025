@@ -195,19 +195,71 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
     
     <script>
-        // Logika untuk mengisi daftar event di sidebar dan menginisialisasi kalender
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+        const isDotTest = hostname.endsWith('.test');
         
-        const EVENT_DATA_SIMULASI = [
-            { id: 1, title: 'Rapat Divisi Baru', start: '2025-12-17T14:00:00', end: '2025-12-17T16:00:00', dateText: '17 DES', timeText: '14:00 - 16:00', color: 'var(--clr-primary-brand)' },
-            { id: 2, title: 'Workshop Kepemimpinan', start: '2025-12-20T09:00:00', end: '2025-12-20T17:00:00', dateText: '20 DES', timeText: '09:00 - 17:00', color: 'var(--clr-primary-brand)' },
-            { id: 3, title: 'Deadline Pendaftaran Panitia', start: '2025-12-10', dateText: '10 DES', timeText: 'Sepanjang Hari', display: 'background', color: 'var(--clr-btn-orange)' },
-        ];
+        let basePath = '';
+        if (isLocalhost) {
+            basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+        } else if (isDotTest) {
+            basePath = '/kelompok/kelompok_17/src';
+        }
+        
+        const API_BASE = `${basePath}/backend/api`;
+        const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
+
+        // State untuk menyimpan events dari API
+        let eventsData = [];
+        let calendarInstance = null;
+        
+        // ========================================
+        // LOAD EVENTS FROM API
+        // ========================================
+        async function loadEventsFromAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/events.php?action=list&limit=100`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (response.ok && result.status === 'success' && result.data && result.data.data) {
+                    eventsData = result.data.data.map(event => {
+                        const dateObj = new Date(event.event_date);
+                        const day = dateObj.getDate();
+                        const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGS', 'SEP', 'OKT', 'NOV', 'DES'];
+                        const month = monthNames[dateObj.getMonth()];
+                        
+                        return {
+                            id: event.event_id,
+                            title: event.title,
+                            start: event.event_date + (event.start_time ? 'T' + event.start_time : ''),
+                            end: event.event_date + (event.end_time ? 'T' + event.end_time : ''),
+                            dateText: `${day} ${month}`,
+                            timeText: event.start_time ? `${event.start_time.substring(0,5)} - ${event.end_time ? event.end_time.substring(0,5) : 'selesai'}` : 'Sepanjang Hari',
+                            color: 'var(--clr-primary-brand)'
+                        };
+                    });
+                } else {
+                    eventsData = [];
+                }
+            } catch (error) {
+                console.error('Error loading events:', error);
+                eventsData = [];
+            }
+            
+            return eventsData;
+        }
         
         function renderSidebarEvents(events) {
             const listContainer = document.getElementById('event-list-sidebar');
-            listContainer.innerHTML = ''; // Bersihkan sebelumnya
+            listContainer.innerHTML = '';
 
-            if (events.length === 0) {
+            if (!events || events.length === 0) {
                 listContainer.innerHTML = '<p class="text-gray-500 text-sm">Tidak ada kegiatan terdekat.</p>';
                 return;
             }
@@ -227,16 +279,16 @@
                         </div>
                     </div>
                 `;
-                // Menambahkan handler klik untuk melihat detail di kalender atau modal
                 card.addEventListener('click', () => {
-                    // Logika untuk menampilkan detail event yang diklik
-                    alert(`Detail Event: ${event.title}. Tanggal: ${event.dateText}`);
+                    if (calendarInstance && event.start) {
+                        calendarInstance.gotoDate(event.start);
+                    }
                 });
                 listContainer.appendChild(card);
             });
         }
         
-        function initializeFullCalendar() {
+        function initializeFullCalendar(events) {
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
@@ -246,7 +298,7 @@
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,listWeek'
                 },
-                events: EVENT_DATA_SIMULASI, // Menggunakan data simulasi
+                events: events,
                 editable: true,
                 selectable: true,
                 
@@ -265,19 +317,22 @@
             return calendar;
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            renderSidebarEvents(EVENT_DATA_SIMULASI);
-            const calendar = initializeFullCalendar();
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Load events from API
+            await loadEventsFromAPI();
             
-            // Logika Filter Waktu (Dropdown Sidebar)
+            // Render sidebar and calendar with data from API
+            renderSidebarEvents(eventsData);
+            calendarInstance = initializeFullCalendar(eventsData);
+            
+            // Filter logic
             document.getElementById('filter-view-select').addEventListener('change', function() {
                 const value = this.value;
                 if (value === 'week') {
-                    calendar.changeView('timeGridWeek');
+                    calendarInstance.changeView('timeGridWeek');
                 } else if (value === 'month') {
-                    calendar.changeView('dayGridMonth');
+                    calendarInstance.changeView('dayGridMonth');
                 }
-                // Anda juga perlu memfilter data EVENT_DATA_SIMULASI untuk sidebar jika diperlukan
             });
             
             // Sidebar Toggle

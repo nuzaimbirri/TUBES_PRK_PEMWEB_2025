@@ -12,9 +12,10 @@ require_once HELPERS_PATH . '/EmailService.php';
 // Asumsi: ROLE_ANGGOTA didefinisikan di config/init atau helper
 if (!defined('ROLE_ANGGOTA')) define('ROLE_ANGGOTA', 'anggota');
 if (!defined('ROLE_ADMIN')) define('ROLE_ADMIN', 'admin'); 
-// Status Persetujuan
-define('IS_APPROVED_PENDING', 0);
-define('IS_APPROVED_ACTIVE', 1);
+// Status Persetujuan - hanya definisikan jika belum ada
+if (!defined('IS_APPROVED_PENDING')) define('IS_APPROVED_PENDING', 0);
+if (!defined('IS_APPROVED_ACTIVE')) define('IS_APPROVED_ACTIVE', 1);
+if (!defined('IS_APPROVED_REJECTED')) define('IS_APPROVED_REJECTED', 2);
 
 class AuthController
 {
@@ -198,7 +199,7 @@ class AuthController
         try {
             Database::beginTransaction();
 
-            $newApprovalStatus = ($statusAction == 'approved') ? IS_APPROVED_ACTIVE : IS_APPROVED_PENDING;
+            $newApprovalStatus = ($statusAction == 'approved') ? IS_APPROVED_ACTIVE : IS_APPROVED_REJECTED;
             
             // 1. Update Database
             // Asumsi: updateApprovalStatus tersedia di User Model
@@ -215,7 +216,7 @@ class AuthController
 
             $message = ($statusAction == 'approved') 
                 ? 'Anggota berhasil disetujui dan kini aktif.' 
-                : 'Anggota berhasil ditolak/dikembalikan ke pending.';
+                : 'Anggota berhasil ditolak.';
             
             if ($isEmailSent) {
                 $message .= " Email notifikasi telah dikirim.";
@@ -279,12 +280,108 @@ class AuthController
 
     public function checkSession(): void
     {
-        // Logika checkSession biasanya hanya mengembalikan status login dan role,
-        // data sensitif seperti is_approved lebih aman dicek di endpoint /me atau /login.
         Response::success([
             'logged_in' => is_logged_in(),
             'user_id'   => get_current_user_id(),
             'role'      => Session::getRole()
         ]);
+    }
+
+    public function getActiveMembers(): void
+    {
+        require_admin();
+        $members = $this->userModel->findActiveMembers();
+        Response::success($members);
+    }
+
+    public function getAllMembers(): void
+    {
+        require_login();
+        $page = (int) (Request::query('page') ?? 1);
+        $limit = (int) (Request::query('limit') ?? 50);
+        $members = $this->userModel->findAllMembersWithProfile($page, $limit);
+        $total = $this->userModel->countActiveMembers();
+        Response::success([
+            'members' => $members,
+            'total' => $total,
+            'page' => $page,
+            'limit' => $limit
+        ]);
+    }
+
+    public function getDashboardStats(): void
+    {
+        require_admin();
+        
+        $totalMembers = $this->userModel->countActiveMembers();
+        $pendingMembers = $this->userModel->countPendingMembers();
+        $totalEvents = $this->eventModel()->countAll();
+        $upcomingEvents = $this->eventModel()->countUpcoming();
+        $completedEvents = $this->eventModel()->countCompleted();
+        $thisMonthEvents = $this->eventModel()->countThisMonth();
+        
+        Response::success([
+            'total_members' => $totalMembers,
+            'pending_members' => $pendingMembers,
+            'total_events' => $totalEvents,
+            'upcoming_events' => $upcomingEvents,
+            'completed_events' => $completedEvents,
+            'this_month_events' => $thisMonthEvents
+        ]);
+    }
+
+    private function eventModel(): Event
+    {
+        static $model = null;
+        if ($model === null) {
+            require_once MODELS_PATH . '/Event.php';
+            $model = new Event();
+        }
+        return $model;
+    }
+
+    /**
+     * Delete member (admin only)
+     * This will delete both user and profile data
+     */
+    public function deleteMember(array $data): void
+    {
+        require_admin();
+        
+        $memberId = (int) ($data['member_id'] ?? 0);
+        
+        if ($memberId <= 0) {
+            Response::error('ID anggota diperlukan', 400);
+        }
+        
+        // Check if member exists
+        $user = $this->userModel->findById($memberId);
+        if (!$user) {
+            Response::notFound('Anggota tidak ditemukan');
+        }
+        
+        // Prevent deleting admin accounts
+        if ($user['role'] === ROLE_ADMIN) {
+            Response::error('Tidak dapat menghapus akun admin', 403);
+        }
+        
+        try {
+            Database::beginTransaction();
+            
+            // Delete profile first (FK constraint)
+            $this->profileModel->delete($memberId);
+            
+            // Delete user
+            $this->userModel->delete($memberId);
+            
+            Database::commit();
+            
+            Response::success(null, 'Anggota berhasil dihapus');
+            
+        } catch (Exception $e) {
+            Database::rollback();
+            error_log("Delete member failed: " . $e->getMessage());
+            Response::serverError('Gagal menghapus anggota');
+        }
     }
 }

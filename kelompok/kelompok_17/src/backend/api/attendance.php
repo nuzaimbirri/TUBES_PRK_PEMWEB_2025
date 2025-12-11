@@ -24,6 +24,7 @@ try {
             break;
 
         case 'by-event':
+        case 'event-attendance':
             if (!Request::isGet()) {
                 Response::methodNotAllowed('Gunakan method GET');
             }
@@ -97,8 +98,25 @@ try {
             $controller->checkStatus($eventId);
             break;
 
+        case 'can-attend':
+            if (!Request::isGet()) {
+                Response::methodNotAllowed('Gunakan method GET');
+            }
+            if ($eventId <= 0) {
+                Response::error('Event ID diperlukan', 400);
+            }
+            $controller->canAttend($eventId);
+            break;
+
+        case 'statistics':
+            if (!Request::isGet()) {
+                Response::methodNotAllowed('Gunakan method GET');
+            }
+            $controller->userStatistics();
+            break;
+
         default:
-            Response::error('Action tidak ditemukan. Gunakan: checkin, by-event, my-attendance, by-user, update-status, delete, not-checked-in, bulk-checkin, check-status', 404);
+            Response::error('Action tidak ditemukan', 404);
     }
 } catch (Exception $e) {
     error_log("Attendance API Error: " . $e->getMessage());

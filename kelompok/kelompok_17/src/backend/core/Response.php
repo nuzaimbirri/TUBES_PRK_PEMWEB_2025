@@ -80,16 +80,34 @@ class Response
     public static function setCorsHeaders(
         string $origin = '*',
         array $methods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        array $headers = ['Content-Type', 'Authorization']
+        array $headers = ['Content-Type', 'Authorization', 'X-Requested-With']
     ): void {
-        // Gunakan HTTP_ORIGIN dari request untuk mendukung credentials
-        $allowedOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : $origin;
+        // Daftar origin yang diizinkan (development)
+        $allowedOrigins = [
+            'http://localhost',
+            'http://127.0.0.1',
+            'http://tubes_prk_pemweb_2025.test'
+        ];
+        
+        $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        
+        // Cek apakah origin diizinkan (termasuk dengan port berbeda)
+        $isAllowed = false;
+        foreach ($allowedOrigins as $allowed) {
+            if (strpos($requestOrigin, $allowed) === 0) {
+                $isAllowed = true;
+                break;
+            }
+        }
+        
+        $allowedOrigin = $isAllowed ? $requestOrigin : $origin;
 
         header("Access-Control-Allow-Origin: $allowedOrigin");
         header("Access-Control-Allow-Credentials: true");
         header("Access-Control-Allow-Methods: " . implode(', ', $methods));
         header("Access-Control-Allow-Headers: " . implode(', ', $headers));
         header("Access-Control-Max-Age: 86400");
+        header("Access-Control-Expose-Headers: Content-Length, X-JSON");
     }
 
     public static function handlePreflight(): void

@@ -77,8 +77,25 @@ try {
             $controller->byStatus($status);
             break;
 
+        case 'get':
+            if (!Request::isGet()) {
+                Response::methodNotAllowed('Gunakan method GET');
+            }
+            if ($userId <= 0) {
+                Response::error('User ID diperlukan', 400);
+            }
+            $controller->get($userId);
+            break;
+
+        case 'update-status':
+            if (!Request::isPost() && !Request::isPut()) {
+                Response::methodNotAllowed('Gunakan method POST atau PUT');
+            }
+            $controller->updateStatus($data);
+            break;
+
         default:
-            Response::error('Action tidak ditemukan. Gunakan: list, me, show, update, upload-photo, delete-photo, search, by-status', 404);
+            Response::error('Action tidak ditemukan. Gunakan: list, me, show, update, upload-photo, delete-photo, search, by-status, get, update-status', 404);
     }
 } catch (Exception $e) {
     error_log("Profile API Error: " . $e->getMessage());

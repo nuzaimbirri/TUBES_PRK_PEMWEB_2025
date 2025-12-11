@@ -47,25 +47,32 @@ class Attendance
 
     public function checkIn(int $eventId, int $userId, string $status = ATTENDANCE_HADIR): array
     {
+        return $this->checkInWithPhoto($eventId, $userId, $status, null, null);
+    }
+
+    public function checkInWithPhoto(int $eventId, int $userId, string $status = ATTENDANCE_HADIR, ?string $photo = null, ?string $notes = null): array
+    {
         if ($this->hasCheckedIn($eventId, $userId)) {
             return [
                 'success' => false,
-                'message' => 'Anda sudah melakukan check-in untuk event ini'
+                'message' => 'Anda sudah melakukan absensi untuk event ini'
             ];
         }
         
-        $sql = "INSERT INTO {$this->table} (event_id, user_id, check_in_time, status) 
-                VALUES (:event_id, :user_id, NOW(), :status)";
+        $sql = "INSERT INTO {$this->table} (event_id, user_id, check_in_time, status, photo, notes) 
+                VALUES (:event_id, :user_id, NOW(), :status, :photo, :notes)";
         
         Database::query($sql, [
             'event_id' => $eventId,
             'user_id'  => $userId,
-            'status'   => $status
+            'status'   => $status,
+            'photo'    => $photo,
+            'notes'    => $notes
         ]);
         
         return [
             'success'       => true,
-            'message'       => 'Check-in berhasil',
+            'message'       => 'Absensi berhasil',
             'attendance_id' => (int) Database::lastInsertId()
         ];
     }
@@ -85,7 +92,8 @@ class Attendance
     {
         $offset = ($page - 1) * $limit;
         
-        $sql = "SELECT a.*, u.username, p.full_name, p.npm, p.department
+        $sql = "SELECT a.*, u.username, p.full_name, p.npm, p.department,
+                       CASE WHEN a.photo IS NOT NULL THEN CONCAT('upload/absensi/', a.photo) ELSE NULL END as photo_path
                 FROM {$this->table} a
                 JOIN users u ON a.user_id = u.user_id
                 LEFT JOIN profiles p ON u.user_id = p.user_id
@@ -151,6 +159,7 @@ class Attendance
                     COUNT(*) as total,
                     SUM(CASE WHEN status = :hadir THEN 1 ELSE 0 END) as hadir,
                     SUM(CASE WHEN status = :izin THEN 1 ELSE 0 END) as izin,
+                    SUM(CASE WHEN status = :sakit THEN 1 ELSE 0 END) as sakit,
                     SUM(CASE WHEN status = :alpha THEN 1 ELSE 0 END) as alpha
                 FROM {$this->table}
                 WHERE event_id = :event_id";
@@ -159,6 +168,7 @@ class Attendance
             'event_id' => $eventId,
             'hadir'    => ATTENDANCE_HADIR,
             'izin'     => ATTENDANCE_IZIN,
+            'sakit'    => 'sakit',
             'alpha'    => ATTENDANCE_ALPHA
         ]);
         
@@ -166,6 +176,7 @@ class Attendance
             'total' => (int) ($result['total'] ?? 0),
             'hadir' => (int) ($result['hadir'] ?? 0),
             'izin'  => (int) ($result['izin'] ?? 0),
+            'sakit' => (int) ($result['sakit'] ?? 0),
             'alpha' => (int) ($result['alpha'] ?? 0)
         ];
     }

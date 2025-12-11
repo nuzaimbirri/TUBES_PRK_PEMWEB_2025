@@ -236,4 +236,36 @@ class UserController
             'anggota' => $this->userModel->countByRole(ROLE_ANGGOTA)
         ]);
     }
+
+    public function updateStatus(int $id, array $data): void
+    {
+        require_admin();
+        
+        $user = $this->userModel->findById($id);
+        
+        if (!$user) {
+            Response::notFound('User tidak ditemukan');
+        }
+        
+        if (!isset($data['status'])) {
+            Response::error('Status diperlukan', 400);
+        }
+        
+        $validStatuses = ['aktif', 'nonaktif'];
+        if (!in_array($data['status'], $validStatuses)) {
+            Response::error('Status tidak valid. Gunakan: aktif atau nonaktif', 400);
+        }
+        
+        $isApproved = ($data['status'] === 'aktif') ? IS_APPROVED_ACTIVE : IS_APPROVED_PENDING;
+        
+        $this->userModel->update($id, ['is_approved' => $isApproved]);
+        
+        $profile = $this->profileModel->findByUserId($id);
+        if ($profile) {
+            $activityStatus = ($data['status'] === 'aktif') ? 'aktif' : 'non-aktif';
+            $this->profileModel->update($id, ['activity_status' => $activityStatus]);
+        }
+        
+        Response::success(null, 'Status user berhasil diupdate');
+    }
 }

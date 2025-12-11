@@ -29,6 +29,7 @@ define('ALLOWED_ROLES', [ROLE_ADMIN, ROLE_ANGGOTA]);
 // 🔥 KONSTANTA PERSETUJUAN BARU 🔥
 define('IS_APPROVED_PENDING', 0);    // Status pendaftaran baru (Belum Disetujui)
 define('IS_APPROVED_ACTIVE', 1);     // Status setelah disetujui Admin (Aktif)
+define('IS_APPROVED_REJECTED', 2);   // Status setelah ditolak Admin (Ditolak)
 // ------------------------------------
 
 // --- EVENT STATUS ---

@@ -220,18 +220,18 @@
 
                         <div class="divider"></div>
 
-                        <h3 class="detail-section-title">Statistik Peserta</h3>
+                        <h3 class="detail-section-title">Statistik Kehadiran</h3>
                         <div class="stats-grid-detail">
                             <div class="stat-card-detail">
                                 <span class="stat-label-detail">Hadir</span>
                                 <span class="stat-value-detail" id="statHadir">0</span>
                             </div>
                             <div class="stat-card-detail">
-                                <span class="stat-label-detail">Total Peserta</span>
+                                <span class="stat-label-detail">Total Panitia</span>
                                 <span class="stat-value-detail" id="statTotal">0</span>
                             </div>
                             <div class="stat-card-detail">
-                                <span class="stat-label-detail">Tidak Hadir</span>
+                                <span class="stat-label-detail">Izin/Sakit</span>
                                 <span class="stat-value-detail" id="statTidakHadir">0</span>
                             </div>
                         </div>
@@ -304,15 +304,51 @@
                             <polyline points="21 15 16 10 5 21"></polyline>
                         </svg>
                     </div>
-                    <h2 class="presensi-title">Upload Bukti Presensi</h2>
-                    <p class="presensi-subtitle">Upload foto sebagai bukti kehadiran Anda</p>
+                    <h2 class="presensi-title">Form Presensi</h2>
+                    <p class="presensi-subtitle">Lengkapi form presensi Anda</p>
                 </div>
 
                 <form id="presensiForm" class="presensi-form">
                     <input type="hidden" id="presensiEventId" name="event_id">
                     
                     <div class="form-group">
-                        <label for="presensiPhoto" class="form-label">Foto Presensi <span class="required">*</span></label>
+                        <label class="form-label">Status Kehadiran <span class="required">*</span></label>
+                        <div class="attendance-status-options">
+                            <label class="status-option">
+                                <input type="radio" name="attendance_status" value="hadir" checked>
+                                <span class="status-card hadir">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>Hadir</span>
+                                </span>
+                            </label>
+                            <label class="status-option">
+                                <input type="radio" name="attendance_status" value="izin">
+                                <span class="status-card izin">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    </svg>
+                                    <span>Izin</span>
+                                </span>
+                            </label>
+                            <label class="status-option">
+                                <input type="radio" name="attendance_status" value="sakit">
+                                <span class="status-card sakit">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                                    </svg>
+                                    <span>Sakit</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="presensiPhoto" class="form-label">Foto Bukti <span class="required">*</span></label>
                         <div class="upload-area" id="uploadArea">
                             <input 
                                 type="file" 
@@ -341,17 +377,17 @@
                                 </button>
                             </div>
                         </div>
-                        <small class="form-hint">Pastikan foto jelas dan tidak blur</small>
+                        <small class="form-hint" id="photoHint">Upload foto selfie di lokasi event</small>
                     </div>
 
                     <div class="form-group">
-                        <label for="presensiNotes" class="form-label">Catatan (Opsional)</label>
+                        <label for="presensiNotes" class="form-label">Keterangan <span id="notesRequired" style="display:none;" class="required">*</span></label>
                         <textarea 
                             id="presensiNotes" 
                             name="notes" 
                             class="form-textarea" 
                             rows="3"
-                            placeholder="Tambahkan catatan jika perlu..."
+                            placeholder="Tambahkan keterangan jika perlu..."
                         ></textarea>
                     </div>
 
@@ -375,6 +411,129 @@
         <div class="toast-message" id="toastMessage"></div>
     </div>
 
-    <script src="js/events.js"></script>
+    <!-- ========== REGISTRATION/PANITIA MODAL ========== -->
+    <div class="modal" id="registrationModal">
+        <div class="modal-overlay" id="registrationModalOverlay"></div>
+        <div class="modal-content modal-sm">
+            <button class="modal-close" id="closeRegistrationModal" aria-label="Tutup modal">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <div class="modal-body">
+                <div class="presensi-header">
+                    <div class="presensi-icon" style="background: var(--teal-100);">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--teal-600)" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <line x1="20" y1="8" x2="20" y2="14"></line>
+                            <line x1="23" y1="11" x2="17" y2="11"></line>
+                        </svg>
+                    </div>
+                    <h2 class="presensi-title">Form Pendaftaran Panitia</h2>
+                    <p class="presensi-subtitle">Lengkapi form berikut untuk mendaftar sebagai panitia</p>
+                </div>
+
+                <form id="registrationForm" class="presensi-form">
+                    <input type="hidden" id="regEventId" name="event_id">
+                    
+                    <div class="form-group">
+                        <label for="regDivision" class="form-label">Divisi/Sie yang Diminati <span class="required">*</span></label>
+                        <select id="regDivision" name="division" class="form-select" required>
+                            <option value="">-- Pilih Divisi --</option>
+                            <option value="acara">Sie Acara</option>
+                            <option value="perkap">Sie Perlengkapan</option>
+                            <option value="humas">Sie Humas</option>
+                            <option value="pubdok">Sie Publikasi & Dokumentasi</option>
+                            <option value="konsumsi">Sie Konsumsi</option>
+                            <option value="dana">Sie Dana</option>
+                            <option value="dekor">Sie Dekorasi</option>
+                            <option value="keamanan">Sie Keamanan</option>
+                            <option value="lainnya">Lainnya</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regReason" class="form-label">Alasan Mendaftar <span class="required">*</span></label>
+                        <textarea 
+                            id="regReason" 
+                            name="reason" 
+                            class="form-textarea" 
+                            rows="3"
+                            placeholder="Jelaskan mengapa Anda tertarik untuk bergabung..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regExperience" class="form-label">Pengalaman Relevan (Opsional)</label>
+                        <textarea 
+                            id="regExperience" 
+                            name="experience" 
+                            class="form-textarea" 
+                            rows="3"
+                            placeholder="Ceritakan pengalaman Anda yang relevan dengan divisi yang dipilih..."
+                        ></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="btnCancelRegistration2">Batal</button>
+                        <button type="submit" class="btn-primary" id="btnSubmitRegistration">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            Kirim Pendaftaran
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== CONFIRMATION MODAL ========== -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-overlay" id="confirmModalOverlay"></div>
+        <div class="modal-content modal-xs">
+            <div class="modal-body" style="text-align: center; padding: 32px;">
+                <div id="confirmIcon" style="margin-bottom: 16px;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--teal-600)" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 8h.01"></path>
+                    </svg>
+                </div>
+                <h3 id="confirmTitle" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">Konfirmasi</h3>
+                <p id="confirmMessage" style="color: var(--gray-600); margin-bottom: 24px;">Apakah Anda yakin?</p>
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <button type="button" class="btn-secondary" id="btnConfirmCancel">Batal</button>
+                    <button type="button" class="btn-primary" id="btnConfirmOk">Ya, Lanjutkan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SUCCESS MODAL ========== -->
+    <div class="modal" id="successModal">
+        <div class="modal-overlay" id="successModalOverlay"></div>
+        <div class="modal-content modal-xs">
+            <div class="modal-body" style="text-align: center; padding: 32px;">
+                <div style="margin-bottom: 16px;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--green-600)" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
+                <h3 id="successTitle" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color: var(--green-600);">Berhasil!</h3>
+                <p id="successMessage" style="color: var(--gray-600); margin-bottom: 24px;"></p>
+                <button type="button" class="btn-primary" id="btnSuccessOk">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/logout-helper.js"></script>
+    <script src="js/events.js?v=20251211"></script>
 </body>
 </html>

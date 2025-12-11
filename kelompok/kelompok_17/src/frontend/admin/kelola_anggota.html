@@ -69,9 +69,7 @@
                 </button>
 
                 <div class="flex-1 flex items-center justify-between ml-0 lg:ml-4">
-                    <div class="input-group search-input-group w-96 max-w-full">
-                        <input type="text" class="form-control" placeholder="Cari Anggota/Kegiatan...">
-                    </div>
+                    <h1 class="text-xl font-bold text-gray-800">Kelola Anggota</h1>
                     
                     <div class="flex items-center space-x-4">
                         <a href="buat_event.html" class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
@@ -116,6 +114,9 @@
                 
                 <h1 class="text-xl font-semibold text-gray-800 mb-6">Kelola Anggota Organisasi</h1>
 
+                <!-- Alert Message -->
+                <div id="adminMessage" class="alert d-none mb-4" role="alert"></div>
+
                 <div class="mb-4">
                     <div class="input-group search-input-group w-full max-w-full">
                         <span class="input-group-text"><i class="fas fa-search text-gray-400"></i></span>
@@ -129,12 +130,13 @@
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NAMA LENGKAP</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">EMAIL</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NPM</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS KEAKTIFAN</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AKSI</th>
                             </tr>
                         </thead>
                         <tbody id="active-members-list" class="bg-white divide-y divide-gray-200">
-                            <tr><td colspan="4" class="text-center py-4 text-gray-500">Memuat data anggota...</td></tr>
+                            <tr><td colspan="5" class="text-center py-4 text-gray-500">Memuat data anggota...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -142,6 +144,98 @@
             </div>
         </main>
 
+    </div>
+
+    <div class="modal fade" id="memberDetailModal" tabindex="-1" aria-labelledby="memberDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-bold text-xl" id="memberDetailModalLabel">Detail Anggota</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="member-detail-content">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="changeStatusModal" tabindex="-1" aria-labelledby="changeStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-bold text-lg" id="changeStatusModalLabel">Ubah Status Anggota</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Pilih status baru untuk <strong id="status-member-name">Anggota</strong>:</p>
+                    <input type="hidden" id="status-member-id">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success status-option" data-status="aktif">
+                            <i class="fas fa-check-circle me-2"></i> AKTIF
+                        </button>
+                        <button class="btn btn-warning status-option" data-status="sp1">
+                            <i class="fas fa-exclamation-triangle me-2"></i> SP 1
+                        </button>
+                        <button class="btn btn-orange status-option" data-status="sp2" style="background-color: #FF853D; border-color: #FF853D; color: white;">
+                            <i class="fas fa-exclamation-circle me-2"></i> SP 2
+                        </button>
+                        <button class="btn btn-danger status-option" data-status="non-aktif">
+                            <i class="fas fa-ban me-2"></i> NON-AKTIF
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title font-bold" id="confirmDeleteModalLabel"><i class="fas fa-exclamation-triangle me-2"></i> Konfirmasi Hapus</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Apakah Anda yakin ingin menghapus anggota <strong id="delete-member-name">ini</strong>?</p>
+                    <p class="text-danger small">Tindakan ini tidak dapat dibatalkan!</p>
+                    <input type="hidden" id="delete-member-id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">
+                        <i class="fas fa-trash-alt me-2"></i> Ya, Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirmStatusModal" tabindex="-1" aria-labelledby="confirmStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--clr-primary-brand); color: white;">
+                    <h5 class="modal-title font-bold" id="confirmStatusModalLabel"><i class="fas fa-question-circle me-2"></i> Konfirmasi Perubahan</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Apakah Anda yakin ingin mengubah status <strong id="confirm-status-member-name">anggota</strong> menjadi <strong id="confirm-status-new"></strong>?</p>
+                    <input type="hidden" id="confirm-status-member-id">
+                    <input type="hidden" id="confirm-status-value">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="confirm-status-btn" style="background-color: var(--clr-primary-brand); border-color: var(--clr-primary-brand);">
+                        <i class="fas fa-check me-2"></i> Ya, Ubah
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="sidebar-mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
@@ -164,6 +258,7 @@
     </aside>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/logout-helper.js"></script>
     <script src="js/admin.js"></script> 
 </body>
 </html>

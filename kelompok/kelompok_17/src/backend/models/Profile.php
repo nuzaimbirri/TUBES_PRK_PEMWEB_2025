@@ -24,10 +24,26 @@ class Profile
 
     public function findWithUser(int $userId): ?array
     {
-        $sql = "SELECT p.*, u.username, u.email, u.role
+        $sql = "SELECT p.*, u.username, u.email, u.role, u.created_at
                 FROM {$this->table} p
                 JOIN users u ON p.user_id = u.user_id
                 WHERE p.user_id = :user_id
+                LIMIT 1";
+        
+        return Database::fetchOne($sql, ['user_id' => $userId]);
+    }
+
+    /**
+     * Get full member info including user data with LEFT JOIN (works even if profile doesn't exist)
+     */
+    public function findFullMemberData(int $userId): ?array
+    {
+        $sql = "SELECT u.user_id, u.username, u.email, u.role, u.created_at,
+                       p.profile_id, p.full_name, p.npm, p.department, 
+                       p.activity_status, p.profile_photo, p.phone_number, p.address
+                FROM users u
+                LEFT JOIN {$this->table} p ON u.user_id = p.user_id
+                WHERE u.user_id = :user_id
                 LIMIT 1";
         
         return Database::fetchOne($sql, ['user_id' => $userId]);
@@ -74,7 +90,7 @@ class Profile
         $fields = [];
         $params = ['user_id' => $userId];
         
-        $allowedFields = ['full_name', 'npm', 'department', 'activity_status', 'profile_photo'];
+        $allowedFields = ['full_name', 'npm', 'department', 'activity_status', 'profile_photo', 'phone_number', 'address'];
         
         foreach ($allowedFields as $field) {
             if (array_key_exists($field, $data)) {

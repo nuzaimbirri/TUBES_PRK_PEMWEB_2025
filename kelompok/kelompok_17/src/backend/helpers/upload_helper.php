@@ -69,6 +69,13 @@ function upload_event_banner(array $file, int $eventId = 0): array
     return upload_image($file, EVENT_UPLOAD_PATH, $prefix);
 }
 
+function upload_attendance_photo(array $file, int $eventId, int $userId): array
+{
+    $destination = dirname(UPLOAD_PATH) . '/upload/absensi';
+    $prefix = 'absensi_' . $eventId . '_' . $userId . '_';
+    return upload_image($file, $destination, $prefix);
+}
+
 function delete_file(string $filepath): bool
 {
     if (file_exists($filepath) && is_file($filepath)) {

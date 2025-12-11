@@ -2,23 +2,26 @@
 
 require_once MODELS_PATH . '/Attendance.php';
 require_once MODELS_PATH . '/Event.php';
+require_once MODELS_PATH . '/EventRegistration.php';
 
 class AttendanceController
 {
     private Attendance $attendanceModel;
     private Event $eventModel;
+    private EventRegistration $registrationModel;
 
     public function __construct()
     {
         $this->attendanceModel = new Attendance();
         $this->eventModel = new Event();
+        $this->registrationModel = new EventRegistration();
     }
 
     public function checkIn(array $data): void
     {
         require_login();
         
-        $errors = validate_required(['event_id'], $data);
+        $errors = validate_required(['event_id', 'status'], $data);
         
         if (!empty($errors)) {
             Response::validationError($errors);
@@ -27,9 +30,10 @@ class AttendanceController
         $eventId = (int) $data['event_id'];
         $userId = get_current_user_id();
         $status = $data['status'] ?? ATTENDANCE_HADIR;
+        $notes = $data['notes'] ?? null;
         
-        if (!validate_in_array($status, [ATTENDANCE_HADIR, ATTENDANCE_IZIN])) {
-            Response::validationError(['status' => 'Status tidak valid']);
+        if (!validate_in_array($status, [ATTENDANCE_HADIR, ATTENDANCE_IZIN, 'sakit'])) {
+            Response::validationError(['status' => 'Status tidak valid. Pilih: hadir, izin, atau sakit']);
         }
         
         $event = $this->eventModel->findById($eventId);
@@ -39,17 +43,26 @@ class AttendanceController
         }
         
         if ($event['status'] !== EVENT_STATUS_PUBLISHED) {
-            Response::error('Event tidak tersedia untuk check-in', 400);
+            Response::error('Event tidak tersedia untuk absensi', 400);
         }
         
-        $eventDate = $event['event_date'];
-        $today = date('Y-m-d');
-        
-        if ($eventDate < $today) {
-            Response::error('Event sudah berakhir', 400);
+        if ($event['open_registration']) {
+            $registration = $this->registrationModel->findByEventAndUser($eventId, $userId);
+            if (!$registration || $registration['status'] !== 'approved') {
+                Response::error('Anda tidak terdaftar sebagai panitia yang disetujui untuk event ini', 403);
+            }
         }
         
-        $result = $this->attendanceModel->checkIn($eventId, $userId, $status);
+        $photoFilename = null;
+        if (Request::hasFile('photo')) {
+            $uploadResult = upload_attendance_photo(Request::file('photo'), $eventId, $userId);
+            if (!$uploadResult['success']) {
+                Response::error('Gagal upload foto: ' . $uploadResult['message'], 400);
+            }
+            $photoFilename = $uploadResult['filename'];
+        }
+        
+        $result = $this->attendanceModel->checkInWithPhoto($eventId, $userId, $status, $photoFilename, $notes);
         
         if (!$result['success']) {
             Response::error($result['message'], 409);
@@ -59,8 +72,54 @@ class AttendanceController
             'attendance_id' => $result['attendance_id'],
             'event_title'   => $event['title'],
             'check_in_time' => date('Y-m-d H:i:s'),
-            'status'        => $status
-        ], 'Check-in berhasil');
+            'status'        => $status,
+            'photo'         => $photoFilename,
+            'notes'         => $notes
+        ], 'Absensi berhasil');
+    }
+
+    public function canAttend(int $eventId): void
+    {
+        require_login();
+        
+        $event = $this->eventModel->findById($eventId);
+        
+        if (!$event) {
+            Response::notFound('Event tidak ditemukan');
+        }
+        
+        $userId = get_current_user_id();
+        $canAttend = true;
+        $reason = '';
+        $registrationStatus = null;
+        
+        if ($event['open_registration']) {
+            $registration = $this->registrationModel->findByEventAndUser($eventId, $userId);
+            if (!$registration) {
+                $canAttend = false;
+                $reason = 'Anda belum mendaftar sebagai panitia';
+            } elseif ($registration['status'] === 'pending') {
+                $canAttend = false;
+                $reason = 'Pendaftaran Anda masih menunggu persetujuan';
+                $registrationStatus = 'pending';
+            } elseif ($registration['status'] === 'rejected') {
+                $canAttend = false;
+                $reason = 'Pendaftaran Anda ditolak';
+                $registrationStatus = 'rejected';
+            } else {
+                $registrationStatus = 'approved';
+            }
+        }
+        
+        $hasCheckedIn = $this->attendanceModel->hasCheckedIn($eventId, $userId);
+        
+        Response::success([
+            'can_attend'          => $canAttend,
+            'reason'              => $reason,
+            'has_checked_in'      => $hasCheckedIn,
+            'open_registration'   => (bool) $event['open_registration'],
+            'registration_status' => $registrationStatus
+        ]);
     }
 
     public function byEvent(int $eventId): void
@@ -248,5 +307,15 @@ class AttendanceController
             'has_checked_in' => $attendance !== null,
             'attendance'     => $attendance
         ]);
+    }
+
+    public function userStatistics(): void
+    {
+        require_login();
+        
+        $userId = get_current_user_id();
+        $stats = $this->attendanceModel->getUserStatistics($userId);
+        
+        Response::success($stats);
     }
 }

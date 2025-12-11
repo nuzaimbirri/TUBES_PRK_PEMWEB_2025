@@ -16,12 +16,22 @@
    CONFIG
    ================================ */
 
-// Base API path (relative like dashboard)
-const API_BASE = '../../backend/api';
+const hostname = window.location.hostname;
+const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+const isDotTest = hostname.endsWith('.test');
 
-// Endpoints (change if server uses different names)
-const API_LIST_EVENTS = `${API_BASE}/events.php?action=upcoming`; // read-only list of events
-const API_REGISTER_URL = `${API_BASE}/events.php?action=register`; // register for event (POST)
+let basePath = '';
+if (isLocalhost) {
+    basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+} else if (isDotTest) {
+    basePath = '/kelompok/kelompok_17/src';
+}
+
+const API_BASE = `${basePath}/backend/api`;
+const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
+
+const API_LIST_EVENTS = `${API_BASE}/events.php?action=upcoming`;
+const API_REGISTER_URL = `${API_BASE}/events.php?action=register`;
 
 console.log('📍 pendaftaran.js - API_LIST_EVENTS', API_LIST_EVENTS);
 console.log('📍 pendaftaran.js - API_REGISTER_URL', API_REGISTER_URL);

@@ -73,10 +73,45 @@ try {
             $controller->checkSession();
             break;
 
+        case 'active_members':
+            if (!Request::isGet()) {
+                Response::methodNotAllowed('Gunakan method GET');
+            }
+            $controller->getActiveMembers();
+            break;
+
+        case 'dashboard_stats':
+            if (!Request::isGet()) {
+                Response::methodNotAllowed('Gunakan method GET');
+            }
+            $controller->getDashboardStats();
+            break;
+
+        case 'all_members':
+            if (!Request::isGet()) {
+                Response::methodNotAllowed('Gunakan method GET');
+            }
+            $controller->getAllMembers();
+            break;
+
+        case 'delete_member':
+            if (!Request::isPost() && !Request::isDelete()) {
+                Response::methodNotAllowed('Gunakan method POST atau DELETE');
+            }
+            $controller->deleteMember($data);
+            break;
+
         default:
-            Response::error('Action tidak ditemukan. Gunakan: login, register, logout, me, change-password, check, pending_members, approve_member', 404);
+            Response::error('Action tidak ditemukan. Gunakan: login, register, logout, me, change-password, check, pending_members, approve_member, active_members, dashboard_stats, all_members, delete_member', 404);
     }
 } catch (Exception $e) {
     error_log("Auth API Error: " . $e->getMessage());
-    Response::serverError('Terjadi kesalahan server');
+    error_log("Stack trace: " . $e->getTraceAsString());
+    
+    // Development: tampilkan error detail
+    if (defined('APP_DEBUG') && APP_DEBUG) {
+        Response::error('Error: ' . $e->getMessage(), 500, ['trace' => $e->getTraceAsString()]);
+    } else {
+        Response::serverError('Terjadi kesalahan server');
+    }
 }

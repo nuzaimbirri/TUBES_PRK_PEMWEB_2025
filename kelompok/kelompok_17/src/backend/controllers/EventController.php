@@ -2,16 +2,19 @@
 
 require_once MODELS_PATH . '/Event.php';
 require_once MODELS_PATH . '/Attendance.php';
+require_once MODELS_PATH . '/EventRegistration.php';
 
 class EventController
 {
     private Event $eventModel;
     private Attendance $attendanceModel;
+    private EventRegistration $registrationModel;
 
     public function __construct()
     {
         $this->eventModel = new Event();
         $this->attendanceModel = new Attendance();
+        $this->registrationModel = new EventRegistration();
     }
 
     public function index(): void
@@ -49,6 +52,19 @@ class EventController
         Response::success($events);
     }
 
+    /**
+     * Get latest/newest uploaded events for banner slider
+     */
+    public function latest(): void
+    {
+        require_login();
+        
+        $limit = (int) (Request::query('limit') ?? 3);
+        $events = $this->eventModel->getLatest($limit);
+        
+        Response::success($events);
+    }
+
     public function show(int $id): void
     {
         require_login();
@@ -64,6 +80,7 @@ class EventController
         }
         
         $event['attendance_stats'] = $this->attendanceModel->getEventStatistics($id);
+        $event['registration_stats'] = $this->registrationModel->getEventStatistics($id);
         
         $event['has_checked_in'] = $this->attendanceModel->hasCheckedIn($id, get_current_user_id());
         
@@ -102,15 +119,29 @@ class EventController
             Response::validationError($errors);
         }
         
+        $openRegistration = isset($data['open_registration']) ? (int) $data['open_registration'] : 0;
+        $registrationDeadline = null;
+        $maxParticipants = null;
+        
+        if ($openRegistration && !empty($data['registration_deadline'])) {
+            $registrationDeadline = $data['registration_deadline'];
+        }
+        if ($openRegistration && !empty($data['max_participants'])) {
+            $maxParticipants = (int) $data['max_participants'];
+        }
+        
         $eventId = $this->eventModel->create([
-            'title'       => sanitize_string($data['title']),
-            'description' => sanitize_string($data['description'] ?? ''),
-            'event_date'  => $data['event_date'],
-            'start_time'  => $data['start_time'],
-            'end_time'    => $data['end_time'] ?? null,
-            'location'    => sanitize_string($data['location'] ?? ''),
-            'status'      => $data['status'] ?? EVENT_STATUS_DRAFT,
-            'created_by'  => get_current_user_id()
+            'title'                 => sanitize_string($data['title']),
+            'description'           => sanitize_string($data['description'] ?? ''),
+            'event_date'            => $data['event_date'],
+            'start_time'            => $data['start_time'],
+            'end_time'              => $data['end_time'] ?? null,
+            'location'              => sanitize_string($data['location'] ?? ''),
+            'status'                => $data['status'] ?? EVENT_STATUS_DRAFT,
+            'open_registration'     => $openRegistration,
+            'registration_deadline' => $registrationDeadline,
+            'max_participants'      => $maxParticipants,
+            'created_by'            => get_current_user_id()
         ]);
         
         if (Request::hasFile('banner')) {
@@ -282,6 +313,19 @@ class EventController
             'draft'     => $this->eventModel->count(EVENT_STATUS_DRAFT),
             'published' => $this->eventModel->count(EVENT_STATUS_PUBLISHED),
             'cancelled' => $this->eventModel->count(EVENT_STATUS_CANCELLED),
+            'completed' => $this->eventModel->count(EVENT_STATUS_COMPLETED)
+        ]);
+    }
+
+    /**
+     * Get public statistics (only published count, for member dashboard)
+     */
+    public function publicStats(): void
+    {
+        require_login();
+        
+        Response::success([
+            'published' => $this->eventModel->count(EVENT_STATUS_PUBLISHED),
             'completed' => $this->eventModel->count(EVENT_STATUS_COMPLETED)
         ]);
     }

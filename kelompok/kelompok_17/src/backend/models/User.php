@@ -235,4 +235,62 @@ class User
         
         return $stmt->fetchAll();
     }
+
+    public function findActiveMembers(): array
+    {
+        $sql = "SELECT u.user_id, u.username, u.email, u.created_at,
+                       p.full_name, p.npm, p.department, p.activity_status, p.profile_photo
+                FROM {$this->table} u
+                LEFT JOIN profiles p ON u.user_id = p.user_id
+                WHERE u.role = :role AND u.is_approved = :is_approved
+                ORDER BY p.full_name ASC, u.username ASC";
+        
+        $stmt = Database::query($sql, [
+            'role' => ROLE_ANGGOTA,
+            'is_approved' => IS_APPROVED_ACTIVE
+        ]);
+        
+        return $stmt->fetchAll();
+    }
+
+    public function findAllMembersWithProfile(int $page = 1, int $limit = 50): array
+    {
+        $offset = ($page - 1) * $limit;
+        
+        $sql = "SELECT u.user_id, u.username, u.email, u.role, u.is_approved, u.created_at,
+                       p.full_name, p.npm, p.department, p.activity_status, p.profile_photo,
+                       p.phone_number, p.address
+                FROM {$this->table} u
+                LEFT JOIN profiles p ON u.user_id = p.user_id
+                WHERE u.role = :role AND u.is_approved = :is_approved
+                ORDER BY p.full_name ASC, u.username ASC
+                LIMIT :limit OFFSET :offset";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':role', ROLE_ANGGOTA, PDO::PARAM_STR);
+        $stmt->bindValue(':is_approved', IS_APPROVED_ACTIVE, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll();
+    }
+
+    public function countActiveMembers(): int
+    {
+        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE role = :role AND is_approved = :is_approved";
+        return (int) Database::query($sql, [
+            'role' => ROLE_ANGGOTA,
+            'is_approved' => IS_APPROVED_ACTIVE
+        ])->fetchColumn();
+    }
+
+    public function countPendingMembers(): int
+    {
+        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE role = :role AND is_approved = :is_approved";
+        return (int) Database::query($sql, [
+            'role' => ROLE_ANGGOTA,
+            'is_approved' => IS_APPROVED_PENDING
+        ])->fetchColumn();
+    }
 }

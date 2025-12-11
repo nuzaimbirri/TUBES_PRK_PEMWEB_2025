@@ -243,10 +243,23 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Logika JavaScript Laporan Kegiatan
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+        const isDotTest = hostname.endsWith('.test');
         
-        // --- URL Konfigurasi (Placeholder) ---
-        const LOGIN_PAGE_URL = "http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/auth/login.html"; 
+        let basePath = '';
+        if (isLocalhost) {
+            basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+        } else if (isDotTest) {
+            basePath = '/kelompok/kelompok_17/src';
+        }
+        
+        const API_BASE = `${basePath}/backend/api`;
+        const LOGIN_PAGE_URL = `${basePath}/frontend/auth/login.html`;
+        const UPLOAD_BASE = basePath.replace('/src', '/upload');
         
         // Elemen Halaman
         const laporanList = document.getElementById('laporan-list');
@@ -263,44 +276,90 @@
         // Cek halaman
         const IS_REPORT_PAGE = !!laporanList;
 
-        // --- DATA DUMMY: LAPORAN KEGIATAN ---
-        const reportData = [
-            { 
-                id: 1,
-                date: "10 Des 2025", 
-                title: "Rapat Koordinasi Akhir Tahun", 
-                total_members: 40,
-                hadir: 35, izin: 3, sakit: 1, alpa: 1,
-                bahasan: "Finalisasi anggaran 2026, Penunjukan PJ Event Besar.",
-                absensi: [
-                    { name: "Budi Santoso", status: "HADIR", time: "09:00 WIB", bukti: null },
-                    { name: "Siti Aisyah", status: "IZIN", time: "-", bukti: { photo: "path/to/surat_izin_siti.jpg", note: "Ada Ujian Susulan" } },
-                    { name: "Michael Chen", status: "ALPA", time: "-", bukti: null },
-                    { name: "Fahmi Rasyid", status: "SAKIT", time: "-", bukti: { photo: "path/to/surat_dokter_fahmi.jpg", note: "Surat Dokter terlampir" } },
-                    { name: "Ahmad Yani", status: "HADIR", time: "09:05 WIB", bukti: null },
-                    // ... 35 anggota lainnya
-                ]
-            },
-            { 
-                id: 2,
-                date: "03 Des 2025", 
-                title: "Pelatihan Dasar Kepemimpinan", 
-                total_members: 120,
-                hadir: 108, izin: 5, sakit: 3, alpa: 4,
-                bahasan: "Workshop kepemimpinan, Pembagian mentor kelompok.",
-                absensi: [] // Placeholder
-            },
-            { 
-                id: 3,
-                date: "01 Des 2025", 
-                title: "Rapat Pleno Awal Tahun", 
-                total_members: 38,
-                hadir: 30, izin: 5, sakit: 2, alpa: 1,
-                bahasan: "Pembahasan RKP Divisi, Jadwal Launching Program Besar.",
-                absensi: [] // Placeholder
-            },
-        ];
-        // ---------------------------------------------
+        // State untuk menyimpan data laporan dari API
+        let reportData = [];
+
+        // ========================================
+        // LOAD REPORT DATA FROM API
+        // ========================================
+        async function loadReportDataFromAPI() {
+            try {
+                // Load events dengan attendance data
+                const eventsResponse = await fetch(`${API_BASE}/events.php?action=list&limit=100`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const eventsResult = await eventsResponse.json();
+                
+                if (eventsResponse.ok && eventsResult.status === 'success' && eventsResult.data && eventsResult.data.data) {
+                    const events = eventsResult.data.data;
+                    
+                    // Load attendance for each event
+                    reportData = await Promise.all(events.map(async (event) => {
+                        // Get attendance statistics for this event
+                        let attendanceStats = { hadir: 0, izin: 0, sakit: 0, alpha: 0, total: 0, attendees: [] };
+                        
+                        try {
+                            const attResponse = await fetch(`${API_BASE}/attendance.php?action=event-attendance&event_id=${event.event_id}`, {
+                                method: 'GET',
+                                credentials: 'include'
+                            });
+                            const attResult = await attResponse.json();
+                            
+                            if (attResponse.ok && attResult.status === 'success' && attResult.data) {
+                                const data = attResult.data;
+                                attendanceStats = {
+                                    hadir: data.statistics?.hadir || 0,
+                                    izin: data.statistics?.izin || 0,
+                                    sakit: data.statistics?.sakit || 0,
+                                    alpha: data.statistics?.alpha || 0,
+                                    total: data.statistics?.total || 0,
+                                    attendees: data.attendance || []
+                                };
+                            }
+                        } catch (err) {
+                            console.error('Error loading attendance for event', event.event_id, err);
+                        }
+                        
+                        const eventDate = new Date(event.event_date);
+                        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+                        const formattedDate = eventDate.toLocaleDateString('id-ID', options);
+                        
+                        return {
+                            id: event.event_id,
+                            date: formattedDate,
+                            title: event.title,
+                            total_members: attendanceStats.total || 0,
+                            hadir: attendanceStats.hadir,
+                            izin: attendanceStats.izin,
+                            sakit: attendanceStats.sakit,
+                            alpa: attendanceStats.alpha,
+                            bahasan: event.description || 'Tidak ada deskripsi',
+                            absensi: attendanceStats.attendees.map(att => ({
+                                name: att.full_name || att.username || 'Unknown',
+                                status: (att.status || 'HADIR').toUpperCase(),
+                                time: att.check_in_time ? att.check_in_time.substring(0, 5) + ' WIB' : '-',
+                                bukti: att.photo_path ? { photo: att.photo_path, note: att.notes || '' } : null
+                            }))
+                        };
+                    }));
+                    
+                    // Filter hanya event yang sudah berlalu (completed)
+                    const today = new Date().toISOString().split('T')[0];
+                    reportData = reportData.filter(report => {
+                        // Parse date back to compare
+                        return true; // Show all for now, or filter by past events
+                    });
+                } else {
+                    reportData = [];
+                }
+            } catch (error) {
+                console.error('Error loading report data:', error);
+                reportData = [];
+            }
+            
+            return reportData;
+        }
 
         // --- HELPER UNTUK MODAL ABSENSI ---
         function getStatusClass(status) {
@@ -357,6 +416,8 @@
             laporanList.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Memuat data laporan...</td></tr>';
             
             try {
+                // Load data from API
+                await loadReportDataFromAPI();
                 const reports = reportData;
                 
                 if (reports.length === 0) {
@@ -450,7 +511,23 @@
              const photoUrl = button.getAttribute('data-bukti-photo');
              const note = button.getAttribute('data-bukti-note');
 
-             document.getElementById('bukti-image').src = photoUrl || 'path/to/default_no_image.png';
+             // Construct proper URL for photo
+             let fullPhotoUrl = '';
+             if (photoUrl) {
+                 // Check if photoUrl already has full path or just filename
+                 if (photoUrl.startsWith('http') || photoUrl.startsWith('/')) {
+                     fullPhotoUrl = photoUrl;
+                 } else {
+                     // Assume it's stored in attendance folder
+                     fullPhotoUrl = `${UPLOAD_BASE}/absensi/${photoUrl}`;
+                 }
+             }
+
+             const buktiImage = document.getElementById('bukti-image');
+             buktiImage.src = fullPhotoUrl || '';
+             buktiImage.onerror = function() {
+                 this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect fill="%23f3f4f6" width="200" height="150"/><text fill="%239ca3af" font-family="sans-serif" font-size="14" x="50%" y="50%" text-anchor="middle" dy=".3em">Foto tidak tersedia</text></svg>';
+             };
              document.getElementById('bukti-keterangan').textContent = note || 'Tidak ada keterangan tambahan.';
              
              // Sembunyikan modal pertama
@@ -472,17 +549,6 @@
         // --- Initialization ---
         function initialize() {
             if (IS_REPORT_PAGE) {
-                // Tambahkan lebih banyak data dummy agar modal tidak kosong
-                for(let i=0; i<35; i++) {
-                    reportData[0].absensi.push({
-                        name: `Anggota ${i + 5}`, // Nama Anggota 5 sampai 40
-                        status: i % 4 === 0 ? "HADIR" : (i % 4 === 1 ? "ALPA" : (i % 4 === 2 ? "SAKIT" : "IZIN")),
-                        time: i % 4 === 0 ? "09:02 WIB" : "-",
-                        bukti: (i % 4 === 2 || i % 4 === 3) ? { photo: "path/to/bukti_placeholder.jpg", note: `Keterangan anggota ${i+5}` } : null
-                    });
-                }
-
-
                 fetchAndRenderActivityReport();
             }
             

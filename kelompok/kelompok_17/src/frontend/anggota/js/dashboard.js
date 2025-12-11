@@ -1,23 +1,20 @@
-/**
- * SIMORA Dashboard - Member Dashboard JavaScript
- * Features: Auth Check, Stats, Events, Hero Slider, Mobile Nav
- */
-
 document.addEventListener('DOMContentLoaded', async () => {
-    // ========================================
-    // CONFIGURATION - Use Relative Path!
-    // ========================================
-    // Dari frontend/anggota/dashboard.html ke backend/api/ = naik 2 level lalu masuk backend/api
-    // dashboard.html -> ../ = anggota -> ../ = frontend -> masuk backend/api
-    const API_BASE = '../../backend/api';
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isDotTest = hostname.endsWith('.test');
     
-    // DEBUG: Log the full URL being used
-    console.log('📍 API_BASE:', API_BASE);
-    console.log('📍 Full auth URL would be:', new URL(`${API_BASE}/auth.php?action=me`, window.location.href).href);
+    let basePath = '';
+    if (isLocalhost) {
+        basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+    } else if (isDotTest) {
+        basePath = '/kelompok/kelompok_17/src';
+    }
+    
+    const API_BASE = `${basePath}/backend/api`;
+    const UPLOAD_BASE = basePath.replace('/src', '/upload');
+    const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
+    const EVENTS_PAGE = `${basePath}/frontend/anggota/events.html`;
 
-    // ========================================
-    // HERO SLIDER - Auto-scrolling Carousel
-    // ========================================
     const initSlider = () => {
         const wrapper = document.getElementById('sliderWrapper');
         const slides = wrapper?.querySelectorAll('.slide');
@@ -29,24 +26,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         let currentIndex = 0;
         let autoSlideInterval;
-        const SLIDE_DURATION = 5000; // 5 detik per slide
+        const SLIDE_DURATION = 5000;
         
         const showSlide = (index) => {
-            // Wrap around
             if (index >= slides.length) index = 0;
             if (index < 0) index = slides.length - 1;
-            
             currentIndex = index;
-            
-            // Update slides
-            slides.forEach((slide, i) => {
-                slide.classList.toggle('active', i === index);
-            });
-            
-            // Update dots
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
-            });
+            slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
         };
         
         const nextSlide = () => showSlide(currentIndex + 1);
@@ -58,63 +45,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         
         const stopAutoSlide = () => {
-            if (autoSlideInterval) {
-                clearInterval(autoSlideInterval);
-            }
+            if (autoSlideInterval) clearInterval(autoSlideInterval);
         };
         
-        // Event Listeners
-        prevBtn?.addEventListener('click', () => {
-            prevSlide();
-            startAutoSlide(); // Reset timer
-        });
+        prevBtn?.addEventListener('click', () => { prevSlide(); startAutoSlide(); });
+        nextBtn?.addEventListener('click', () => { nextSlide(); startAutoSlide(); });
         
-        nextBtn?.addEventListener('click', () => {
-            nextSlide();
-            startAutoSlide(); // Reset timer
-        });
-        
-        // Dot navigation
         dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                showSlide(index);
-                startAutoSlide(); // Reset timer
-            });
+            dot.addEventListener('click', () => { showSlide(index); startAutoSlide(); });
         });
         
-        // Pause on hover
         wrapper?.addEventListener('mouseenter', stopAutoSlide);
         wrapper?.addEventListener('mouseleave', startAutoSlide);
         
-        // Touch support for mobile
         let touchStartX = 0;
-        let touchEndX = 0;
-        
-        wrapper?.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-            stopAutoSlide();
+        wrapper?.addEventListener('touchstart', (e) => { 
+            touchStartX = e.changedTouches[0].screenX; 
+            stopAutoSlide(); 
         }, { passive: true });
         
         wrapper?.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            const diff = touchStartX - touchEndX;
-            
-            if (Math.abs(diff) > 50) { // Minimum swipe distance
-                if (diff > 0) nextSlide();
-                else prevSlide();
-            }
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) { diff > 0 ? nextSlide() : prevSlide(); }
             startAutoSlide();
         }, { passive: true });
         
-        // Start auto-slide
         startAutoSlide();
-        
-        console.log('✅ Slider initialized');
     };
 
-    // ========================================
-    // MOBILE NAVIGATION
-    // ========================================
     const initMobileNav = () => {
         const toggle = document.getElementById('navToggle');
         const menu = document.getElementById('navMenu');
@@ -124,7 +82,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             toggle.classList.toggle('active');
         });
         
-        // Close menu when clicking on a link
         menu?.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', () => {
                 menu.classList.remove('active');
@@ -133,100 +90,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    // ========================================
-    // 1. AUTHENTICATION CHECK
-    // ========================================
+    let currentUserData = null;
+
     try {
-        console.log('🔍 Checking authentication...');
-        console.log('🔍 Fetching:', `${API_BASE}/auth.php?action=me`);
-        
         const response = await fetch(`${API_BASE}/auth.php?action=me`, {
             method: 'GET',
             credentials: 'include'
         });
         
-        console.log('📡 Response status:', response.status);
-        console.log('📡 Response headers:', [...response.headers.entries()]);
-        
-        const text = await response.text();
-        console.log('📡 Raw response:', text);
-        
-        let result;
-        try {
-            result = JSON.parse(text);
-        } catch (e) {
-            console.error('❌ Failed to parse JSON:', e);
-            console.error('❌ Response was:', text);
-            throw new Error('Invalid JSON response from server');
-        }
-        
-        console.log('📡 Parsed result:', result);
+        const result = await response.json();
 
         if (!response.ok || result.status !== 'success') {
-            console.error('❌ Auth failed:', result.message || 'Unknown error');
-            console.error('❌ Full result:', result);
-            // SEMENTARA DISABLE REDIRECT UNTUK DEBUG
-            // window.location.href = '../auth/login_register.html';
-            alert('Auth failed: ' + (result.message || 'Unknown error') + '\n\nCheck console for details.');
+            window.location.href = LOGIN_PAGE;
             return;
         }
 
-        console.log('✅ Auth successful!');
-        const user = result.data;
-
-        // Update UI User info
+        currentUserData = result.data;
         const navUsername = document.getElementById('navUsername');
         const userInitials = document.getElementById('userInitials');
+        const userAvatar = document.getElementById('userAvatar');
         
-        if (navUsername) {
-            navUsername.textContent = user.full_name || user.username;
-        }
+        if (navUsername) navUsername.textContent = currentUserData.full_name || currentUserData.username;
         
-        // Initials for avatar
-        if (userInitials) {
-            const name = user.full_name || user.username;
-            const initials = name.split(' ')
-                .map(word => word.charAt(0))
-                .join('')
-                .substring(0, 2)
-                .toUpperCase();
+        if (userAvatar && currentUserData.profile_photo) {
+            userAvatar.innerHTML = `<img src="${UPLOAD_BASE}/profile/${currentUserData.profile_photo}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        } else if (userInitials) {
+            const name = currentUserData.full_name || currentUserData.username;
+            const initials = name.split(' ').map(w => w.charAt(0)).join('').substring(0, 2).toUpperCase();
             userInitials.textContent = initials;
         }
 
     } catch (error) {
-        console.error('❌ Auth Error:', error);
-        console.error('❌ Error details:', error.message, error.stack);
-        // SEMENTARA DISABLE REDIRECT UNTUK DEBUG
-        // window.location.href = '../auth/login_register.html';
-        alert('Auth Error: ' + error.message + '\n\nCheck console for details.');
+        window.location.href = LOGIN_PAGE;
         return;
     }
 
-    // ========================================
-    // 2. FETCH STATISTICS
-    // ========================================
-    const loadStats = async () => {
-        try {
-            const response = await fetch(`${API_BASE}/attendance.php?action=my-attendance`, {
-                method: 'GET',
-                credentials: 'include'
-            });
-            const result = await response.json();
-
-            if (response.ok && result.status === 'success') {
-                const stats = result.data.statistics;
-                
-                // Update stats with animation
-                animateValue('statTotalAnggota', 0, stats.total || 1247, 1000);
-                animateValue('statKegiatanAktif', 0, stats.hadir || 23, 1000);
-                animateValue('statBulanIni', 0, stats.alpha || 89, 1000);
-            }
-        } catch (error) {
-            console.error('Gagal mengambil statistik:', error);
-        }
-    };
-
-    // Animate number counting
     const animateValue = (elementId, start, end, duration) => {
         const element = document.getElementById(elementId);
         if (!element) return;
@@ -237,24 +135,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         const updateValue = (currentTime) => {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            
-            // Easing function for smooth animation
             const easeOutQuart = 1 - Math.pow(1 - progress, 4);
             const current = Math.floor(start + range * easeOutQuart);
-            
             element.textContent = current.toLocaleString('id-ID');
-            
-            if (progress < 1) {
-                requestAnimationFrame(updateValue);
-            }
+            if (progress < 1) requestAnimationFrame(updateValue);
         };
         
         requestAnimationFrame(updateValue);
     };
 
-    // ========================================
-    // 3. FETCH UPCOMING EVENTS
-    // ========================================
+    const loadStats = async () => {
+        try {
+            const response = await fetch(`${API_BASE}/auth.php?action=all_members`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const result = await response.json();
+
+            if (response.ok && result.status === 'success') {
+                animateValue('statTotalAnggota', 0, result.data.total || 0, 1000);
+            }
+            
+            // Use public-stats endpoint (accessible by all logged-in users)
+            const eventsRes = await fetch(`${API_BASE}/events.php?action=public-stats`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const eventsResult = await eventsRes.json();
+            
+            if (eventsRes.ok && eventsResult.status === 'success') {
+                animateValue('statKegiatanAktif', 0, eventsResult.data.published || 0, 1000);
+            }
+
+            const attendRes = await fetch(`${API_BASE}/attendance.php?action=my-attendance`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const attendResult = await attendRes.json();
+            
+            if (attendRes.ok && attendResult.status === 'success') {
+                animateValue('statBulanIni', 0, attendResult.data?.statistics?.total || 0, 1000);
+            }
+        } catch (error) {
+            console.error('Stats error:', error);
+        }
+    };
+
     const loadUpcomingEvents = async () => {
         try {
             const response = await fetch(`${API_BASE}/events.php?action=upcoming&limit=3`, {
@@ -264,9 +190,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const result = await response.json();
             const container = document.getElementById('upcomingEventsContainer');
 
-            if (response.ok && result.status === 'success' && result.data.length > 0) {
+            if (response.ok && result.status === 'success' && result.data && result.data.length > 0) {
                 container.innerHTML = '';
-                
                 const colors = ['blue', 'purple', 'green'];
 
                 result.data.forEach((event, index) => {
@@ -276,7 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const colorClass = colors[index % colors.length];
                     
                     const cardHtml = `
-                        <div class="event-card">
+                        <div class="event-card clickable-event" data-event-id="${event.event_id}">
                             <div class="event-date-badge ${colorClass}">
                                 <span class="date-number">${day}</span>
                                 <span class="date-month">${month}</span>
@@ -286,53 +211,134 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 <p class="event-desc">${event.description || 'Tidak ada deskripsi.'}</p>
                                 <div class="event-meta">
                                     <span>🕒 ${event.start_time?.substring(0, 5) || '00:00'}</span>
-                                    <span>📍 ${event.location || 'Online'}</span>
+                                    <span>📍 ${event.location || 'TBD'}</span>
                                 </div>
                             </div>
                         </div>
                     `;
                     container.insertAdjacentHTML('beforeend', cardHtml);
                 });
+
+                container.querySelectorAll('.clickable-event').forEach(card => {
+                    card.style.cursor = 'pointer';
+                    card.addEventListener('click', () => {
+                        const eventId = card.dataset.eventId;
+                        window.location.href = `${EVENTS_PAGE}?event=${eventId}`;
+                    });
+                });
+            } else {
+                container.innerHTML = '<p class="text-gray-500 text-center">Tidak ada event mendatang.</p>';
             }
         } catch (error) {
-            console.error('Error fetching events:', error);
+            console.error('Events error:', error);
         }
     };
 
-    // ========================================
-    // 4. LOGOUT HANDLER
-    // ========================================
-    const initLogout = () => {
-        const btnLogout = document.getElementById('btnLogout');
-        
-        btnLogout?.addEventListener('click', async () => {
-            try {
-                btnLogout.textContent = 'Loading...';
-                btnLogout.disabled = true;
+    const updateSliderWithEvents = async () => {
+        try {
+            console.log('🔄 Loading slider events...');
+            const response = await fetch(`${API_BASE}/events.php?action=latest&limit=5`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const result = await response.json();
+            console.log('📦 Slider API response:', result);
+
+            const wrapper = document.getElementById('sliderWrapper');
+            const dotsContainer = document.getElementById('sliderDots');
+            
+            if (!wrapper) return;
+
+            if (response.ok && result.status === 'success' && result.data && result.data.length > 0) {
+                wrapper.innerHTML = '';
+                if (dotsContainer) dotsContainer.innerHTML = '';
                 
-                await fetch(`${API_BASE}/auth.php?action=logout`, {
-                    method: 'POST',
-                    credentials: 'include'
+                const badges = [
+                    { text: '🎯 Event Utama', class: '' },
+                    { text: '🤖 Seminar', class: 'purple' },
+                    { text: '🎉 Kegiatan', class: 'green' },
+                    { text: '📚 Workshop', class: '' },
+                    { text: '🎭 Acara', class: 'purple' }
+                ];
+
+                result.data.forEach((event, index) => {
+                    const dateObj = new Date(event.event_date);
+                    const formattedDate = dateObj.toLocaleDateString('id-ID', { 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric' 
+                    });
+                    
+                    // Check if banner exists and is not default
+                    const hasBanner = event.banner && 
+                                      event.banner.trim() !== '' && 
+                                      event.banner !== 'default.jpg' &&
+                                      event.banner !== 'null';
+                    const bannerUrl = hasBanner ? `${UPLOAD_BASE}/event/${event.banner}` : '';
+                    console.log(`📷 Event ${index + 1}: "${event.title}" - Banner: "${event.banner}" - HasBanner: ${hasBanner}`);
+                    if (hasBanner) console.log(`   Banner URL: ${bannerUrl}`);
+                    
+                    const slideHtml = `
+                        <div class="slide ${index === 0 ? 'active' : ''} ${hasBanner ? 'has-banner' : ''}" 
+                             data-event-id="${event.event_id}" 
+                             style="${hasBanner ? `background-image: url('${bannerUrl}');` : ''}">
+                            <div class="slide-overlay"></div>
+                            <div class="slide-content">
+                                <span class="slide-badge ${badges[index % 5].class}">${badges[index % 5].text}</span>
+                                <h2 class="slide-title">${event.title}</h2>
+                                <p class="slide-desc">${event.description || 'Event organisasi'}</p>
+                                <div class="slide-meta">
+                                    <span>📅 ${formattedDate}</span>
+                                    <span>📍 ${event.location || 'TBD'}</span>
+                                </div>
+                                <button class="slide-btn">Lihat Detail</button>
+                            </div>
+                        </div>
+                    `;
+                    wrapper.insertAdjacentHTML('beforeend', slideHtml);
+                    
+                    if (dotsContainer) {
+                        const dotHtml = `<button class="dot ${index === 0 ? 'active' : ''}" data-index="${index}"></button>`;
+                        dotsContainer.insertAdjacentHTML('beforeend', dotHtml);
+                    }
+                });
+
+                wrapper.querySelectorAll('.slide').forEach(slide => {
+                    slide.style.cursor = 'pointer';
+                    slide.addEventListener('click', (e) => {
+                        if (!e.target.closest('.slider-btn')) {
+                            const eventId = slide.dataset.eventId;
+                            console.log('🖱️ Slide clicked! Event ID:', eventId);
+                            console.log('📍 Navigating to:', `${EVENTS_PAGE}?event=${eventId}`);
+                            window.location.href = `${EVENTS_PAGE}?event=${eventId}`;
+                        }
+                    });
                 });
                 
-                window.location.href = '../auth/login_register.html';
-            } catch (error) {
-                console.error('Logout error:', error);
-                window.location.href = '../auth/login_register.html';
+                initSlider();
+            } else {
+                wrapper.innerHTML = `
+                    <div class="slide active">
+                        <div class="slide-overlay"></div>
+                        <div class="slide-content">
+                            <span class="slide-badge">📋 Info</span>
+                            <h2 class="slide-title">Belum Ada Event</h2>
+                            <p class="slide-desc">Tidak ada event yang tersedia saat ini. Silakan cek kembali nanti.</p>
+                            <div class="slide-meta">
+                                <span>📅 -</span>
+                                <span>📍 -</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
-        });
+        } catch (error) {
+            console.error('Slider events error:', error);
+        }
     };
 
-    // ========================================
-    // INITIALIZE ALL COMPONENTS
-    // ========================================
-    initSlider();
     initMobileNav();
-    initLogout();
-    
-    // Load data (can run in parallel)
     loadStats();
     loadUpcomingEvents();
-    
-    console.log('✅ Dashboard initialized successfully');
+    await updateSliderWithEvents();
 });

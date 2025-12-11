@@ -7,11 +7,23 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     // ===============================
-    // API CONFIG (sesuaikan path)
+    // API CONFIG
     // ===============================
-    const API_BASE = "../../backend/api";
-    const API_MEMBERS = `${API_BASE}/members.php?action=list`;
-    const API_UPDATE_STATUS = `${API_BASE}/members.php?action=update-status`;
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isDotTest = hostname.endsWith('.test');
+    
+    let basePath = '';
+    if (isLocalhost) {
+        basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+    } else if (isDotTest) {
+        basePath = '/kelompok/kelompok_17/src';
+    }
+    
+    const API_BASE = `${basePath}/backend/api`;
+    const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
+    const API_MEMBERS = `${API_BASE}/auth.php?action=all_members`;
+    const API_UPDATE_STATUS = `${API_BASE}/users.php?action=update-status`;
 
     // ===============================
     // UI ELEMENTS
@@ -108,20 +120,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function updateStatus(id, statusType) {
         try {
-            const form = new FormData();
-            form.append("id", id);
-            form.append("status", statusType);
-
-            const response = await fetch(API_UPDATE_STATUS, {
+            const response = await fetch(`${API_BASE}/users.php?action=update-status&id=${id}`, {
                 method: "POST",
                 credentials: "include",
-                body: form
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ status: statusType })
             });
 
             const result = await response.json();
 
             if (result.status === "success") {
-                loadMembers(); // refresh UI
+                loadMembers();
             } else {
                 alert("Gagal mengubah status: " + result.message);
             }
