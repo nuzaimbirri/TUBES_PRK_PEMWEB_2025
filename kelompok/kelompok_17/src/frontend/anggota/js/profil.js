@@ -482,21 +482,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         console.error('❌ Initialization Error:', error);
     }
-    ----------------------------------------------------- */
-    function loadProfile() {
-        elName.textContent = userData.name;
-        elRole.textContent = userData.membership;
-
-        elEmail.textContent = userData.email;
-        elPhone.textContent = userData.phone;
-        elAddress.textContent = userData.address;
-        elJoin.textContent = userData.joinDate;
-        elStatus.textContent = userData.status;
-
-        // Avatar awal nama
-        elAvatar.textContent = getInitials(userData.name);
-    }
-
-        console.error('❌ Initialization Error:', error);
-    }
 });
