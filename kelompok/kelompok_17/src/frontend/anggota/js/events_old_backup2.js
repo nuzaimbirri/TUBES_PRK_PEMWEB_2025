@@ -1,18 +1,6 @@
-/**
- * SIMORA Events Page - Complete Implementation with Registration & Attendance Upload
- * Features: Event List, Registration, Attendance Photo Upload to Folder
- */
-
 document.addEventListener('DOMContentLoaded', async () => {
-    // ========================================
-    // CONFIGURATION
-    // ========================================
     const API_BASE = '../../backend/api';
     const EVENTS_PER_PAGE = 9;
-    
-    // ========================================
-    // STATE MANAGEMENT
-    // ========================================
     let currentPage = 1;
     let allEvents = [];
     let registeredEvents = []; // Track user's registered events
@@ -20,8 +8,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let searchQuery = '';
     let filterStatus = '';
     let currentEventId = null;
-
-    // DOM Elements
     const loadingState = document.getElementById('loadingState');
     const emptyState = document.getElementById('emptyState');
     const eventsContainer = document.getElementById('eventsContainer');
@@ -31,16 +17,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pageInfo = document.getElementById('pageInfo');
     const btnPrevPage = document.getElementById('btnPrevPage');
     const btnNextPage = document.getElementById('btnNextPage');
-    
-    // Event Detail Modal
     const eventModal = document.getElementById('eventModal');
     const eventModalOverlay = document.getElementById('eventModalOverlay');
     const closeEventModal = document.getElementById('closeEventModal');
     const btnCloseDetail = document.getElementById('btnCloseDetail');
     const btnRegister = document.getElementById('btnRegister');
     const btnPresensi = document.getElementById('btnPresensi');
-    
-    // Presensi Modal
     const presensiModal = document.getElementById('presensiModal');
     const presensiModalOverlay = document.getElementById('presensiModalOverlay');
     const closePresensiModal = document.getElementById('closePresensiModal');
@@ -53,10 +35,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const previewImage = document.getElementById('previewImage');
     const btnRemovePreview = document.getElementById('btnRemovePreview');
     const toast = document.getElementById('toast');
-
-    // ========================================
-    // MOCK DATA - Replace with actual API call
-    // ========================================
     const mockEvents = [
         {
             id: 1,
@@ -137,13 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             attended_count: 0
         }
     ];
-
-    // Initialize with some registered events (simulate)
     registeredEvents = [1, 3]; // User sudah daftar event ID 1 dan 3
-
-    // ========================================
-    // INITIALIZATION
-    // ========================================
     async function init() {
         showLoading();
         await loadEvents();
@@ -151,18 +123,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderEvents();
         hideLoading();
     }
-
-    // ========================================
-    // LOAD EVENTS
-    // ========================================
     async function loadEvents() {
         try {
-            // TODO: Replace with actual API call
-            // const response = await fetch(`${API_BASE}/events.php`);
-            // const data = await response.json();
-            // allEvents = data.events || [];
-            
-            // For now, use mock data
             await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
             allEvents = mockEvents;
         } catch (error) {
@@ -171,30 +133,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             allEvents = mockEvents; // Fallback to mock
         }
     }
-
-    // ========================================
-    // RENDER EVENTS
-    // ========================================
     function renderEvents() {
         let filteredEvents = filterEvents();
-        
         if (filteredEvents.length === 0) {
             showEmptyState();
             return;
         }
-
         hideEmptyState();
-        
-        // Pagination
         const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE);
         const startIndex = (currentPage - 1) * EVENTS_PER_PAGE;
         const endIndex = startIndex + EVENTS_PER_PAGE;
         const paginatedEvents = filteredEvents.slice(startIndex, endIndex);
-
         eventsContainer.innerHTML = paginatedEvents.map(event => createEventCard(event)).join('');
         updatePagination(totalPages);
-        
-        // Add click handlers
         document.querySelectorAll('.event-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const eventId = parseInt(card.dataset.eventId);
@@ -202,10 +153,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
     }
-
-    // ========================================
-    // CREATE EVENT CARD
-    // ========================================
     function createEventCard(event) {
         const isRegistered = registeredEvents.includes(event.id);
         const eventIcon = getEventIcon(event.type);
@@ -218,7 +165,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 Terdaftar
             </div>
         ` : '';
-
         return `
             <div class="event-card" data-event-id="${event.id}">
                 <div class="event-card-banner">
@@ -265,38 +211,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
         `;
     }
-
-    // ========================================
-    // FILTER EVENTS
-    // ========================================
     function filterEvents() {
         return allEvents.filter(event => {
             const matchesSearch = !searchQuery || 
                 event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 event.description.toLowerCase().includes(searchQuery.toLowerCase());
-            
             let matchesStatus = true;
             if (filterStatus === 'registered') {
                 matchesStatus = registeredEvents.includes(event.id);
             } else if (filterStatus) {
                 matchesStatus = event.status === filterStatus;
             }
-
             return matchesSearch && matchesStatus;
         });
     }
-
-    // ========================================
-    // OPEN EVENT DETAIL MODAL
-    // ========================================
     function openEventDetail(eventId) {
         const event = allEvents.find(e => e.id === eventId);
         if (!event) return;
-
         currentEventId = eventId;
         const isRegistered = registeredEvents.includes(eventId);
-        
-        // Populate modal
         document.getElementById('detailTitle').textContent = event.title;
         document.getElementById('detailStatus').textContent = getStatusText(event.status);
         document.getElementById('detailStatus').className = `event-status-badge status-${event.status}`;
@@ -308,21 +241,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('statHadir').textContent = event.attended_count;
         document.getElementById('statTotal').textContent = event.registered_count;
         document.getElementById('statTidakHadir').textContent = event.registered_count - event.attended_count;
-        
         const eventIcon = getEventIcon(event.type);
         document.getElementById('detailBanner').innerHTML = `<div class="event-icon-large">${eventIcon}</div>`;
-
-        // Show appropriate buttons
         btnRegister.style.display = 'none';
         btnPresensi.style.display = 'none';
-        
         if (!isRegistered && event.status === 'upcoming') {
             btnRegister.style.display = 'flex';
         } else if (isRegistered && event.status === 'upcoming') {
             btnPresensi.style.display = 'flex';
         }
-
-        // Update attendance card
         const attendanceCard = document.getElementById('attendanceCard');
         if (isRegistered) {
             attendanceCard.innerHTML = `
@@ -348,53 +275,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             `;
         }
-
         eventModal.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
-
-    // ========================================
-    // CLOSE EVENT DETAIL MODAL
-    // ========================================
     function closeEventDetailModal() {
         eventModal.classList.remove('active');
         document.body.style.overflow = 'auto';
         currentEventId = null;
     }
-
-    // ========================================
-    // HANDLE EVENT REGISTRATION
-    // ========================================
     async function registerEvent() {
         if (!currentEventId) return;
-
         try {
             btnRegister.disabled = true;
             btnRegister.innerHTML = `
                 <div class="spinner-sm"></div>
                 Mendaftar...
             `;
-
-            // TODO: Replace with actual API call
-            // const response = await fetch(`${API_BASE}/events.php`, {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ action: 'register', event_id: currentEventId, user_id: currentUser.id })
-            // });
-            
-            // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Add to registered events
             if (!registeredEvents.includes(currentEventId)) {
                 registeredEvents.push(currentEventId);
                 showToast('Berhasil mendaftar event!', 'success');
-                
-                // Refresh modal and list
                 closeEventDetailModal();
                 renderEvents();
             }
-
         } catch (error) {
             console.error('Error registering event:', error);
             showToast('Gagal mendaftar event', 'error');
@@ -411,60 +314,37 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
         }
     }
-
-    // ========================================
-    // OPEN PRESENSI MODAL
-    // ========================================
     function openPresensiModal() {
         document.getElementById('presensiEventId').value = currentEventId;
         presensiModal.classList.add('active');
         resetPresensiForm();
     }
-
-    // ========================================
-    // CLOSE PRESENSI MODAL
-    // ========================================
     function closePresensiModalFunc() {
         presensiModal.classList.remove('active');
         resetPresensiForm();
     }
-
-    // ========================================
-    // RESET PRESENSI FORM
-    // ========================================
     function resetPresensiForm() {
         presensiForm.reset();
         uploadPreview.style.display = 'none';
         uploadPlaceholder.style.display = 'block';
         previewImage.src = '';
     }
-
-    // ========================================
-    // HANDLE FILE UPLOAD
-    // ========================================
     uploadArea.addEventListener('click', () => {
         presensiPhoto.click();
     });
-
     presensiPhoto.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
-        // Validate file type
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
         if (!allowedTypes.includes(file.type)) {
             showToast('Format file tidak valid. Gunakan JPG, JPEG, atau PNG', 'error');
             return;
         }
-
-        // Validate file size (5MB)
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
             showToast('Ukuran file terlalu besar. Maksimal 5MB', 'error');
             return;
         }
-
-        // Preview image
         const reader = new FileReader();
         reader.onload = (e) => {
             previewImage.src = e.target.result;
@@ -473,24 +353,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         reader.readAsDataURL(file);
     });
-
-    // Drag & Drop
     uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         uploadArea.style.borderColor = 'var(--teal-600)';
         uploadArea.style.background = 'var(--teal-50)';
     });
-
     uploadArea.addEventListener('dragleave', () => {
         uploadArea.style.borderColor = '';
         uploadArea.style.background = '';
     });
-
     uploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
         uploadArea.style.borderColor = '';
         uploadArea.style.background = '';
-
         const file = e.dataTransfer.files[0];
         if (file) {
             const dataTransfer = new DataTransfer();
@@ -499,21 +374,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             presensiPhoto.dispatchEvent(new Event('change'));
         }
     });
-
     btnRemovePreview.addEventListener('click', (e) => {
         e.stopPropagation();
         resetPresensiForm();
     });
-
-    // ========================================
-    // SUBMIT PRESENSI FORM
-    // ========================================
     presensiForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const formData = new FormData(presensiForm);
         formData.append('user_id', currentUser.id);
-
         try {
             const btnSubmit = document.getElementById('btnSubmitPresensi');
             btnSubmit.disabled = true;
@@ -521,15 +389,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="spinner-sm"></div>
                 Mengirim...
             `;
-
-            // Upload to backend
             const response = await fetch(`${API_BASE}/upload_presensi.php`, {
                 method: 'POST',
                 body: formData
             });
-
             const result = await response.json();
-
             if (result.success) {
                 showToast('Presensi berhasil diupload!', 'success');
                 closePresensiModalFunc();
@@ -537,7 +401,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 throw new Error(result.message || 'Upload failed');
             }
-
         } catch (error) {
             console.error('Error uploading presensi:', error);
             showToast(error.message || 'Gagal upload presensi', 'error');
@@ -552,26 +415,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
         }
     });
-
-    // ========================================
-    // EVENT LISTENERS
-    // ========================================
     function setupEventListeners() {
-        // Search
         searchInput.addEventListener('input', (e) => {
             searchQuery = e.target.value;
             currentPage = 1;
             renderEvents();
         });
-
-        // Filter
         filterStatusSelect.addEventListener('change', (e) => {
             filterStatus = e.target.value;
             currentPage = 1;
             renderEvents();
         });
-
-        // Pagination
         btnPrevPage.addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
@@ -579,7 +433,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });
-
         btnNextPage.addEventListener('click', () => {
             const totalPages = Math.ceil(filterEvents().length / EVENTS_PER_PAGE);
             if (currentPage < totalPages) {
@@ -588,29 +441,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });
-
-        // Modal close handlers
         closeEventModal.addEventListener('click', closeEventDetailModal);
         eventModalOverlay.addEventListener('click', closeEventDetailModal);
         btnCloseDetail.addEventListener('click', closeEventDetailModal);
-
-        // Registration & Presensi
         btnRegister.addEventListener('click', registerEvent);
         btnPresensi.addEventListener('click', openPresensiModal);
-
-        // Presensi modal close
         closePresensiModal.addEventListener('click', closePresensiModalFunc);
         presensiModalOverlay.addEventListener('click', closePresensiModalFunc);
         btnCancelPresensi.addEventListener('click', closePresensiModalFunc);
-
-        // Logout
         document.getElementById('btnLogout')?.addEventListener('click', () => {
             if (confirm('Yakin ingin keluar?')) {
                 window.location.href = '../auth/login.html';
             }
         });
-
-        // Mobile nav toggle
         const navToggle = document.getElementById('navToggle');
         const navMenu = document.getElementById('navMenu');
         navToggle?.addEventListener('click', () => {
@@ -618,55 +461,43 @@ document.addEventListener('DOMContentLoaded', async () => {
             navToggle.classList.toggle('active');
         });
     }
-
-    // ========================================
-    // HELPER FUNCTIONS
-    // ========================================
     function showLoading() {
         loadingState.style.display = 'flex';
         eventsContainer.style.display = 'none';
         emptyState.style.display = 'none';
         paginationContainer.style.display = 'none';
     }
-
     function hideLoading() {
         loadingState.style.display = 'none';
         eventsContainer.style.display = 'grid';
     }
-
     function showEmptyState() {
         eventsContainer.style.display = 'none';
         emptyState.style.display = 'flex';
         paginationContainer.style.display = 'none';
     }
-
     function hideEmptyState() {
         emptyState.style.display = 'none';
         eventsContainer.style.display = 'grid';
     }
-
     function updatePagination(totalPages) {
         if (totalPages <= 1) {
             paginationContainer.style.display = 'none';
             return;
         }
-
         paginationContainer.style.display = 'flex';
         pageInfo.textContent = `Halaman ${currentPage} dari ${totalPages}`;
         btnPrevPage.disabled = currentPage === 1;
         btnNextPage.disabled = currentPage === totalPages;
     }
-
     function formatDate(dateString) {
         const date = new Date(dateString);
         const options = { day: 'numeric', month: 'long', year: 'numeric' };
         return date.toLocaleDateString('id-ID', options);
     }
-
     function truncateText(text, maxLength) {
         return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
     }
-
     function getEventIcon(type) {
         const icons = {
             workshop: 'W',
@@ -679,7 +510,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         return icons[type] || 'E';
     }
-
     function getStatusBadge(status) {
         const badges = {
             upcoming: '<span class="event-status-badge status-upcoming">Mendatang</span>',
@@ -688,7 +518,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         return badges[status] || '';
     }
-
     function getStatusText(status) {
         const texts = {
             upcoming: 'Mendatang',
@@ -697,26 +526,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         return texts[status] || status;
     }
-
     function showToast(message, type = 'info') {
         const iconSvg = type === 'success' 
             ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>'
             : type === 'error'
             ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
             : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
-
         document.getElementById('toastIcon').innerHTML = iconSvg;
         document.getElementById('toastMessage').textContent = message;
         toast.className = `toast ${type} show`;
-
         setTimeout(() => {
             toast.classList.remove('show');
             toast.classList.add('hide');
         }, 3000);
     }
-
-    // ========================================
-    // INITIALIZE APP
-    // ========================================
     init();
 });

@@ -1,34 +1,18 @@
-/**
- * SIMORA Profile Page - JavaScript
- * Features: Load Profile, Edit Profile, Change Password, Attendance Stats
- */
-
 document.addEventListener('DOMContentLoaded', async () => {
-    
-    // CONFIGURATION
-    
     const hostname = window.location.hostname;
     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
     const isDotTest = hostname.endsWith('.test');
-    
     let basePath = '';
     if (isLocalhost) {
         basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
     } else if (isDotTest) {
         basePath = '/kelompok/kelompok_17/src';
     }
-    
     const API_BASE = `${basePath}/backend/api`;
     const UPLOAD_BASE = basePath.replace('/src', '/upload');
     const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
-
-    // Store current user data
     let currentUser = null;
     let currentProfile = null;
-
-    
-    // MODAL MANAGEMENT
-    
     const modalManager = {
         editProfile: {
             overlay: document.getElementById('modalOverlay'),
@@ -46,22 +30,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             submit: document.querySelector('#changePasswordModal button[type="submit"]')
         }
     };
-
     const openModal = (key) => {
         const modal = modalManager[key];
         if (modal.overlay) modal.overlay.classList.add('active');
         modal.modal.classList.add('active');
     };
-
     const closeModal = (key) => {
         const modal = modalManager[key];
         if (modal.overlay) modal.overlay.classList.remove('active');
         modal.modal.classList.remove('active');
     };
-
-    
-    // 1. AUTHENTICATION CHECK
-    
     const checkAuth = async () => {
         try {
             console.log(' Checking authentication...');
@@ -69,15 +47,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 method: 'GET',
                 credentials: 'include'
             });
-
             const result = await response.json();
-
             if (!response.ok || result.status !== 'success') {
                 console.error(' Auth failed');
                 window.location.href = LOGIN_PAGE;
                 return null;
             }
-
             console.log(' Auth successful');
             currentUser = result.data;
             return currentUser;
@@ -87,10 +62,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             return null;
         }
     };
-
-    
-    // 2. LOAD PROFILE DATA
-    
     const loadProfile = async () => {
         try {
             console.log('� Loading profile data...');
@@ -98,14 +69,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 method: 'GET',
                 credentials: 'include'
             });
-
             const result = await response.json();
-
             if (!response.ok || result.status !== 'success') {
                 console.error(' Failed to load profile:', result.message);
                 return null;
             }
-
             currentProfile = result.data;
             console.log(' Profile loaded:', currentProfile);
             return currentProfile;
@@ -114,12 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return null;
         }
     };
-
-    
-    // 3. DISPLAY PROFILE INFORMATION
-    
     const displayProfile = (user, profile) => {
-        // Update navbar
         document.getElementById('navUsername').textContent = profile?.full_name || user.username;
         const initials = (profile?.full_name || user.username)
             .split(' ')
@@ -129,12 +92,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             .toUpperCase();
         document.getElementById('userInitials').textContent = initials;
         document.getElementById('profileInitials').textContent = initials;
-
-        // Profile header
         document.getElementById('profileFullName').textContent = profile?.full_name || user.username;
         document.getElementById('profileNPM').textContent = profile?.npm || '-';
-
-        // Status badge
         const statusMap = {
             'aktif': 'status-aktif',
             'sp1': 'status-sp1',
@@ -146,20 +105,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             const statusKey = profile.activity_status.toLowerCase();
             statusElement.innerHTML = `<span class="status-badge ${statusMap[statusKey] || 'status-inactive'}">${profile.activity_status}</span>`;
         }
-
-        // Personal Info
         document.getElementById('infoFullName').textContent = profile?.full_name || '-';
         document.getElementById('infoEmail').textContent = user.email || '-';
         document.getElementById('infoPhone').textContent = profile?.phone_number || '-';
         document.getElementById('infoAddress').textContent = profile?.address || '-';
-
-        // Academic Info
         document.getElementById('infoNPM').textContent = profile?.npm || '-';
         document.getElementById('infoDepartment').textContent = profile?.department || '-';
-        
         const joinDate = user.created_at ? new Date(user.created_at).toLocaleDateString('id-ID') : '-';
         document.getElementById('infoJoinDate').textContent = joinDate;
-
         const activityStatusMap = {
             'aktif': 'Aktif',
             'sp1': 'SP 1',
@@ -168,13 +121,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         const activityStatus = activityStatusMap[profile?.activity_status?.toLowerCase()] || profile?.activity_status || '-';
         document.getElementById('infoActivityStatus').textContent = activityStatus;
-
-        // Populate edit form
         document.getElementById('formFullName').value = profile?.full_name || '';
         document.getElementById('formPhone').value = profile?.phone_number || '';
         document.getElementById('formAddress').value = profile?.address || '';
         document.getElementById('formDepartment').value = profile?.department || '';
-
         if (profile?.profile_photo) {
             const photoUrl = `${UPLOAD_BASE}/profile/${profile.profile_photo}`;
             const photoImage = document.getElementById('photoImage');
@@ -187,11 +137,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateAvatarWithPhoto(photoUrl);
         }
     };
-
     const updateAvatarWithPhoto = (photoUrl) => {
         const userAvatar = document.getElementById('userAvatar');
         const profileAvatarLarge = document.getElementById('profileAvatarLarge');
-        
         if (userAvatar) {
             userAvatar.innerHTML = `<img src="${photoUrl}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
         }
@@ -199,10 +147,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             profileAvatarLarge.innerHTML = `<img src="${photoUrl}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
         }
     };
-
-    
-    // 4. LOAD ATTENDANCE STATISTICS
-    
     const loadAttendanceStats = async () => {
         try {
             console.log('� Loading attendance statistics...');
@@ -210,94 +154,67 @@ document.addEventListener('DOMContentLoaded', async () => {
                 method: 'GET',
                 credentials: 'include'
             });
-
             const result = await response.json();
-
             if (response.ok && result.status === 'success') {
                 const stats = result.data;
                 const total = stats.total || 0;
-
-                // Animate stat values
                 animateValue('statHadir', 0, stats.hadir || 0, 800);
                 animateValue('statIzin', 0, stats.izin || 0, 800);
                 animateValue('statSakit', 0, stats.sakit || 0, 800);
                 animateValue('statAlpa', 0, stats.alpha || 0, 800);
-
-                // Update progress bar
                 if (total > 0) {
                     const haidirPercent = (stats.hadir / total) * 100;
                     const izinPercent = (stats.izin / total) * 100;
                     const sakitPercent = (stats.sakit / total) * 100;
                     const alpaPercent = (stats.alpha / total) * 100;
-
                     document.getElementById('progressHadir').style.width = haidirPercent + '%';
                     document.getElementById('progressIzin').style.width = izinPercent + '%';
                     document.getElementById('progressSakit').style.width = sakitPercent + '%';
                     document.getElementById('progressAlpa').style.width = alpaPercent + '%';
                 }
-
                 console.log(' Attendance stats loaded');
             }
         } catch (error) {
             console.error(' Error loading attendance stats:', error);
         }
     };
-
     const animateValue = (elementId, start, end, duration) => {
         const element = document.getElementById(elementId);
         if (!element) return;
-
         const range = end - start;
         const startTime = performance.now();
-
         const updateValue = (currentTime) => {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             const easeOutQuart = 1 - Math.pow(1 - progress, 4);
             const current = Math.floor(start + range * easeOutQuart);
-
             element.textContent = current.toString();
-
             if (progress < 1) {
                 requestAnimationFrame(updateValue);
             }
         };
-
         requestAnimationFrame(updateValue);
     };
-
-    
-    // 5. EDIT PROFILE HANDLER
-    
     const initEditProfileHandler = () => {
         const btnEdit = document.getElementById('btnEditProfile');
-
         btnEdit?.addEventListener('click', () => {
             openModal('editProfile');
         });
-
-        // Close modal
         modalManager.editProfile.close?.addEventListener('click', () => closeModal('editProfile'));
         modalManager.editProfile.cancel?.addEventListener('click', () => closeModal('editProfile'));
         modalManager.editProfile.overlay?.addEventListener('click', (e) => {
             if (e.target === modalManager.editProfile.overlay) closeModal('editProfile');
         });
-
-        // Submit form
         modalManager.editProfile.form?.addEventListener('submit', async (e) => {
             e.preventDefault();
-
             const fullName = document.getElementById('formFullName').value.trim();
             const phone = document.getElementById('formPhone').value.trim();
             const address = document.getElementById('formAddress').value.trim();
             const department = document.getElementById('formDepartment').value.trim();
-
-            // Validation
             if (!fullName) {
                 showMessage('formMessage', 'Nama lengkap tidak boleh kosong', 'error');
                 return;
             }
-
             try {
                 const submitBtn = modalManager.editProfile.submit;
                 const originalText = submitBtn?.textContent;
@@ -305,7 +222,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'Menyimpan...';
                 }
-
                 const response = await fetch(`${API_BASE}/profile.php?action=update`, {
                     method: 'POST',
                     credentials: 'include',
@@ -317,13 +233,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                         department: department || null
                     })
                 });
-
                 const result = await response.json();
-
                 if (response.ok && result.status === 'success') {
                     showMessage('formMessage', 'Profil berhasil diperbarui', 'success');
-                    
-                    // Reload profile data
                     setTimeout(async () => {
                         await loadProfile();
                         displayProfile(currentUser, currentProfile);
@@ -332,7 +244,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } else {
                     showMessage('formMessage', result.message || 'Gagal memperbarui profil', 'error');
                 }
-
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
@@ -348,45 +259,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     };
-
-    
-    // 6. CHANGE PASSWORD HANDLER
-    
     const initChangePasswordHandler = () => {
         const btnChange = document.getElementById('btnChangePassword');
-
         btnChange?.addEventListener('click', () => {
             openModal('changePassword');
         });
-
-        // Close modal
         modalManager.changePassword.close?.addEventListener('click', () => closeModal('changePassword'));
         modalManager.changePassword.cancel?.addEventListener('click', () => closeModal('changePassword'));
-
-        // Submit form
         modalManager.changePassword.form?.addEventListener('submit', async (e) => {
             e.preventDefault();
-
             const oldPassword = document.getElementById('formOldPassword').value;
             const newPassword = document.getElementById('formNewPassword').value;
             const confirmPassword = document.getElementById('formConfirmPassword').value;
-
-            // Validation
             if (!oldPassword || !newPassword || !confirmPassword) {
                 showMessage('passwordMessage', 'Semua field harus diisi', 'error');
                 return;
             }
-
             if (newPassword.length < 6) {
                 showMessage('passwordMessage', 'Password baru minimal 6 karakter', 'error');
                 return;
             }
-
             if (newPassword !== confirmPassword) {
                 showMessage('passwordMessage', 'Konfirmasi password tidak cocok', 'error');
                 return;
             }
-
             try {
                 const submitBtn = modalManager.changePassword.submit;
                 const originalText = submitBtn?.textContent;
@@ -394,7 +290,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'Mengubah...';
                 }
-
                 const response = await fetch(`${API_BASE}/auth.php?action=change-password`, {
                     method: 'POST',
                     credentials: 'include',
@@ -404,12 +299,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                         new_password: newPassword
                     })
                 });
-
                 const result = await response.json();
-
                 if (response.ok && result.status === 'success') {
                     showMessage('passwordMessage', 'Password berhasil diubah', 'success');
-                    
                     setTimeout(() => {
                         document.getElementById('changePasswordForm').reset();
                         closeModal('changePassword');
@@ -417,7 +309,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } else {
                     showMessage('passwordMessage', result.message || 'Gagal mengubah password', 'error');
                 }
-
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
@@ -433,55 +324,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     };
-
-    
-    // 7. MESSAGE HELPER
-    
     const showMessage = (elementId, message, type) => {
         const element = document.getElementById(elementId);
         if (!element) return;
-
         element.className = `alert alert-${type}`;
         element.textContent = message;
         element.style.display = 'block';
-
-        // Auto hide after 5 seconds
         setTimeout(() => {
             element.style.display = 'none';
         }, 5000);
     };
-
-    
-    // 8. PHOTO UPLOAD HANDLER
-    
     const initPhotoUploadHandler = () => {
         const photoInput = document.getElementById('photoInput');
         const photoPreview = document.getElementById('photoPreview');
         const photoImage = document.getElementById('photoImage');
         const photoPlaceholder = document.getElementById('photoPlaceholder');
-
         let selectedFile = null;
         let previewDataUrl = null;
-
         photoInput?.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
             const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
             if (!allowedTypes.includes(file.type)) {
                 alert('Format file tidak valid. Gunakan JPG, PNG, GIF, atau WebP');
                 photoInput.value = '';
                 return;
             }
-
             if (file.size > 2 * 1024 * 1024) {
                 alert('Ukuran file terlalu besar. Maksimal 2MB');
                 photoInput.value = '';
                 return;
             }
-
             selectedFile = file;
-
             const reader = new FileReader();
             reader.onload = (ev) => {
                 previewDataUrl = ev.target.result;
@@ -489,7 +363,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
             reader.readAsDataURL(file);
         });
-
         const showPhotoConfirmModal = (previewUrl) => {
             let modal = document.getElementById('photoConfirmModal');
             if (!modal) {
@@ -498,7 +371,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 modal.className = 'photo-confirm-overlay';
                 document.body.appendChild(modal);
             }
-
             modal.innerHTML = `
                 <div class="photo-confirm-modal">
                     <div class="photo-confirm-header">
@@ -517,10 +389,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
             `;
-
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-
             const closePhotoModal = () => {
                 modal.style.display = 'none';
                 document.body.style.overflow = '';
@@ -528,32 +398,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selectedFile = null;
                 previewDataUrl = null;
             };
-
             document.getElementById('photoModalClose').addEventListener('click', closePhotoModal);
             document.getElementById('photoModalCancel').addEventListener('click', closePhotoModal);
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) closePhotoModal();
             });
-
             document.getElementById('photoModalConfirm').addEventListener('click', async () => {
                 if (!selectedFile) return;
-
                 const confirmBtn = document.getElementById('photoModalConfirm');
                 confirmBtn.disabled = true;
                 confirmBtn.textContent = 'Mengupload...';
-
                 try {
                     const formData = new FormData();
                     formData.append('photo', selectedFile);
-
                     const uploadResponse = await fetch(`${API_BASE}/profile.php?action=upload-photo`, {
                         method: 'POST',
                         credentials: 'include',
                         body: formData
                     });
-
                     const result = await uploadResponse.json();
-
                     if (uploadResponse.ok && result.status === 'success') {
                         if (photoImage) {
                             photoImage.src = previewDataUrl;
@@ -562,7 +425,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         if (photoPlaceholder) {
                             photoPlaceholder.style.display = 'none';
                         }
-                        
                         if (result.data?.photo || result.data?.filename) {
                             const photoFilename = result.data.photo || result.data.filename;
                             const photoUrl = `${UPLOAD_BASE}/profile/${photoFilename}`;
@@ -570,7 +432,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                             currentProfile = currentProfile || {};
                             currentProfile.profile_photo = photoFilename;
                         }
-                        
                         modal.style.display = 'none';
                         document.body.style.overflow = '';
                         alert('Foto profil berhasil diubah!');
@@ -581,7 +442,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     console.error('Photo Upload Error:', error);
                     alert('Terjadi kesalahan saat mengupload foto');
                 }
-
                 confirmBtn.disabled = false;
                 confirmBtn.textContent = 'Ya, Ubah Foto';
                 photoInput.value = '';
@@ -589,7 +449,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 previewDataUrl = null;
             });
         };
-
         if (currentProfile?.profile_photo) {
             const photoUrl = `${UPLOAD_BASE}/profile/${currentProfile.profile_photo}`;
             photoImage.src = photoUrl;
@@ -598,29 +457,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateAvatarWithPhoto(photoUrl);
         }
     };
-
-    
-    // 9. LOGOUT HANDLER
-    
-    // FUNGSI initLogout DIHAPUS - Dipindahkan ke logout-helper.js
-    // Logout sekarang menggunakan modal konfirmasi profesional dengan warna mint green
     const initLogout = () => {
-        // Event listener logout sudah ditangani oleh logout-helper.js
         console.log(' Logout will be handled by logout-helper.js');
     };
-
-    
-    // 9. MOBILE NAVIGATION
-    
     const initMobileNav = () => {
         const toggle = document.getElementById('navToggle');
         const menu = document.getElementById('navMenu');
-
         toggle?.addEventListener('click', () => {
             menu?.classList.toggle('active');
             toggle.classList.toggle('active');
         });
-
         menu?.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', () => {
                 menu.classList.remove('active');
@@ -628,26 +474,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
     };
-
-    
-    // INITIALIZE ALL
-    
     try {
         const user = await checkAuth();
         if (!user) return;
-
         const profile = await loadProfile();
         if (profile) {
             displayProfile(user, profile);
             await loadAttendanceStats();
         }
-
         initEditProfileHandler();
         initChangePasswordHandler();
         initPhotoUploadHandler();
         initLogout();
         initMobileNav();
-
         console.log(' Profile page initialized successfully');
     } catch (error) {
         console.error(' Initialization Error:', error);

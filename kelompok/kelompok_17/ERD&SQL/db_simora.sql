@@ -1,15 +1,6 @@
--- ============================================
--- DATABASE SIMORA - SISTEM MANAJEMEN ORGANISASI
--- File: db_simora.sql
--- ============================================
-
--- Buat database
 CREATE DATABASE IF NOT EXISTS db_simora;
 USE db_simora;
 
--- ============================================
--- TABEL USERS
--- ============================================
 CREATE TABLE IF NOT EXISTS users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -21,9 +12,6 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- ============================================
--- TABEL PROFILES
--- ============================================
 CREATE TABLE IF NOT EXISTS profiles (
     profile_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -37,9 +25,6 @@ CREATE TABLE IF NOT EXISTS profiles (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- ============================================
--- TABEL EVENTS
--- ============================================
 CREATE TABLE IF NOT EXISTS events (
     event_id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(150) NOT NULL,
@@ -58,9 +43,6 @@ CREATE TABLE IF NOT EXISTS events (
     FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL
 );
 
--- ============================================
--- TABEL ATTENDANCE
--- ============================================
 CREATE TABLE IF NOT EXISTS attendance (
     attendance_id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
@@ -74,9 +56,6 @@ CREATE TABLE IF NOT EXISTS attendance (
     UNIQUE KEY unique_attendance (event_id, user_id) 
 );
 
--- ============================================
--- TABEL EVENT_REGISTRATIONS (Pendaftaran Panitia)
--- ============================================
 CREATE TABLE IF NOT EXISTS event_registrations (
     registration_id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
@@ -94,28 +73,11 @@ CREATE TABLE IF NOT EXISTS event_registrations (
     UNIQUE KEY unique_registration (event_id, user_id)
 );
 
--- ============================================
--- DATA AWAL (SEEDER)
--- ============================================
-
--- Admin utama (password: admin123)
 INSERT INTO users (username, email, password, role, is_approved) 
 VALUES ('admin', 'admin@simora.com', '$2y$10$PKOr10iKzojO7XD1j3EU4OsnmU.uGhzzhtmGCgMXXs16sDUJvazEi', 'admin', 1);
 
 INSERT INTO profiles (user_id, full_name, department, activity_status)
 VALUES (1, 'Super Admin', 'Inti', 'aktif');
-
--- ============================================
--- QUERY UNTUK RESET DATABASE (OPSIONAL)
--- Uncomment jika ingin menghapus semua data
--- ============================================
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE attendance;
-TRUNCATE TABLE event_registrations;
-TRUNCATE TABLE events;
-TRUNCATE TABLE profiles;
-TRUNCATE TABLE users;
-SET FOREIGN_KEY_CHECKS = 1;
 
 SELECT 'Database SIMORA berhasil dibuat!' AS status;
 

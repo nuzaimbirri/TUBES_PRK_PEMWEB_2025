@@ -1,40 +1,24 @@
-// Lokasi file: src/frontend/auth/js/auth.js
-
 document.addEventListener("DOMContentLoaded", async () => {
-
     const loginForm = document.getElementById("loginForm");
     const registerForm = document.getElementById("registerForm");
-
-    // BASE API - Auto detect path based on hostname
     const hostname = window.location.hostname;
     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
     const isDotTest = hostname.endsWith('.test');
-    
     let basePath = '';
     if (isLocalhost) {
         basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
     } else if (isDotTest) {
         basePath = '/kelompok/kelompok_17/src';
     }
-    
     const BASE_API_URL = `${basePath}/backend/api/auth.php`;
     const ADMIN_DASHBOARD = `${basePath}/frontend/admin/admin.html`;
     const ANGGOTA_DASHBOARD = `${basePath}/frontend/anggota/dashboard.html`;
-    
     const LOGIN_API_URL = `${BASE_API_URL}?action=login`;
     const REGISTER_API_URL = `${BASE_API_URL}?action=register`;
     const SESSION_API_URL = `${BASE_API_URL}?action=check`;
-
-    // ----------------------
-    // Helper: safe JSON parse
-    // ----------------------
     const safeJson = async (res) => {
         try { return await res.json(); } catch { return null; }
     };
-
-    // ------------------------------------------------
-    // Wait for session confirmation (retry loop)
-    // ------------------------------------------------
     const waitForSession = async (maxAttempts = 6, delayMs = 300) => {
         for (let i = 0; i < maxAttempts; i++) {
             try {
@@ -43,30 +27,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                     credentials: "include",
                     cache: "no-store"
                 });
-
                 const j = await safeJson(r);
-
                 if (r.ok && j && j.status === "success" && j.data) {
                     const logged = j.data.logged_in === true || !!j.data.user;
                     if (logged) return j.data; // return session data
                 }
             } catch (err) {
-                // network, ignore and retry
             }
             await new Promise(res => setTimeout(res, delayMs));
         }
         return null; // not confirmed
     };
-
-    // ========================================================
-    // 🔥 AUTO LOGIN CHECK — DINONAKTIFKAN
-    // ========================================================
-    // Blok ini (yang menyebabkan redirect instan saat refresh) 
-    // dihilangkan untuk memfokuskan user pada halaman login/register.
-    
-    // ========================================================
-    //  UI HELPERS
-    // ========================================================
     const displayMessage = (id, message, type) => {
         const el = document.getElementById(id);
         if (!el) return;
@@ -74,7 +45,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         el.classList.add(`alert-${type}`);
         el.textContent = message;
     };
-
     const resetErrors = (form) => {
         if (!form) return;
         form.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
@@ -83,9 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const msg = document.getElementById(id);
         if (msg) msg.classList.add("d-none");
     };
-
     const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-
     const handleValidationErrors = (form, errors, prefix) => {
         if (!errors || !form) return;
         for (const field in errors) {
@@ -95,84 +63,54 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (errorLabel) errorLabel.textContent = errors[field];
         }
     };
-
     const toggleButton = (btn, state, normalText, loadingText) => {
         if (!btn) return;
         btn.disabled = state;
         btn.textContent = state ? loadingText : normalText;
     };
-
-    // ========================================================
-    // 🔥 LOGIN HANDLER (DITAMBAH: Cek Approval Status)
-    // ========================================================
     if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             resetErrors(loginForm);
-
             const btn = loginForm.querySelector("button");
             toggleButton(btn, true, "Masuk", "Memproses...");
-
             try {
                 const formData = new FormData(loginForm);
-
                 const response = await fetch(LOGIN_API_URL, {
                     method: "POST",
                     body: formData,
                     credentials: "include"
                 });
-
                 const result = await safeJson(response);
-
                 if (result && result.status === "success") {
-                    
-                    // --- PENTING: Pengecekan status approval di respons API ---
-                    // Ini hanya sebagai fallback, logika utama harus di PHP (Controller)
                     const isApproved = result.data?.user?.is_approved == 1;
                     const role = result.data?.user?.role;
-                    
                     if (role && role.toLowerCase() === "anggota" && !isApproved) {
-                         // Walaupun login berhasil, status UI harus menunjukkan pending
                          displayMessage("loginMessage", "**Akun belum disetujui Admin.** Silakan tunggu notifikasi email.", "warning");
                          toggleButton(btn, false, "Masuk", "Memproses...");
                          return;
                     }
-                    // -------------------------------------------------------------
-
                     displayMessage("loginMessage", "Login berhasil! Menunggu konfirmasi sesi...", "success");
-
-                    // Tunggu konfirmasi session dari server
                     const session = await waitForSession(6, 300);
-
                     if (session && (session.logged_in === true || session.user)) {
                         const finalRole = (session.user && session.user.role) || session.role || (result.data?.user?.role);
-                        
-                        // Periksa peran dan redirect ke dashboard yang sesuai
                         if (finalRole && finalRole.toLowerCase() === "admin") {
                             location.replace(ADMIN_DASHBOARD);
                         } else {
                             location.replace(ANGGOTA_DASHBOARD);
                         }
                         return;
-
                     } else {
                         displayMessage("loginMessage", "Login sukses tapi sesi belum terkonfirmasi. Coba refresh halaman.", "warning");
                     }
-
                 } else {
-                    // Gagal login
                     const msg = (result && result.message) || "Gagal login. Cek kredensial Anda.";
-                    
-                    // Cek jika errornya adalah penolakan karena pending (Error 403 dari Backend)
                     const msgType = msg.includes("belum disetujui") ? "warning" : "danger";
-
                     displayMessage("loginMessage", msg, msgType);
-
                     if (result && result.errors) {
                         handleValidationErrors(loginForm, result.errors, "login");
                     }
                 }
-
             } catch (err) {
                 console.error("Login error:", err);
                 displayMessage("loginMessage", "Kesalahan server / jaringan.", "danger");
@@ -181,38 +119,26 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
     }
-
-    // ========================================================
-    // 🔥 REGISTER HANDLER (DITAMBAH: Pesan Menunggu Approval)
-    // ========================================================
     if (registerForm) {
         registerForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             resetErrors(registerForm);
-
             const btn = registerForm.querySelector("button");
             toggleButton(btn, true, "Daftar", "Memproses...");
-
             try {
                 const formData = new FormData(registerForm);
-
                 const response = await fetch(REGISTER_API_URL, {
                     method: "POST",
                     body: formData,
                     credentials: "include"
                 });
-
                 const result = await safeJson(response);
-
                 if (result && result.status === "success") {
-                    // MENGGANTI PESAN SUKSES & MENGHAPUS REDIRECT INSTAN
                     displayMessage("registerMessage", "**Registrasi berhasil!** Akun Anda akan aktif setelah disetujui oleh Admin. Silakan tunggu notifikasi email.", "success");
-                    // setTimeout(() => location.replace("login.html"), 1400); // Dihapus
                 } else {
                     displayMessage("registerMessage", (result && result.message) || "Registrasi gagal", "danger");
                     if (result && result.errors) handleValidationErrors(registerForm, result.errors, "reg");
                 }
-
             } catch (err) {
                 console.error("Register error:", err);
                 displayMessage("registerMessage", "Kesalahan server / jaringan.", "danger");
@@ -221,5 +147,4 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
     }
-
 });

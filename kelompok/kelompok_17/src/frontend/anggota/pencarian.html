@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SIMORA | Pencarian Anggota</title>
 
-  <!-- Fonts -->
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Global anggota CSS (pastikan path benar relative ke file ini) -->
+  
   <link rel="stylesheet" href="css/anggota_app.css">
 
   <style>
@@ -36,22 +36,22 @@
       </div>
     </section>
 
-    <!-- Search hero -->
+    
     <section class="search-page card">
       <div class="search-hero" style="flex-direction:column;gap:12px;">
         <div style="width:100%; display:flex; gap:12px; align-items:center; justify-content:space-between;">
-          <!-- Search input -->
+          
           <div style="flex:1; display:flex; gap:10px; align-items:center;">
             <div class="search-box" style="flex:1">
               <input id="searchInput" class="search-input" type="search" placeholder="Cari nama, email, atau ketik tipe (mis: anggota, admin)" aria-label="Cari anggota" />
               <button id="searchBtn" class="search-btn" aria-label="Cari">Cari</button>
             </div>
 
-            <!-- Clear button -->
+            
             <button id="clearBtn" class="btn btn-ghost" title="Bersihkan pencarian">Bersihkan</button>
           </div>
 
-          <!-- View toggle & sort -->
+          
           <div style="display:flex; gap:8px; align-items:center;">
             <div class="view-toggle" role="tablist" aria-label="Tampilan hasil">
               <button id="toggleTable" class="btn btn-ghost btn-sm active" title="Tabel">Tabel</button>
@@ -67,11 +67,11 @@
           </div>
         </div>
 
-        <!-- Filter bar: membership type chips -->
+        
         <div class="pencarian-filter-bar" style="width:100%;">
           <div class="pencarian-filter-left">
             <div class="chips" id="typeChips" aria-label="Filter tipe">
-              <!-- chips will be injected here -->
+              
             </div>
             <div style="margin-left:12px; color:var(--text-secondary); font-weight:600;">
               <span id="resultsCount">—</span>
@@ -81,21 +81,21 @@
           <div class="simple-nav">
             <button id="prevPage" class="btn btn-ghost btn-sm" title="Prev page">Prev</button>
             <div class="pagination" id="paginationControls" aria-label="Navigasi halaman">
-              <!-- pagination buttons will be injected here -->
+              
             </div>
             <button id="nextPage" class="btn btn-ghost btn-sm" title="Next page">Next</button>
           </div>
         </div>
       </div>
 
-      <!-- Results area -->
+      
       <div id="resultsArea" class="mt-12">
-        <!-- Skeleton loader when fetching -->
+        
         <div id="skeletons" class="mb-12">
-          <!-- skeletons inserted by JS -->
+          
         </div>
 
-        <!-- Table view -->
+        
         <div id="tableView" class="table-wrapper">
           <table class="table hover compact" aria-describedby="resultsCount" role="table">
             <thead>
@@ -108,17 +108,17 @@
               </tr>
             </thead>
             <tbody id="resultsTableBody">
-              <!-- rows injected by JS -->
+              
             </tbody>
           </table>
         </div>
 
-        <!-- Cards view -->
+        
         <div id="cardsView" class="search-results mt-12 hidden" aria-hidden="true">
-          <!-- cards will be injected here -->
+          
         </div>
 
-        <!-- Empty state -->
+        
         <div id="emptyState" class="search-empty hidden mt-12">
           <h4>Tidak ada hasil</h4>
           <p>Coba variasikan kata kunci atau hapus filter pencarian.</p>
@@ -127,7 +127,7 @@
       </div>
     </section>
 
-    <!-- Small help / tips -->
+    
     <section class="mt-16">
       <div class="card-sm helper">
         <strong>Tip:</strong> Kamu dapat mengetik nama lengkap, sebagian nama, email, atau kata kunci tipe seperti <code>anggota</code> / <code>admin</code> / <code>pengurus</code>.
@@ -135,7 +135,7 @@
     </section>
   </main>
 
-  <!-- Modal: quick profile -->
+  
   <div id="profileModalBackdrop" class="modal-backdrop"></div>
   <div id="profileModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-header">
@@ -143,17 +143,17 @@
       <button id="closeProfileModal" class="btn btn-ghost">Tutup</button>
     </div>
     <div class="modal-body" id="profileModalBody" style="min-height:140px;">
-      <!-- body injected by JS -->
+      
     </div>
     <div class="modal-footer">
       <button id="profileModalCloseBtn" class="btn btn-ghost">Tutup</button>
     </div>
   </div>
 
-  <!-- Toast container -->
+  
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- Core scripts -->
+  
   <script src="js/pencarian.js"></script>
 </body>
 </html>

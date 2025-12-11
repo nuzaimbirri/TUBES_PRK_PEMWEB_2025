@@ -1,30 +1,16 @@
-/**
- * SIMORA Events Page - With Registration Status System
- * Features: Separate Sections (My Events & All Events), Registration Status Management
- */
-
 document.addEventListener('DOMContentLoaded', async () => {
-    
-    // CONFIGURATION
-    
     const hostname = window.location.hostname;
     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
     const isDotTest = hostname.endsWith('.test');
-    
     let basePath = '';
     if (isLocalhost) {
         basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
     } else if (isDotTest) {
         basePath = '/kelompok/kelompok_17/src';
     }
-    
     const API_BASE = `${basePath}/backend/api`;
     const UPLOAD_BASE = basePath.replace('/src', '/upload');
     const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
-    
-    
-    // STATE MANAGEMENT
-    
     let allEvents = [];
     let myRegistrations = [];
     let myAttendances = [];
@@ -32,8 +18,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let searchQuery = '';
     let filterStatus = '';
     let currentEventId = null;
-
-    // DOM Elements
     const loadingState = document.getElementById('loadingState');
     const emptyState = document.getElementById('emptyState');
     const myEventsSection = document.getElementById('myEventsSection');
@@ -44,8 +28,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const allEventsCount = document.getElementById('allEventsCount');
     const searchInput = document.getElementById('searchInput');
     const filterStatusSelect = document.getElementById('filterStatus');
-    
-    // Event Detail Modal
     const eventModal = document.getElementById('eventModal');
     const eventModalOverlay = document.getElementById('eventModalOverlay');
     const closeEventModal = document.getElementById('closeEventModal');
@@ -54,8 +36,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnPresensi = document.getElementById('btnPresensi');
     const btnCancelRegistration = document.getElementById('btnCancelRegistration');
     const registrationStatusInfo = document.getElementById('registrationStatusInfo');
-    
-    // Presensi Modal
     const presensiModal = document.getElementById('presensiModal');
     const presensiModalOverlay = document.getElementById('presensiModalOverlay');
     const closePresensiModal = document.getElementById('closePresensiModal');
@@ -68,30 +48,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const previewImage = document.getElementById('previewImage');
     const btnRemovePreview = document.getElementById('btnRemovePreview');
     const toast = document.getElementById('toast');
-
-    
-    // INITIALIZATION
-    
     async function init() {
         showLoading();
-        
-        // Load current user first
         const user = await loadCurrentUser();
         if (!user) {
             window.location.href = LOGIN_PAGE;
             return;
         }
         currentUser = user;
-        
-        // Update navbar with user data
         updateNavbarUser(user);
-        
         await loadEvents();
         await loadMyRegistrations();
         setupEventListeners();
         renderAllSections();
         hideLoading();
-
         const urlParams = new URLSearchParams(window.location.search);
         const eventIdFromUrl = urlParams.get('event');
         if (eventIdFromUrl) {
@@ -100,16 +70,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             }, 500);
         }
     }
-
     function updateNavbarUser(user) {
         const navUsername = document.getElementById('navUsername');
         const userInitials = document.getElementById('userInitials');
         const userAvatar = document.getElementById('userAvatar');
-        
         if (navUsername) {
             navUsername.textContent = user.full_name || user.username;
         }
-        
         if (userAvatar && user.profile_photo) {
             userAvatar.innerHTML = `<img src="${UPLOAD_BASE}/profile/${user.profile_photo}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
         } else if (userInitials) {
@@ -118,10 +85,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             userInitials.textContent = initials;
         }
     }
-
-    
-    // LOAD CURRENT USER
-    
     async function loadCurrentUser() {
         try {
             const response = await fetch(`${API_BASE}/auth.php?action=me`, {
@@ -129,7 +92,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 credentials: 'include'
             });
             const result = await response.json();
-            
             if (response.ok && result.status === 'success') {
                 return result.data;
             }
@@ -139,10 +101,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             return null;
         }
     }
-
-    
-    // LOAD MY REGISTRATIONS
-    
     async function loadMyRegistrations() {
         try {
             const regResponse = await fetch(`${API_BASE}/registrations.php?action=my-registrations`, {
@@ -150,7 +108,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 credentials: 'include'
             });
             const regResult = await regResponse.json();
-            
             if (regResponse.ok && regResult.status === 'success') {
                 const regs = regResult.data?.registrations || regResult.data || [];
                 myRegistrations = regs.map(reg => ({
@@ -164,13 +121,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 myRegistrations = [];
             }
-
             const attResponse = await fetch(`${API_BASE}/attendance.php?action=my-attendance`, {
                 method: 'GET',
                 credentials: 'include'
             });
             const attResult = await attResponse.json();
-            
             if (attResponse.ok && attResult.status === 'success') {
                 const attData = attResult.data?.attendance?.data || attResult.data?.attendance || [];
                 myAttendances = attData.map(att => ({
@@ -180,7 +135,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     check_in_time: att.check_in_time,
                     photo: att.photo
                 }));
-                
                 attData.forEach(att => {
                     const existing = myRegistrations.find(r => r.event_id === att.event_id);
                     if (!existing) {
@@ -201,10 +155,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             myAttendances = [];
         }
     }
-
-    
-    // LOAD EVENTS
-    
     async function loadEvents() {
         try {
             const response = await fetch(`${API_BASE}/events.php?action=list&limit=50`, {
@@ -212,19 +162,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 credentials: 'include'
             });
             const result = await response.json();
-            
             if (response.ok && result.status === 'success' && result.data && result.data.data) {
                 const now = Date.now();
-                
                 allEvents = result.data.data.map(event => {
                     let eventStatus = 'upcoming';
                     const eventDate = event.event_date;
                     const startTime = event.start_time?.substring(0, 5) || '00:00';
                     const endTime = event.end_time?.substring(0, 5) || '23:59';
-                    
                     const eventStart = new Date(`${eventDate}T${startTime}:00`).getTime();
                     const eventEnd = new Date(`${eventDate}T${endTime}:00`).getTime();
-                    
                     if (event.status === 'completed') {
                         eventStatus = 'completed';
                     } else if (event.status === 'cancelled') {
@@ -236,7 +182,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     } else {
                         eventStatus = 'upcoming';
                     }
-                    
                     return {
                         id: event.event_id,
                         title: event.title,
@@ -266,32 +211,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             allEvents = [];
         }
     }
-
-    
-    // RENDER ALL SECTIONS
-    
     function renderAllSections() {
         const filteredEvents = filterEvents();
-        
-        // Separate events into My Events and All Events
         const myEventIds = myRegistrations.map(r => r.event_id);
         let myEvents = filteredEvents.filter(e => myEventIds.includes(e.id));
         const availableEvents = filteredEvents.filter(e => !myEventIds.includes(e.id));
-
-        // Sort My Events: Yang baru dibuka tampil paling atas
         myEvents.sort((a, b) => {
             const regA = myRegistrations.find(r => r.event_id === a.id);
             const regB = myRegistrations.find(r => r.event_id === b.id);
-            
-            // Event yang pernah dibuka (last_viewed ada) prioritas lebih tinggi
             const timeA = regA.last_viewed ? new Date(regA.last_viewed).getTime() : 0;
             const timeB = regB.last_viewed ? new Date(regB.last_viewed).getTime() : 0;
-            
-            // Sort descending: yang terbaru di atas
             return timeB - timeA;
         });
-
-        // Render My Events Section
         if (myEvents.length > 0) {
             myEventsSection.style.display = 'block';
             myEventsCount.textContent = `${myEvents.length} Event`;
@@ -300,8 +231,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             myEventsSection.style.display = 'none';
         }
-
-        // Render All Events Section
         if (availableEvents.length > 0) {
             allEventsSection.style.display = 'block';
             allEventsCount.textContent = `${availableEvents.length} Event`;
@@ -310,18 +239,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             allEventsSection.style.display = 'none';
         }
-
-        // Show empty state if no events at all
         if (myEvents.length === 0 && availableEvents.length === 0) {
             showEmptyState();
         } else {
             hideEmptyState();
         }
     }
-
-    
-    // ADD CLICK HANDLERS TO CARDS
-    
     function addCardClickHandlers(container) {
         container.querySelectorAll('.event-card').forEach(card => {
             card.addEventListener('click', (e) => {
@@ -330,27 +253,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
     }
-
-    
-    // CREATE EVENT CARD
-    
     function createEventCard(event, isMyEvent) {
         const registration = myRegistrations.find(r => r.event_id === event.id);
         const eventIcon = getEventIcon(event.type);
         const statusBadge = getStatusBadge(event.status);
-        
         let registrationBadge = '';
         if (isMyEvent && registration && event.status !== 'ongoing' && event.status !== 'completed') {
             registrationBadge = getRegistrationStatusBadge(registration.status);
         }
-
         const bannerContent = event.banner 
             ? `<img src="${UPLOAD_BASE}/event/${event.banner}" alt="${event.title}" class="event-card-banner-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                <div class="event-card-icon" style="display:none;">${eventIcon}</div>`
             : `<div class="event-card-icon">${eventIcon}</div>`;
-
         const showParticipants = event.open_registration;
-
         return `
             <div class="event-card" data-event-id="${event.id}">
                 <div class="event-card-banner">
@@ -399,10 +314,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
         `;
     }
-
-    
-    // CHECK IF EVENT IS ONGOING
-    
     function isEventOngoing(event) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -410,10 +321,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         eventDate.setHours(0, 0, 0, 0);
         return eventDate.getTime() === today.getTime();
     }
-
-    
-    // GET REGISTRATION STATUS BADGE
-    
     function getRegistrationStatusBadge(status) {
         const badges = {
             pending: `
@@ -455,16 +362,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         return badges[status] || '';
     }
-
-    
-    // FILTER EVENTS
-    
     function filterEvents() {
         return allEvents.filter(event => {
             const matchesSearch = !searchQuery || 
                 event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 event.description.toLowerCase().includes(searchQuery.toLowerCase());
-            
             let matchesStatus = true;
             if (filterStatus === 'registered') {
                 const myEventIds = myRegistrations.map(r => r.event_id);
@@ -472,25 +374,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (filterStatus) {
                 matchesStatus = event.status === filterStatus;
             }
-
             return matchesSearch && matchesStatus;
         });
     }
-
-    
-    // OPEN EVENT DETAIL MODAL
-    
     async function openEventDetail(eventId) {
         const event = allEvents.find(e => e.id === eventId);
         if (!event) return;
-
         currentEventId = eventId;
         const registration = myRegistrations.find(r => r.event_id === eventId);
-        
         const now = Date.now();
         const eventStart = new Date(`${event.date}T${event.start_time}:00`).getTime();
         const eventEnd = new Date(`${event.date}T${event.end_time}:00`).getTime();
-        
         if (event.status !== 'cancelled' && event.status !== 'completed') {
             if (now >= eventStart && now <= eventEnd) {
                 event.status = 'ongoing';
@@ -500,11 +394,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 event.status = 'upcoming';
             }
         }
-        
         if (registration) {
             registration.last_viewed = new Date().toISOString();
         }
-        
         document.getElementById('detailTitle').textContent = event.title;
         document.getElementById('detailStatus').textContent = getStatusText(event.status);
         document.getElementById('detailStatus').className = `event-status-badge status-${event.status}`;
@@ -513,10 +405,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('detailTime').textContent = event.time;
         document.getElementById('detailLocation').textContent = event.location;
         document.getElementById('detailDescription').textContent = event.description;
-        
         let attendanceStats = { total: 0, hadir: 0, izin: 0, sakit: 0 };
         let registrationStats = { total: 0, approved: 0, pending: 0 };
-        
         try {
             const detailRes = await fetch(`${API_BASE}/events.php?action=show&id=${eventId}`, {
                 method: 'GET',
@@ -530,15 +420,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (err) {
             console.error('Error fetching event detail:', err);
         }
-        
         const totalPanitia = event.open_registration ? registrationStats.approved : 0;
         const hadirCount = attendanceStats.hadir || 0;
         const tidakHadirCount = (attendanceStats.izin || 0) + (attendanceStats.sakit || 0);
-        
         document.getElementById('statHadir').textContent = hadirCount;
         document.getElementById('statTotal').textContent = totalPanitia || attendanceStats.total || 0;
         document.getElementById('statTidakHadir').textContent = tidakHadirCount;
-        
         const eventIcon = getEventIcon(event.type);
         if (event.banner) {
             document.getElementById('detailBanner').innerHTML = `
@@ -549,18 +436,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             document.getElementById('detailBanner').innerHTML = `<div class="event-icon-large">${eventIcon}</div>`;
         }
-
         btnRegister.style.display = 'none';
         btnPresensi.style.display = 'none';
         btnCancelRegistration.style.display = 'none';
         registrationStatusInfo.style.display = 'none';
-        
         const eventIsOngoing = event.status === 'ongoing';
         const eventIsUpcoming = event.status === 'upcoming';
         const hasOpenRegistration = event.open_registration;
         const myAttendance = myAttendances.find(a => a.event_id === eventId);
         const hasAttended = !!myAttendance;
-        
         if (hasAttended) {
             registrationStatusInfo.style.display = 'block';
             const statusLabels = { hadir: 'Hadir', izin: 'Izin', sakit: 'Sakit' };
@@ -615,9 +499,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 registrationStatusInfo.innerHTML = getRegistrationStatusInfo(registration.status);
             }
         }
-
         const attendanceCard = document.getElementById('attendanceCard');
-        
         if (hasAttended) {
             const statusLabels = { hadir: 'Hadir', izin: 'Izin', sakit: 'Sakit' };
             const statusColors = { hadir: '#10b981', izin: '#f59e0b', sakit: '#ef4444' };
@@ -681,14 +563,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             `;
         }
-
         eventModal.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
-
-    
-    // GET REGISTRATION STATUS INFO
-    
     function getRegistrationStatusInfo(status) {
         const info = {
             pending: `
@@ -742,10 +619,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         return info[status] || '';
     }
-
-    
-    // GET ATTENDANCE CARD HTML
-    
     function getAttendanceCardHTML(status) {
         const cards = {
             pending: `
@@ -792,45 +665,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         return cards[status] || '';
     }
-
-    
-    // CLOSE EVENT DETAIL MODAL
-    
     function closeEventDetailModal() {
         eventModal.classList.remove('active');
         document.body.style.overflow = 'auto';
-        
-        // Re-render sections untuk update urutan (event yang baru dibuka ke atas)
         const wasMyEvent = myRegistrations.some(r => r.event_id === currentEventId);
         if (wasMyEvent) {
             renderAllSections();
         }
-        
         currentEventId = null;
     }
-
-    
-    // HANDLE EVENT REGISTRATION
-    
     async function registerEvent() {
         if (!currentEventId) return;
-        
         const event = allEvents.find(e => e.id === currentEventId);
         if (!event) return;
-        
         if (event.open_registration) {
             openRegistrationModal();
         } else {
             showToast('Event ini tidak memerlukan pendaftaran. Silakan upload presensi saat event berlangsung.', 'info');
         }
     }
-
-    
-    // CANCEL REGISTRATION
-    
     async function cancelRegistration() {
         if (!currentEventId) return;
-        
         showConfirmModal(
             'Batalkan Pendaftaran',
             'Yakin ingin membatalkan pendaftaran event ini? Anda mungkin perlu mendaftar ulang jika berubah pikiran.',
@@ -839,18 +694,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         );
     }
-
     async function submitCancelRegistration() {
         btnCancelRegistration.disabled = true;
         btnCancelRegistration.innerHTML = `<div class="spinner-sm"></div> Membatalkan...`;
-
         try {
             const registration = myRegistrations.find(r => r.event_id === currentEventId);
             if (!registration || !registration.registration_id) {
                 showToast('Data pendaftaran tidak ditemukan', 'error');
                 return;
             }
-
             const response = await fetch(`${API_BASE}/registrations.php?action=cancel&id=${registration.registration_id}`, {
                 method: 'POST',
                 headers: {
@@ -858,9 +710,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
                 credentials: 'include'
             });
-
             const result = await response.json();
-
             if (response.ok && result.status === 'success') {
                 closeEventDetailModal();
                 await loadMyRegistrations();
@@ -884,57 +734,37 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
         }
     }
-
-    
-    // OPEN PRESENSI MODAL
-    
     function openPresensiModal() {
         document.getElementById('presensiEventId').value = currentEventId;
         presensiModal.classList.add('active');
         resetPresensiForm();
     }
-
-    
-    // CLOSE PRESENSI MODAL
-    
     function closePresensiModalFunc() {
         presensiModal.classList.remove('active');
         resetPresensiForm();
     }
-
-    
-    // RESET PRESENSI FORM
-    
     function resetPresensiForm() {
         presensiForm.reset();
         uploadPreview.style.display = 'none';
         uploadPlaceholder.style.display = 'block';
         previewImage.src = '';
     }
-
-    
-    // HANDLE FILE UPLOAD
-    
     uploadArea.addEventListener('click', () => {
         presensiPhoto.click();
     });
-
     presensiPhoto.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
         if (!allowedTypes.includes(file.type)) {
             showToast('Format file tidak valid. Gunakan JPG, JPEG, atau PNG', 'error');
             return;
         }
-
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
             showToast('Ukuran file terlalu besar. Maksimal 5MB', 'error');
             return;
         }
-
         const reader = new FileReader();
         reader.onload = (e) => {
             previewImage.src = e.target.result;
@@ -943,23 +773,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         reader.readAsDataURL(file);
     });
-
     uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         uploadArea.style.borderColor = 'var(--teal-600)';
         uploadArea.style.background = 'var(--teal-50)';
     });
-
     uploadArea.addEventListener('dragleave', () => {
         uploadArea.style.borderColor = '';
         uploadArea.style.background = '';
     });
-
     uploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
         uploadArea.style.borderColor = '';
         uploadArea.style.background = '';
-
         const file = e.dataTransfer.files[0];
         if (file) {
             const dataTransfer = new DataTransfer();
@@ -968,19 +794,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             presensiPhoto.dispatchEvent(new Event('change'));
         }
     });
-
     btnRemovePreview.addEventListener('click', (e) => {
         e.stopPropagation();
         resetPresensiForm();
     });
-
     document.querySelectorAll('input[name="attendance_status"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
             const status = e.target.value;
             const photoHint = document.getElementById('photoHint');
             const notesRequired = document.getElementById('notesRequired');
             const notesField = document.getElementById('presensiNotes');
-            
             if (status === 'hadir') {
                 photoHint.textContent = 'Upload foto selfie di lokasi event';
                 notesRequired.style.display = 'none';
@@ -999,25 +822,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     });
-
     presensiForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const eventId = document.getElementById('presensiEventId').value;
         const photoFile = presensiPhoto.files[0];
         const notes = document.getElementById('presensiNotes').value;
         const attendanceStatus = document.querySelector('input[name="attendance_status"]:checked').value;
-
         if (!photoFile) {
             showToast('Mohon upload foto bukti', 'error');
             return;
         }
-
         if ((attendanceStatus === 'izin' || attendanceStatus === 'sakit') && !notes.trim()) {
             showToast('Mohon isi keterangan untuk izin/sakit', 'error');
             return;
         }
-
         const statusLabels = { hadir: 'Hadir', izin: 'Izin', sakit: 'Sakit' };
         showConfirmModal(
             'Konfirmasi Presensi',
@@ -1027,27 +845,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         );
     });
-
     async function submitPresensi(eventId, photoFile, notes, attendanceStatus) {
         const btnSubmit = document.getElementById('btnSubmitPresensi');
         btnSubmit.disabled = true;
         btnSubmit.innerHTML = `<div class="spinner-sm"></div> Mengirim...`;
-
         try {
             const formData = new FormData();
             formData.append('event_id', eventId);
             formData.append('photo', photoFile);
             formData.append('status', attendanceStatus || 'hadir');
             if (notes) formData.append('notes', notes);
-
             const response = await fetch(`${API_BASE}/attendance.php?action=checkin`, {
                 method: 'POST',
                 credentials: 'include',
                 body: formData
             });
-
             const result = await response.json();
-
             if (response.ok && result.status === 'success') {
                 closePresensiModalFunc();
                 closeEventDetailModal();
@@ -1075,37 +888,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
         }
     }
-
-    
-    // REGISTRATION MODAL HANDLERS
-    
     const registrationModal = document.getElementById('registrationModal');
     const registrationModalOverlay = document.getElementById('registrationModalOverlay');
     const closeRegistrationModal = document.getElementById('closeRegistrationModal');
     const registrationForm = document.getElementById('registrationForm');
     const btnCancelRegistration2 = document.getElementById('btnCancelRegistration2');
-
     function openRegistrationModal() {
         document.getElementById('regEventId').value = currentEventId;
         registrationForm.reset();
         registrationModal.classList.add('active');
     }
-
     function closeRegistrationModalFunc() {
         registrationModal.classList.remove('active');
         registrationForm.reset();
     }
-
-    // Registration Form Submit
     registrationForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
         const eventId = document.getElementById('regEventId').value;
         const division = document.getElementById('regDivision').value;
         const reason = document.getElementById('regReason').value;
         const experience = document.getElementById('regExperience').value;
-
-        // Show confirmation modal
         showConfirmModal(
             'Konfirmasi Pendaftaran',
             `Anda akan mendaftar sebagai panitia divisi "${getDivisionName(division)}". Lanjutkan?`,
@@ -1114,12 +916,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         );
     });
-
     async function submitRegistration(eventId, division, reason, experience) {
         const btnSubmit = document.getElementById('btnSubmitRegistration');
         btnSubmit.disabled = true;
         btnSubmit.innerHTML = '<div class="spinner-sm"></div> Mengirim...';
-
         try {
             const response = await fetch(`${API_BASE}/registrations.php?action=register`, {
                 method: 'POST',
@@ -1134,13 +934,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     experience: experience
                 })
             });
-
             const result = await response.json();
-
             if (response.ok && result.status === 'success') {
                 closeRegistrationModalFunc();
                 closeEventDetailModal();
-                
                 await loadMyRegistrations();
                 renderAllSections();
                 showSuccessModalFunc('Pendaftaran Terkirim!', 'Pendaftaran Anda sedang menunggu persetujuan admin. Silakan cek kembali secara berkala.');
@@ -1161,7 +958,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
         }
     }
-
     function getDivisionName(code) {
         const divisions = {
             'acara': 'Acara',
@@ -1176,89 +972,63 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         return divisions[code] || code;
     }
-
-    
-    // CONFIRMATION & SUCCESS MODALS
-    
     const confirmModal = document.getElementById('confirmModal');
     const confirmModalOverlay = document.getElementById('confirmModalOverlay');
     const btnConfirmCancel = document.getElementById('btnConfirmCancel');
     const btnConfirmOk = document.getElementById('btnConfirmOk');
     let confirmCallback = null;
-
     function showConfirmModal(title, message, callback) {
         document.getElementById('confirmTitle').textContent = title;
         document.getElementById('confirmMessage').textContent = message;
         confirmCallback = callback;
         confirmModal.classList.add('active');
     }
-
     function closeConfirmModal() {
         confirmModal.classList.remove('active');
         confirmCallback = null;
     }
-
     btnConfirmCancel?.addEventListener('click', closeConfirmModal);
     confirmModalOverlay?.addEventListener('click', closeConfirmModal);
-
     btnConfirmOk?.addEventListener('click', async () => {
         if (confirmCallback) {
             await confirmCallback();
         }
         closeConfirmModal();
     });
-
     const successModal = document.getElementById('successModal');
     const successModalOverlay = document.getElementById('successModalOverlay');
     const btnSuccessOk = document.getElementById('btnSuccessOk');
-
     function showSuccessModalFunc(title, message) {
         document.getElementById('successTitle').textContent = title;
         document.getElementById('successMessage').textContent = message;
         successModal.classList.add('active');
     }
-
     function closeSuccessModal() {
         successModal.classList.remove('active');
     }
-
     btnSuccessOk?.addEventListener('click', closeSuccessModal);
     successModalOverlay?.addEventListener('click', closeSuccessModal);
-
-    
-    // EVENT LISTENERS
-    
     function setupEventListeners() {
         searchInput.addEventListener('input', (e) => {
             searchQuery = e.target.value;
             renderAllSections();
         });
-
         filterStatusSelect.addEventListener('change', (e) => {
             filterStatus = e.target.value;
             renderAllSections();
         });
-
         closeEventModal.addEventListener('click', closeEventDetailModal);
         eventModalOverlay.addEventListener('click', closeEventDetailModal);
         btnCloseDetail.addEventListener('click', closeEventDetailModal);
-
         btnRegister.addEventListener('click', registerEvent);
         btnPresensi.addEventListener('click', openPresensiModal);
         btnCancelRegistration.addEventListener('click', cancelRegistration);
-
         closePresensiModal.addEventListener('click', closePresensiModalFunc);
         presensiModalOverlay.addEventListener('click', closePresensiModalFunc);
         btnCancelPresensi.addEventListener('click', closePresensiModalFunc);
-
-        // Registration Modal Listeners
         closeRegistrationModal?.addEventListener('click', closeRegistrationModalFunc);
         registrationModalOverlay?.addEventListener('click', closeRegistrationModalFunc);
         btnCancelRegistration2?.addEventListener('click', closeRegistrationModalFunc);
-
-        // LOGOUT LISTENER DIHAPUS - Dipindahkan ke logout-helper.js
-        // Logout sekarang menggunakan modal konfirmasi profesional mint green
-
         const navToggle = document.getElementById('navToggle');
         const navMenu = document.getElementById('navMenu');
         navToggle?.addEventListener('click', () => {
@@ -1266,41 +1036,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             navToggle.classList.toggle('active');
         });
     }
-
-    
-    // HELPER FUNCTIONS
-    
     function showLoading() {
         loadingState.style.display = 'flex';
         myEventsSection.style.display = 'none';
         allEventsSection.style.display = 'none';
         emptyState.style.display = 'none';
     }
-
     function hideLoading() {
         loadingState.style.display = 'none';
     }
-
     function showEmptyState() {
         myEventsSection.style.display = 'none';
         allEventsSection.style.display = 'none';
         emptyState.style.display = 'flex';
     }
-
     function hideEmptyState() {
         emptyState.style.display = 'none';
     }
-
     function formatDate(dateString) {
         const date = new Date(dateString);
         const options = { day: 'numeric', month: 'long', year: 'numeric' };
         return date.toLocaleDateString('id-ID', options);
     }
-
     function truncateText(text, maxLength) {
         return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
     }
-
     function getEventIcon(type) {
         const icons = {
             workshop: '',
@@ -1313,7 +1073,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         return icons[type] || '';
     }
-
     function getStatusBadge(status) {
         const badges = {
             upcoming: '<span class="event-status-badge status-upcoming">Mendatang</span>',
@@ -1323,7 +1082,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         return badges[status] || '';
     }
-
     function getStatusText(status) {
         const texts = {
             upcoming: 'Mendatang',
@@ -1333,23 +1091,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         return texts[status] || status;
     }
-
     function showToast(message, type = 'info') {
         const iconSvg = type === 'success' 
             ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>'
             : type === 'error'
             ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
             : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
-
         document.getElementById('toastIcon').innerHTML = iconSvg;
         document.getElementById('toastMessage').textContent = message;
         toast.className = `toast ${type} show`;
-
         setTimeout(() => {
             toast.classList.remove('show');
             toast.classList.add('hide');
         }, 3500);
     }
-
     init();
 });

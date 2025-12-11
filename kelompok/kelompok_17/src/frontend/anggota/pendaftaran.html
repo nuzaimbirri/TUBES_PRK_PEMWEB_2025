@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SIMORA | Pendaftaran Kegiatan</title>
 
-  <!-- Fonts -->
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Global CSS (pastikan path relatif benar) -->
+  
   <link rel="stylesheet" href="css/anggota_app.css">
 
   <style>
@@ -40,7 +40,7 @@
     </section>
 
     <section class="card mt-12">
-      <!-- Filters / search -->
+      
       <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
         <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
           <div class="search-box" style="min-width:320px; max-width:480px;">
@@ -76,15 +76,15 @@
         </div>
       </div>
 
-      <!-- Results area -->
+      
       <div id="eventsArea" class="mt-16">
-        <!-- skeleton loader -->
+        
         <div id="eventsSkeleton" class="mb-12"></div>
 
-        <!-- grid of event cards -->
+        
         <div id="eventsGrid" class="events-grid"></div>
 
-        <!-- table fallback -->
+        
         <div id="eventsTableWrapper" class="table-wrapper hidden mt-12">
           <table class="table" id="eventsTable">
             <thead>
@@ -100,13 +100,13 @@
           </table>
         </div>
 
-        <!-- empty state -->
+        
         <div id="eventsEmpty" class="empty mt-12 hidden">
           <h4>Tidak ada kegiatan</h4>
           <p>Coba ubah kata kunci atau filter. Atau cek kembali nanti.</p>
         </div>
 
-        <!-- pagination -->
+        
         <div class="mt-12" style="display:flex;gap:8px;align-items:center;justify-content:center;">
           <button id="prevEventsPage" class="btn btn-ghost btn-sm">Prev</button>
           <div id="eventsPagination" class="pagination"></div>
@@ -115,7 +115,7 @@
       </div>
     </section>
 
-    <!-- small helper -->
+    
     <section class="mt-16">
       <div class="card-sm helper">
         <strong>Catatan:</strong> Jika pendaftaran membutuhkan konfirmasi atau biaya, status akan berubah setelah admin memverifikasi.
@@ -123,7 +123,7 @@
     </section>
   </main>
 
-  <!-- Modal: Detail event & register form -->
+  
   <div id="registerModalBackdrop" class="modal-backdrop"></div>
   <div id="registerModal" class="modal modal-large" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-header">
@@ -132,7 +132,7 @@
     </div>
 
     <div class="modal-body" id="registerModalBody">
-      <!-- content injected by JS -->
+      
       <div id="modalContentSkeleton"></div>
     </div>
 
@@ -142,10 +142,10 @@
     </div>
   </div>
 
-  <!-- Toast container -->
+  
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- Core JS: pendaftaran logic -->
+  
   <script src="js/pendaftaran.js"></script>
 </body>
 </html>

@@ -1,10 +1,8 @@
 <?php
-
 if (!defined('BASE_PATH')) {
     http_response_code(403);
     exit('Direct access forbidden');
 }
-
 return [
     'host' => 'localhost',
     'port' => 3306,

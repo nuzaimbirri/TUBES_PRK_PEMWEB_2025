@@ -2,18 +2,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const hostname = window.location.hostname;
     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
     const isDotTest = hostname.endsWith('.test');
-    
     let basePath = '';
     if (isLocalhost) {
         basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
     } else if (isDotTest) {
         basePath = '/kelompok/kelompok_17/src';
     }
-    
     const API_BASE = `${basePath}/backend/api`;
     const UPLOAD_BASE = basePath.replace('/src', '/upload');
     const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
-
     async function loadAndUpdateUser() {
         try {
             const response = await fetch(`${API_BASE}/auth.php?action=me`, {
@@ -21,21 +18,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 credentials: 'include'
             });
             const result = await response.json();
-
             if (!response.ok || result.status !== 'success') {
                 window.location.href = LOGIN_PAGE;
                 return;
             }
-
             const user = result.data;
             const navUsername = document.getElementById('navUsername');
             const userInitials = document.getElementById('userInitials');
             const userAvatar = document.getElementById('userAvatar');
-            
             if (navUsername) {
                 navUsername.textContent = user.full_name || user.username;
             }
-            
             if (userInitials && userAvatar) {
                 if (user.profile_photo) {
                     userAvatar.innerHTML = `<img src="${UPLOAD_BASE}/profile/${user.profile_photo}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
@@ -50,13 +43,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = LOGIN_PAGE;
         }
     }
-
     let members = [];
     let filteredMembers = [];
     let currentStatusFilter = 'all';
     let currentRoleFilter = 'all';
     let searchQuery = '';
-
     async function loadMembersFromAPI() {
         try {
             const response = await fetch(`${API_BASE}/auth.php?action=all_members`, {
@@ -64,7 +55,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 credentials: 'include'
             });
             const result = await response.json();
-            
             if (response.ok && result.status === 'success' && result.data && result.data.members) {
                 members = result.data.members.map(m => ({
                     id: m.user_id,
@@ -89,12 +79,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error('Error loading members:', error);
             members = [];
         }
-        
         filteredMembers = [...members];
         renderMembers();
         updateResultsCount();
     }
-
     const searchInput = document.getElementById('searchInput');
     const clearSearchBtn = document.getElementById('clearSearch');
     const filterBtn = document.getElementById('filterBtn');
@@ -102,15 +90,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const membersGrid = document.getElementById('membersGrid');
     const emptyState = document.getElementById('emptyState');
     const resultsCount = document.getElementById('resultsCount');
-
     const normalizeText = (text) => {
         if (!text) return '';
         return text.toString().toLowerCase().trim();
     };
-
     const matchesSearch = (member, query) => {
         if (!query) return true;
-        
         const normalizedQuery = normalizeText(query);
         const searchableFields = [
             member.name,
@@ -120,35 +105,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             member.npm,
             member.username
         ];
-        
         return searchableFields.some(field => 
             normalizeText(field).includes(normalizedQuery)
         );
     };
-
     const filterMembers = () => {
         filteredMembers = members.filter(member => {
             if (!matchesSearch(member, searchQuery)) return false;
-            
             if (currentStatusFilter !== 'all') {
                 if (currentStatusFilter === 'active' && member.status !== 'active') return false;
                 if (currentStatusFilter === 'inactive' && member.status !== 'inactive') return false;
             }
-            
             if (currentRoleFilter !== 'all') {
                 const roleNorm = normalizeText(member.role);
                 if (currentRoleFilter === 'admin' && roleNorm !== 'admin') return false;
                 if (currentRoleFilter === 'anggota' && roleNorm !== 'anggota') return false;
                 if (currentRoleFilter === 'pengurus' && !roleNorm.includes('pengurus')) return false;
             }
-            
             return true;
         });
-        
         renderMembers();
         updateResultsCount();
     };
-
     const updateResultsCount = () => {
         const total = members.length;
         const shown = filteredMembers.length;
@@ -156,12 +134,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             resultsCount.textContent = `Menampilkan ${shown} dari ${total} anggota`;
         }
     };
-
     const createMemberCard = (member) => {
         const avatarContent = member.photo 
             ? `<img src="${UPLOAD_BASE}/profile/${member.photo}" alt="${member.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
             : member.initials;
-        
         return `
             <div class="member-card" data-member-id="${member.id}">
                 <div class="member-header">
@@ -173,7 +149,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <p class="member-role">${member.role}</p>
                     </div>
                 </div>
-                
                 <div class="member-details">
                     <div class="detail-item">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -201,7 +176,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <span>NPM: ${member.npm}</span>
                     </div>
                 </div>
-                
                 <div class="member-footer">
                     <span class="status-badge ${member.status}">
                         <span class="status-dot"></span>
@@ -214,22 +188,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
         `;
     };
-
     const renderMembers = () => {
         if (!membersGrid) return;
-        
         if (filteredMembers.length === 0) {
             membersGrid.innerHTML = '';
             membersGrid.style.display = 'none';
             if (emptyState) emptyState.style.display = 'block';
             return;
         }
-        
         membersGrid.style.display = 'grid';
         if (emptyState) emptyState.style.display = 'none';
-        
         membersGrid.innerHTML = filteredMembers.map(member => createMemberCard(member)).join('');
-        
         membersGrid.querySelectorAll('.contact-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -238,28 +207,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
     };
-
     const showMemberDetail = (memberId) => {
         const member = members.find(m => m.id === memberId);
         if (!member) return;
-        
         const modal = document.getElementById('memberDetailModal');
         const modalBody = document.getElementById('modalBody');
-        
         if (!modal || !modalBody) return;
-        
         const avatarContent = member.photo 
             ? `<img src="${UPLOAD_BASE}/profile/${member.photo}" alt="${member.name}">`
             : member.initials;
-        
         const statusText = member.activity_status === 'aktif' ? 'Aktif' : 
                           member.activity_status === 'sp1' ? 'SP 1' :
                           member.activity_status === 'sp2' ? 'SP 2' : 'Tidak Aktif';
-        
         const joinDate = member.created_at ? new Date(member.created_at).toLocaleDateString('id-ID', {
             day: 'numeric', month: 'long', year: 'numeric'
         }) : '-';
-        
         modalBody.innerHTML = `
             <div class="modal-profile-section">
                 <div class="modal-avatar">
@@ -268,7 +230,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="modal-name">${member.name}</div>
                 <div class="modal-role">${member.role}</div>
             </div>
-            
             <div class="modal-info-grid">
                 <div class="modal-info-item">
                     <div class="modal-info-icon npm">
@@ -284,7 +245,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="modal-info-value">${member.npm}</div>
                     </div>
                 </div>
-                
                 <div class="modal-info-item">
                     <div class="modal-info-icon department">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -297,7 +257,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="modal-info-value">${member.department}</div>
                     </div>
                 </div>
-                
                 <div class="modal-info-item">
                     <div class="modal-info-icon email">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -310,7 +269,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="modal-info-value"><a href="mailto:${member.email}">${member.email}</a></div>
                     </div>
                 </div>
-                
                 <div class="modal-info-item">
                     <div class="modal-info-icon phone">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -322,7 +280,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="modal-info-value">${member.phone !== '-' ? `<a href="tel:${member.phone}">${member.phone}</a>` : '-'}</div>
                     </div>
                 </div>
-                
                 <div class="modal-info-item">
                     <div class="modal-info-icon address">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -335,7 +292,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="modal-info-value">${member.address}</div>
                     </div>
                 </div>
-                
                 <div class="modal-info-item">
                     <div class="modal-info-icon status">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -349,7 +305,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
             </div>
-            
             <div class="modal-actions">
                 <a href="mailto:${member.email}" class="modal-btn modal-btn-primary">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -368,11 +323,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ` : ''}
             </div>
         `;
-        
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
     };
-    
     window.closeMemberModal = () => {
         const modal = document.getElementById('memberDetailModal');
         if (modal) {
@@ -380,17 +333,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.body.style.overflow = '';
         }
     };
-
     const handleSearch = (e) => {
         searchQuery = e.target.value;
-        
         if (clearSearchBtn) {
             clearSearchBtn.style.display = searchQuery.length > 0 ? 'flex' : 'none';
         }
-        
         filterMembers();
     };
-
     const clearSearch = () => {
         if (searchInput) {
             searchInput.value = '';
@@ -400,7 +349,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             filterMembers();
         }
     };
-
     const toggleFilterPanel = () => {
         if (filterPanel) {
             const isVisible = filterPanel.style.display !== 'none';
@@ -408,55 +356,43 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (filterBtn) filterBtn.classList.toggle('active', !isVisible);
         }
     };
-
     const handleFilterClick = (button, filterType) => {
         const value = button.dataset[filterType];
-        
         const siblings = button.parentElement.querySelectorAll('.filter-option');
         siblings.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
-        
         if (filterType === 'filter') {
             currentStatusFilter = value;
         } else if (filterType === 'role') {
             currentRoleFilter = value;
         }
-        
         filterMembers();
     };
-
     if (searchInput) {
         searchInput.addEventListener('input', handleSearch);
         searchInput.addEventListener('keyup', (e) => {
             if (e.key === 'Escape') clearSearch();
         });
     }
-    
     if (clearSearchBtn) {
         clearSearchBtn.addEventListener('click', clearSearch);
     }
-    
     if (filterBtn) {
         filterBtn.addEventListener('click', toggleFilterPanel);
     }
-    
     document.querySelectorAll('[data-filter]').forEach(button => {
         button.addEventListener('click', () => handleFilterClick(button, 'filter'));
     });
-    
     document.querySelectorAll('[data-role]').forEach(button => {
         button.addEventListener('click', () => handleFilterClick(button, 'role'));
     });
-
     const initMobileNav = () => {
         const toggle = document.getElementById('navToggle');
         const menu = document.getElementById('navMenu');
-        
         toggle?.addEventListener('click', () => {
             menu?.classList.toggle('active');
             toggle.classList.toggle('active');
         });
-
         menu?.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', () => {
                 menu.classList.remove('active');
@@ -464,13 +400,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
     };
-
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeMemberModal();
         }
     });
-
     const memberModal = document.getElementById('memberDetailModal');
     if (memberModal) {
         memberModal.addEventListener('click', (e) => {
@@ -479,7 +413,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
-
     await loadAndUpdateUser();
     initMobileNav();
     await loadMembersFromAPI();
