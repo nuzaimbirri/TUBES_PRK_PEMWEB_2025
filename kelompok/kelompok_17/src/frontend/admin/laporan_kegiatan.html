@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMORA | Laporan Kegiatan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/admin.css">
+
+    <style>
+        :root {
+            --clr-primary-brand: #01A29D;
+            --clr-hover-dark: #005A54;
+            --clr-sidebar-bg: #01A29D;
+            --clr-sidebar-base-text: #E5E7EB;
+            --clr-sidebar-active-text: #FFFFFF;
+            --clr-menu-active-bg-dark: #00877C;
+            --clr-base-bg: #F4FBF9;
+            --clr-btn-red: #F75B50;
+            --clr-btn-orange: #FF853D;
+        }
+        .d-none { display: none !important; }
+        
+        .nav-item-laporan-kegiatan.active-dark-bg { 
+            background-color: var(--clr-menu-active-bg-dark); 
+            color: white; 
+            font-weight: 700;
+            border-left: 4px solid #F3F4F6;
+            padding-left: calc(1rem - 4px);
+        }
+        
+        .summary-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            font-weight: 600;
+            text-align: center;
+        }
+        .status-hadir { color: #10B981; }
+        .status-izin { color: #F59E0B; }
+        .status-sakit { color: #3B82F6; }
+        .status-alpa { color: #EF4444; }
+        
+        .event-title-link {
+            color: var(--clr-primary-brand);
+            font-weight: 600;
+        }
+        .absensi-row-hadir { border-left: 4px solid #10B981; }
+        .absensi-row-izin { border-left: 4px solid #F59E0B; }
+        .absensi-row-sakit { border-left: 4px solid #3B82F6; }
+        .absensi-row-alpa { border-left: 4px solid #EF4444; }
+
+    </style>
+</head>
+<body class="bg-[var(--clr-base-bg)]">
+
+    <div class="flex h-screen bg-gray-50 overflow-hidden">
+
+        <aside id="sidebar-desktop" class="sidebar-custom hidden lg:flex flex-col flex-shrink-0">
+            <div class="p-4 flex items-center justify-start h-16">
+                <span class="text-2xl font-extrabold text-white">SIMORA</span> 
+            </div>
+            <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
+                <a href="admin.html" class="nav-item-custom"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
+                <a href="kelola_anggota.html" class="nav-item-custom"> <i class="fas fa-users"></i> Kelola Anggota </a>
+                <a href="kelola_event.html" class="nav-item-custom"> <i class="fas fa-calendar-alt"></i> Kelola Event </a>
+                <a href="kalender_kegiatan.html" class="nav-item-custom"> <i class="fas fa-calendar-check"></i> Kalender Kegiatan </a>
+                <a href="laporan_kegiatan.html" class="nav-item-custom nav-item-laporan-kegiatan active-dark-bg"> <i class="fas fa-chart-bar"></i> Laporan Kegiatan </a>
+            </nav>
+            <div class="p-4 border-t mt-auto border-gray-700">
+                <a href="#" id="btn-logout-desktop" class="btn-logout-custom w-full">
+                    <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            
+            <header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-30 h-16 border-b border-gray-100">
+                <button id="mobile-menu-button" class="lg:hidden text-gray-600 hover:text-gray-900" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <div class="flex-1 flex items-center justify-between ml-0 lg:ml-4">
+                    
+                    <h1 class="text-xl font-bold text-gray-800">Laporan Kegiatan</h1>
+                    
+                    <div class="flex items-center space-x-4">
+                        
+                        <a href="buat_event.html" class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
+                            <i class="fas fa-plus mr-2"></i> Buat Event Baru
+                        </a>
+
+                        <button id="btn-download-report" class="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center h-10" title="Download Laporan">
+                            <i class="fas fa-download mr-2"></i> Download Laporan
+                        </button>
+
+                        <a href="notifikasi.html" id="notification-link" class="text-gray-600 hover:text-gray-900 relative p-2">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notification-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full d-none">0</span>
+                        </a>
+                        
+                        <div class="relative">
+                            <button id="profile-dropdown-button" class="flex items-center text-gray-600 hover:text-gray-900 focus:outline-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="profile-indicator flex items-center">
+                                    <div class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</div>
+                                    <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base">A</div>
+                                </div>
+                            </button>
+                            
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="profile-dropdown-button" style="min-width: 180px;">
+                                <li class="px-3 py-2 text-sm text-gray-700 font-semibold border-b border-gray-100">
+                                    Halo, Admin!
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="profile_admin.html">
+                                        <i class="fas fa-user-circle mr-2 w-5 text-[var(--clr-primary-brand)]"></i> Lihat Profil
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#" id="btn-logout-dropdown">
+                                        <i class="fas fa-arrow-right-from-bracket mr-2 w-5 text-red-500"></i> Keluar
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6">
+                
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-chart-bar mr-3 text-[var(--clr-primary-brand)]"></i> Rekapitulasi Laporan Kegiatan
+                </h2>
+
+                <div class="bg-white p-4 rounded-xl shadow-md mb-6 border border-gray-100">
+                    <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                        <div class="flex gap-3 items-center">
+                            <label for="filter-waktu" class="font-medium text-gray-700">Filter:</label>
+                            <select id="filter-waktu" class="form-select w-40">
+                                <option selected>Per Bulan (Desember 2025)</option>
+                                <option>Per Minggu (Minggu 2 Des)</option>
+                                <option>Tahun Ini (2025)</option>
+                            </select>
+                        </div>
+                        <button id="btn-download-filter" class="btn btn-primary btn-sm">Download Laporan (.xlsx)</button>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                        <div class="summary-card">Total Event: <span class="text-gray-900" id="summary-total-event">0</span></div>
+                        <div class="summary-card">Hadir: <span class="status-hadir" id="summary-hadir">0%</span></div>
+                        <div class="summary-card">Izin/Sakit: <span class="status-sakit" id="summary-izin-sakit">0%</span></div>
+                        <div class="summary-card">Tanpa Ket. (Alpa): <span class="status-alpa" id="summary-alpa">0%</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow-lg rounded-xl overflow-x-auto border border-gray-100">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TANGGAL</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NAMA KEGIATAN</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TOTAL HADIR</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BAHASAN PENTING</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="laporan-list" class="bg-white divide-y divide-gray-200">
+                            <tr><td colspan="5" class="text-center py-4 text-gray-500">Memuat data laporan kegiatan...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </main>
+
+    </div>
+
+    <div class="modal fade" id="absensiDetailModal" tabindex="-1" aria-labelledby="absensiDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-bold text-xl" id="absensiDetailModalLabel">Absensi Detail Kegiatan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="font-bold text-lg text-gray-800 mb-3" id="absensi-modal-title">Daftar Kehadiran Peserta (Total 0)</h6>
+                    
+                    <div id="absensi-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="buktiModal" tabindex="-1" aria-labelledby="buktiModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-bold text-lg" id="buktiModalLabel">Foto Bukti Keterangan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="bukti-image" src="" alt="Foto Bukti" class="img-fluid rounded shadow" style="max-height: 400px; object-fit: contain;">
+                    <p id="bukti-keterangan" class="mt-3 text-sm text-gray-600">Surat Izin / Surat Dokter terlampir.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="sidebar-mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
+    <aside id="sidebar-mobile" class="sidebar-custom fixed top-0 left-0 h-full w-64 transform -translate-x-full z-50 lg:hidden transition-transform duration-300 ease-in-out">
+        <div class="p-4 flex items-center justify-start h-16">
+            <span class="text-2xl font-extrabold text-white">SIMORA</span>
+        </div>
+        <nav class="flex-1 flex flex-col mt-4 px-2">
+            <a href="admin.html" class="nav-item-custom"><i class="fas fa-chart-line"></i> DASHBOARD</a>
+            <a href="kelola_anggota.html" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
+            <a href="kelola_event.html" class="nav-item-custom"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
+            <a href="kalender_kegiatan.html" class="nav-item-custom"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
+            <a href="laporan_kegiatan.html" class="nav-item-custom nav-item-laporan-kegiatan active-dark-bg"><i class="fas fa-chart-bar"></i> Laporan Kegiatan</a>
+        </nav>
+        <div class="p-4 border-t mt-auto border-gray-700">
+            <a href="#" id="btn-logout-mobile" class="btn-logout-custom w-full">
+                <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+            </a>
+        </div>
+    </aside>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="js/logout-helper.js"></script>
+    
+    <script>
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+        const isDotTest = hostname.endsWith('.test');
+        
+        let basePath = '';
+        if (isLocalhost) {
+            basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+        } else if (isDotTest) {
+            basePath = '/kelompok/kelompok_17/src';
+        }
+        
+        const API_BASE = `${basePath}/backend/api`;
+        const LOGIN_PAGE_URL = `${basePath}/frontend/auth/login.html`;
+        const UPLOAD_BASE = basePath.replace('/src', '/upload');
+        
+        const laporanList = document.getElementById('laporan-list');
+        const summaryTotalEvent = document.getElementById('summary-total-event');
+        const summaryHadir = document.getElementById('summary-hadir');
+        const summaryIzinSakit = document.getElementById('summary-izin-sakit');
+        const summaryAlpa = document.getElementById('summary-alpa');
+        const absensiListContainer = document.getElementById('absensi-list-container');
+
+        const logoutButtonDropdown = document.getElementById('btn-logout-dropdown');
+        const logoutButtonMobile = document.getElementById('btn-logout-mobile');
+        const logoutButtonDesktop = document.getElementById('btn-logout-desktop');
+        
+        const IS_REPORT_PAGE = !!laporanList;
+
+        let reportData = [];
+
+        async function loadReportDataFromAPI() {
+            try {
+                const eventsResponse = await fetch(`${API_BASE}/events.php?action=list&limit=100`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const eventsResult = await eventsResponse.json();
+                
+                if (eventsResponse.ok && eventsResult.status === 'success' && eventsResult.data && eventsResult.data.data) {
+                    const events = eventsResult.data.data;
+                    
+                    reportData = await Promise.all(events.map(async (event) => {
+                        let attendanceStats = { hadir: 0, izin: 0, sakit: 0, alpha: 0, total: 0, attendees: [] };
+                        
+                        try {
+                            const attResponse = await fetch(`${API_BASE}/attendance.php?action=event-attendance&event_id=${event.event_id}`, {
+                                method: 'GET',
+                                credentials: 'include'
+                            });
+                            const attResult = await attResponse.json();
+                            
+                            if (attResponse.ok && attResult.status === 'success' && attResult.data) {
+                                const data = attResult.data;
+                                attendanceStats = {
+                                    hadir: data.statistics?.hadir || 0,
+                                    izin: data.statistics?.izin || 0,
+                                    sakit: data.statistics?.sakit || 0,
+                                    alpha: data.statistics?.alpha || 0,
+                                    total: data.statistics?.total || 0,
+                                    attendees: data.attendance || []
+                                };
+                            }
+                        } catch (err) {
+                            console.error('Error loading attendance for event', event.event_id, err);
+                        }
+                        
+                        const eventDate = new Date(event.event_date);
+                        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+                        const formattedDate = eventDate.toLocaleDateString('id-ID', options);
+                        
+                        return {
+                            id: event.event_id,
+                            date: formattedDate,
+                            title: event.title,
+                            total_members: attendanceStats.total || 0,
+                            hadir: attendanceStats.hadir,
+                            izin: attendanceStats.izin,
+                            sakit: attendanceStats.sakit,
+                            alpa: attendanceStats.alpha,
+                            bahasan: event.description || 'Tidak ada deskripsi',
+                            absensi: attendanceStats.attendees.map(att => ({
+                                name: att.full_name || att.username || 'Unknown',
+                                status: (att.status || 'HADIR').toUpperCase(),
+                                time: att.check_in_time ? att.check_in_time.substring(0, 5) + ' WIB' : '-',
+                                bukti: att.photo_path ? { photo: att.photo_path, note: att.notes || '' } : null
+                            })),
+                            raw_date: event.event_date
+                        };
+                    }));
+                    
+                    const today = new Date().toISOString().split('T')[0];
+                    reportData = reportData.filter(report => {
+                        return true; 
+                    });
+                } else {
+                    reportData = [];
+                }
+            } catch (error) {
+                console.error('Error loading report data:', error);
+                reportData = [];
+            }
+            
+            return reportData;
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'HADIR': return 'absensi-row-hadir';
+                case 'IZIN': return 'absensi-row-izin';
+                case 'SAKIT': return 'absensi-row-sakit';
+                case 'ALPA': return 'absensi-row-alpa';
+                default: return '';
+            }
+        }
+
+        function getStatusIcon(status) {
+            switch (status) {
+                case 'HADIR': return 'fas fa-check-circle';
+                case 'IZIN': return 'fas fa-file-alt';
+                case 'SAKIT': return 'fas fa-notes-medical';
+                case 'ALPA': return 'fas fa-times-circle';
+                default: return 'fas fa-question-circle';
+            }
+        }
+
+        function updateSummary(data) {
+            if (!summaryTotalEvent) return;
+
+            let totalHadir = 0, totalIzin = 0, totalSakit = 0, totalAlpa = 0;
+            
+            data.forEach(item => {
+                totalHadir += item.hadir;
+                totalIzin += item.izin;
+                totalSakit += item.sakit;
+                totalAlpa += item.alpa;
+            });
+            
+            const grandTotalAbsensi = totalHadir + totalIzin + totalSakit + totalAlpa;
+            
+            const avgHadir = grandTotalAbsensi > 0 ? ((totalHadir / grandTotalAbsensi) * 100).toFixed(1) : 0;
+            const avgIzinSakit = grandTotalAbsensi > 0 ? (((totalIzin + totalSakit) / grandTotalAbsensi) * 100).toFixed(1) : 0;
+            const avgAlpa = grandTotalAbsensi > 0 ? ((totalAlpa / grandTotalAbsensi) * 100).toFixed(1) : 0;
+
+            summaryTotalEvent.textContent = data.length;
+            summaryHadir.textContent = `${avgHadir}%`;
+            summaryIzinSakit.textContent = `${avgIzinSakit}%`;
+            summaryAlpa.textContent = `${avgAlpa}%`;
+        }
+
+        async function fetchAndRenderActivityReport() {
+            if (!IS_REPORT_PAGE || !laporanList) return;
+
+            laporanList.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Memuat data laporan...</td></tr>';
+            
+            try {
+                await loadReportDataFromAPI();
+                const reports = reportData;
+                
+                if (reports.length === 0) {
+                    laporanList.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Tidak ada laporan kegiatan untuk periode ini.</td></tr>';
+                    updateSummary([]);
+                    return;
+                }
+
+                laporanList.innerHTML = '';
+                reports.forEach(report => {
+                    const absensiDetail = `<span class="status-hadir">${report.hadir} Hadir</span> / ${report.izin} Izin / ${report.sakit} Sakit / <span class="status-alpa">${report.alpa} TK</span>`;
+                    
+                    const row = `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 text-sm text-gray-700">${report.date}</td>
+                            <td class="px-4 py-3"><a href="#" class="event-title-link">${report.title}</a></td>
+                            <td class="px-4 py-3 text-sm">${absensiDetail}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">${report.bahasan}</td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm" data-bs-toggle="modal" data-bs-target="#absensiDetailModal" data-event-id="${report.id}">Lihat Absensi</button>
+                                &nbsp;|&nbsp;
+                                <button class="text-green-600 hover:text-green-800 text-sm btn-download-event" data-event-id="${report.id}">Download</button>
+                            </td>
+                        </tr>
+                    `;
+                    laporanList.innerHTML += row;
+                });
+                
+                updateSummary(reports); 
+
+            } catch (error) {
+                console.error('Network Error:', error);
+                laporanList.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Kesalahan jaringan atau server.</td></tr>';
+                updateSummary([]);
+            }
+        }
+        
+        async function handleLogout(e) {
+            e.preventDefault();
+            setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 500);
+        }
+        
+        document.getElementById('absensiDetailModal').addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const eventId = button.getAttribute('data-event-id');
+            const eventData = reportData.find(e => e.id == eventId);
+            const absensiContainer = document.getElementById('absensi-list-container');
+            const totalCount = eventData ? (eventData.hadir + eventData.izin + eventData.sakit + eventData.alpa) : 0;
+            
+            document.getElementById('absensiDetailModalLabel').textContent = `Absensi Detail: ${eventData ? eventData.title : 'Kegiatan Tidak Ditemukan'}`;
+            document.getElementById('absensi-modal-title').textContent = `Daftar Kehadiran Peserta (Total ${totalCount})`;
+            
+            absensiContainer.innerHTML = '';
+
+            if (eventData && eventData.absensi && eventData.absensi.length > 0) {
+                eventData.absensi.forEach(member => {
+                    const statusClass = getStatusClass(member.status);
+                    const statusIcon = getStatusIcon(member.status);
+                    const hasBukti = member.bukti && member.bukti.photo;
+
+                    const buktiButton = hasBukti ? 
+                        `<button class="text-blue-600 hover:text-blue-800 text-sm" data-bs-toggle="modal" data-bs-target="#buktiModal" data-bukti-photo="${member.bukti.photo}" data-bukti-note="${member.bukti.note}">Lihat Bukti</button>` : 
+                        '';
+                    
+                    const item = `
+                        <div class="bg-white p-3 rounded-lg shadow-md flex space-x-3 ${statusClass}">
+                            <div class="flex-shrink-0">
+                                <i class="${statusIcon} text-lg ${statusClass.replace('absensi-row-', 'status-')} mt-1"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-sm mb-0">${member.name}</p>
+                                <p class="text-xs text-gray-500 mb-0">Status: <span class="${statusClass.replace('absensi-row-', 'status-')} font-semibold">${member.status}</span></p>
+                                <p class="text-xs text-gray-500 mb-0">Waktu: ${member.time}</p>
+                            </div>
+                            <div class="flex-shrink-0 text-right">
+                                ${buktiButton}
+                            </div>
+                        </div>
+                    `;
+                    absensiContainer.innerHTML += item;
+                });
+            } else {
+                 absensiContainer.innerHTML = '<p class="text-center col-span-full py-4 text-gray-500">Data absensi tidak tersedia atau kosong.</p>';
+            }
+        });
+        
+        document.getElementById('buktiModal').addEventListener('show.bs.modal', function (event) {
+             const button = event.relatedTarget;
+             const photoUrl = button.getAttribute('data-bukti-photo');
+             const note = button.getAttribute('data-bukti-note');
+
+             let fullPhotoUrl = '';
+             if (photoUrl) {
+                if (photoUrl.startsWith('http') || photoUrl.startsWith('https')) {
+                    fullPhotoUrl = photoUrl;
+                } else if (photoUrl.startsWith('/')) {
+                    fullPhotoUrl = photoUrl;
+                } else if (photoUrl.startsWith('upload/')) {
+                    fullPhotoUrl = `${UPLOAD_BASE}/${photoUrl.replace('upload/', '')}`;
+                } else {
+                    fullPhotoUrl = `${UPLOAD_BASE}/absensi/${photoUrl}`;
+                 }
+             }
+
+             console.log('Photo URL:', photoUrl, '-> Full URL:', fullPhotoUrl);
+
+             const buktiImage = document.getElementById('bukti-image');
+             buktiImage.src = fullPhotoUrl || '';
+             buktiImage.onerror = function() {
+                 console.error('Failed to load image:', fullPhotoUrl);
+                 this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect fill="%23f3f4f6" width="200" height="150"/><text fill="%239ca3af" font-family="sans-serif" font-size="14" x="50%" y="50%" text-anchor="middle" dy=".3em">Foto tidak tersedia</text></svg>';
+             };
+             document.getElementById('bukti-keterangan').textContent = note || 'Tidak ada keterangan tambahan.';
+             
+             var absensiModal = bootstrap.Modal.getInstance(document.getElementById('absensiDetailModal'));
+             if (absensiModal) {
+                 absensiModal.hide();
+             }
+        });
+
+        document.getElementById('buktiModal').addEventListener('hide.bs.modal', function () {
+             var absensiModal = bootstrap.Modal.getInstance(document.getElementById('absensiDetailModal'));
+             if (absensiModal) {
+                 absensiModal.show();
+             }
+        });
+
+        function getFullPhotoUrl(photoUrl) {
+            if (!photoUrl) return '';
+            if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) return photoUrl;
+
+            const origin = window.location.origin;
+
+            if (photoUrl.startsWith('/')) {
+                return origin + photoUrl;
+            }
+
+            if (photoUrl.startsWith('upload/')) {
+                const base = UPLOAD_BASE.startsWith('/') ? UPLOAD_BASE : ('/' + UPLOAD_BASE);
+                return origin + base + '/' + photoUrl.replace(/^upload\//, '');
+            }
+
+            const base = UPLOAD_BASE.startsWith('/') ? UPLOAD_BASE : ('/' + UPLOAD_BASE);
+            return origin + base + '/absensi/' + photoUrl;
+        }
+
+        async function exportReportToExcel(options = {}) {
+            if (!reportData || reportData.length === 0) {
+                await fetchAndRenderActivityReport();
+            }
+
+            if (!reportData || reportData.length === 0) {
+                alert('Tidak ada data laporan untuk diunduh.');
+                return;
+            }
+
+            let toExport = [];
+            if (options.eventId) {
+                toExport = reportData.filter(r => r.id == options.eventId);
+            } else {
+                const filterSelect = document.getElementById('filter-waktu');
+                const filterValue = filterSelect ? filterSelect.value : '';
+
+                const m = filterValue.match(/\(([^)]+)\)/);
+                if (m && m[1]) {
+                    const monthYear = m[1].trim(); 
+                    const yearMatch = monthYear.match(/(\d{4})$/);
+                    if (yearMatch) {
+                        const year = parseInt(yearMatch[1], 10);
+                        const monthName = monthYear.replace(/\d{4}/, '').trim();
+                        const months = {
+                            'Januari':1,'Februari':2,'Maret':3,'April':4,'Mei':5,'Juni':6,'Juli':7,'Agustus':8,'September':9,'Oktober':10,'November':11,'Desember':12,
+                            'Jan':1,'Feb':2,'Mar':3,'Apr':4,'Mei':5,'Jun':6,'Jul':7,'Agu':8,'Sep':9,'Okt':10,'Nov':11,'Des':12,'Desember':12
+                        };
+                        let monthNum = null;
+                        Object.keys(months).forEach(k => {
+                            if (monthName.toLowerCase().includes(k.toLowerCase())) monthNum = months[k];
+                        });
+                        if (monthNum) {
+                            toExport = reportData.filter(r => {
+                                if (!r.raw_date) return false;
+                                const d = new Date(r.raw_date);
+                                return (d.getFullYear() === year && (d.getMonth()+1) === monthNum);
+                            });
+                        }
+                    } else {
+                        toExport = reportData.slice();
+                    }
+                } else {
+                    toExport = reportData.slice();
+                }
+            }
+
+            if (!toExport || toExport.length === 0) {
+                alert('Tidak ada data sesuai filter yang dipilih.');
+                return;
+            }
+
+            const rows = [];
+            rows.push(['Event ID', 'Event Title', 'Event Date', 'Participant Name', 'Status', 'Check-in Time', 'Notes', 'Photo URL']);
+
+            toExport.forEach(report => {
+                const eventId = report.id;
+                const eventTitle = report.title;
+                const eventDate = report.date;
+
+                if (report.absensi && report.absensi.length > 0) {
+                    report.absensi.forEach(a => {
+                        const name = a.name || '';
+                        const status = a.status || '';
+                        const time = a.time || '';
+                        const notes = (a.bukti && a.bukti.note) ? a.bukti.note : '';
+                        const photo = (a.bukti && a.bukti.photo) ? getFullPhotoUrl(a.bukti.photo) : '';
+
+                        rows.push([eventId, eventTitle, eventDate, name, status, time, notes, photo]);
+                    });
+                } else {
+                    rows.push([eventId, eventTitle, eventDate, '', '', '', '', '']);
+                }
+            });
+
+            try {
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(rows);
+
+                try {
+                    for (let r = 1; r < rows.length; r++) {
+                        const photoCellAddr = XLSX.utils.encode_cell({c:7, r: r}); 
+                        const photoUrl = rows[r][7];
+                        if (photoUrl) {
+                            ws[photoCellAddr] = { t: 's', v: photoUrl, l: { Target: photoUrl, Tooltip: 'Buka foto bukti' } };
+                        }
+                    }
+                } catch (linkErr) {
+                    console.warn('Gagal set hyperlink di sheet:', linkErr);
+                }
+
+                XLSX.utils.book_append_sheet(wb, ws, 'Laporan Absensi');
+
+                const now = new Date();
+                const filename = `laporan_absensi_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.xlsx`;
+                XLSX.writeFile(wb, filename);
+            } catch (err) {
+                console.error('Gagal mengekspor ke Excel:', err);
+                alert('Terjadi kesalahan saat menyiapkan file Excel. Cek console untuk detail.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnFilter = document.getElementById('btn-download-filter');
+            if (btnFilter) {
+                btnFilter.addEventListener('click', function() {
+                    exportReportToExcel();
+                });
+            }
+            const btnHeader = document.getElementById('btn-download-report');
+            if (btnHeader) {
+                btnHeader.addEventListener('click', function() {
+                    exportReportToExcel();
+                });
+            }
+
+            document.getElementById('laporan-list').addEventListener('click', function(e) {
+                const btn = e.target.closest('.btn-download-event');
+                if (btn) {
+                    const eventId = btn.getAttribute('data-event-id');
+                    if (eventId) {
+                        exportReportToExcel({ eventId: eventId });
+                    }
+                }
+            });
+        });
+
+        function initialize() {
+            if (IS_REPORT_PAGE) {
+                fetchAndRenderActivityReport();
+            }
+            
+            if (logoutButtonDesktop) { logoutButtonDesktop.addEventListener('click', handleLogout); }
+            if (logoutButtonMobile) { logoutButtonMobile.addEventListener('click', handleLogout); }
+            if (logoutButtonDropdown) { logoutButtonDropdown.addEventListener('click', handleLogout); }
+            
+            window.toggleMobileSidebar = function() { 
+                const sidebar = document.getElementById('sidebar-mobile');
+                const overlay = document.getElementById('sidebar-mobile-overlay');
+                
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.classList.toggle('overflow-hidden');
+            }
+        }
+        
+        initialize();
+
+    </script>
+</body>
+</html>

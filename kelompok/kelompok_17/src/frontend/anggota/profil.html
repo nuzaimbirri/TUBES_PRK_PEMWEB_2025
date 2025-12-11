@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMORA | Profil Saya</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/profil.css?v=20251211">
+</head>
+<body>
+
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">SIMORA</a>
+            
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="events.html" class="nav-link">Kegiatan</a></li>
+                <li><a href="kalender.html" class="nav-link">Kalender</a></li>
+                <li><a href="anggota.html" class="nav-link">Anggota</a></li>
+                <li><a href="profil.html" class="nav-link active">Profil</a></li>
+            </ul>
+
+            <div class="nav-user">
+                <div class="user-avatar" id="userAvatar">
+                    <span id="userInitials">BS</span>
+                </div>
+                <span class="user-name" id="navUsername">Budi Santoso</span>
+                <button class="btn-logout" id="btnLogout">Keluar</button>
+            </div>
+        </div>
+    </nav>
+
+    
+    <main class="main-content">
+        <div class="container">
+            
+            
+            <section class="page-header">
+                <h1 class="page-title">Profil Saya</h1>
+                <p class="page-subtitle">Kelola informasi pribadi dan pengaturan akun Anda</p>
+            </section>
+
+            
+            <section class="profile-hero">
+                <div class="profile-cover"></div>
+                <div class="profile-header-content">
+                    <div class="profile-avatar-large" id="profileAvatarLarge">
+                        <span id="profileInitials">BS</span>
+                    </div>
+                    <div class="profile-header-info">
+                        <h2 class="profile-name" id="profileFullName">Budi Santoso</h2>
+                        <p class="profile-npm" id="profileNPM">2315061020</p>
+                        <p class="profile-status" id="profileStatus">
+                            <span class="status-badge status-aktif">Aktif</span>
+                        </p>
+                    </div>
+                    <button class="btn btn-primary btn-edit" id="btnEditProfile">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        Edit Profil
+                    </button>
+                </div>
+            </section>
+
+            <div class="profile-grid">
+                
+                
+                <section class="card profile-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            Informasi Pribadi
+                        </h3>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label class="info-label">Nama Lengkap</label>
+                            <p class="info-value" id="infoFullName">Budi Santoso</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Email</label>
+                            <p class="info-value" id="infoEmail">budi@example.com</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Nomor HP</label>
+                            <p class="info-value" id="infoPhone">-</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Alamat</label>
+                            <p class="info-value" id="infoAddress">-</p>
+                        </div>
+                    </div>
+                </section>
+
+                
+                <section class="card profile-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 10v6m0 0v6m0-6H2m0 0v6m0-6V4"/>
+                                <path d="M6 12v8M18 12v8"/>
+                            </svg>
+                            Informasi Akademik
+                        </h3>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label class="info-label">NPM</label>
+                            <p class="info-value" id="infoNPM">2315061020</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Jurusan/Departemen</label>
+                            <p class="info-value" id="infoDepartment">-</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Status Keanggotaan</label>
+                            <p class="info-value">
+                                <span class="status-badge status-aktif" id="infoActivityStatus">Aktif</span>
+                            </p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Bergabung Sejak</label>
+                            <p class="info-value" id="infoJoinDate">-</p>
+                        </div>
+                    </div>
+                </section>
+
+                
+                <section class="card profile-section attendance-stats">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            Statistik Kehadiran
+                        </h3>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-value stat-hadir" id="statHadir">0</div>
+                            <p class="stat-label">Hadir</p>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value stat-izin" id="statIzin">0</div>
+                            <p class="stat-label">Izin</p>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value stat-sakit" id="statSakit">0</div>
+                            <p class="stat-label">Sakit</p>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value stat-alpa" id="statAlpa">0</div>
+                            <p class="stat-label">Alpa</p>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <div class="progress-segment hadir" id="progressHadir" style="width: 0%"></div>
+                            <div class="progress-segment izin" id="progressIzin" style="width: 0%"></div>
+                            <div class="progress-segment sakit" id="progressSakit" style="width: 0%"></div>
+                            <div class="progress-segment alpa" id="progressAlpa" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </section>
+
+                
+                <section class="card profile-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                <circle cx="12" cy="13" r="4"/>
+                            </svg>
+                            Foto Profil
+                        </h3>
+                    </div>
+                    <div class="photo-upload">
+                        <div class="photo-preview" id="photoPreview">
+                            <span class="photo-placeholder" id="photoPlaceholder">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                    <circle cx="12" cy="13" r="4"/>
+                                </svg>
+                            </span>
+                            <img id="photoImage" style="display: none;" class="photo-image" alt="Foto Profil">
+                        </div>
+                        <label class="photo-upload-label">
+                            <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                            <span class="btn btn-secondary">Pilih Foto</span>
+                        </label>
+                        <p class="photo-hint">Format: JPG, PNG, GIF (Max 2MB)</p>
+                    </div>
+                </section>
+
+                
+                <section class="card profile-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                <path d="M12 12v4m-2-2h4"/>
+                            </svg>
+                            Keamanan Akun
+                        </h3>
+                    </div>
+                    <div class="security-items">
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h4>Password</h4>
+                                <p>Ubah password akun Anda secara berkala untuk menjaga keamanan</p>
+                            </div>
+                            <button class="btn btn-outline" id="btnChangePassword">Ubah Password</button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+    </main>
+
+    
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal" id="editProfileModal">
+        <div class="modal-header">
+            <h2 class="modal-title">Edit Profil</h2>
+            <button class="modal-close" id="modalClose">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label class="form-label">Nama Lengkap</label>
+                    <input type="text" class="form-input" id="formFullName" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nomor HP</label>
+                    <input type="tel" class="form-input" id="formPhone" placeholder="Contoh: 081234567890">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Alamat</label>
+                    <textarea class="form-input" id="formAddress" rows="3" placeholder="Masukkan alamat lengkap Anda"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Jurusan/Departemen</label>
+                    <input type="text" class="form-input" id="formDepartment" placeholder="Contoh: Teknik Informatika">
+                </div>
+
+                <div class="alert alert-info" id="formMessage" style="display: none;"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" id="modalCancel">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+    <div class="modal" id="changePasswordModal">
+        <div class="modal-header">
+            <h2 class="modal-title">Ubah Password</h2>
+            <button class="modal-close" id="passwordModalClose">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="changePasswordForm">
+                <div class="form-group">
+                    <label class="form-label">Password Lama</label>
+                    <input type="password" class="form-input" id="formOldPassword" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password Baru</label>
+                    <input type="password" class="form-input" id="formNewPassword" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Konfirmasi Password Baru</label>
+                    <input type="password" class="form-input" id="formConfirmPassword" required>
+                </div>
+
+                <div class="alert alert-info" id="passwordMessage" style="display: none;"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" id="passwordCancel">Batal</button>
+                    <button type="submit" class="btn btn-primary">Ubah Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/logout-helper.js"></script>
+    <script src="js/profil.js?v=20251211"></script>
+</body>
+</html>

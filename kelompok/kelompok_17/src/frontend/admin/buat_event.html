@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMORA | Buat Event Baru</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/admin.css">
+
+    <style>
+        :root {
+            --clr-primary-brand: #01A29D;
+            --clr-hover-dark: #005A54;
+            --clr-sidebar-bg: #01A29D;
+            --clr-sidebar-base-text: #E5E7EB;
+            --clr-menu-active-bg-dark: #00877C;
+            --clr-base-bg: #F4FBF9;
+            --clr-btn-orange: #FF853D;
+            --clr-btn-red: #F75B50; 
+        }
+        .d-none { display: none !important; }
+
+        .nav-item-data-event.active-dark-bg { 
+            background-color: var(--clr-menu-active-bg-dark); 
+            color: white; 
+            font-weight: 700;
+            border-left: 4px solid #F3F4F6;
+            padding-left: calc(1rem - 4px);
+        }
+        .btn-action-primary {
+            background-color: var(--clr-primary-brand);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .btn-action-primary:hover {
+            background-color: var(--clr-hover-dark);
+        }
+        .form-check-input:checked {
+            background-color: var(--clr-primary-brand);
+            border-color: var(--clr-primary-brand);
+        }
+    </style>
+</head>
+<body class="bg-[var(--clr-base-bg)]">
+
+    <div class="flex h-screen bg-gray-50 overflow-hidden">
+
+        <aside id="sidebar-desktop" class="sidebar-custom hidden lg:flex flex-col flex-shrink-0">
+            <div class="p-4 flex items-center justify-start h-16">
+                <span class="text-2xl font-extrabold text-white">SIMORA</span> 
+            </div>
+            <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
+                <a href="admin.html" class="nav-item-custom"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
+                <a href="kelola_anggota.html" class="nav-item-custom"> <i class="fas fa-users"></i> Kelola Anggota </a>
+                <a href="kelola_event.html" class="nav-item-custom nav-item-data-event active-dark-bg"> <i class="fas fa-calendar-alt"></i> Kelola Event </a>
+                <a href="kalender_kegiatan.html" class="nav-item-custom"> <i class="fas fa-calendar-check"></i> Kalender Kegiatan </a>
+                <a href="laporan_kegiatan.html" class="nav-item-custom"> <i class="fas fa-chart-bar"></i> Laporan Kegiatan </a>
+            </nav>
+            <div class="p-4 border-t mt-auto border-gray-700">
+                <a href="#" id="btn-logout-desktop" class="btn-logout-custom w-full">
+                    <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            
+            <header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-30 h-16 border-b border-gray-100">
+                <button id="mobile-menu-button" class="lg:hidden text-gray-600 hover:text-gray-900" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <div class="flex-1 flex items-center justify-between ml-0 lg:ml-4">
+                    
+                    <h2 class="text-lg font-semibold text-gray-800 hidden lg:block"></h2>
+                    
+                    <div class="flex items-center space-x-4 ml-auto">
+                        
+                        <a href="buat_event.html" class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
+                            <i class="fas fa-plus mr-2"></i> Buat Event Baru
+                        </a>
+
+                        <a href="notifikasi.html" id="notification-link" class="text-gray-600 hover:text-gray-900 relative p-2">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notification-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full d-none">0</span>
+                        </a>
+                        
+                        <div class="relative">
+                            <button id="profile-dropdown-button" class="flex items-center text-gray-600 hover:text-gray-900 focus:outline-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="profile-indicator flex items-center">
+                                    <div class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</div>
+                                    <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base">A</div>
+                                </div>
+                            </button>
+                            
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="profile-dropdown-button" style="min-width: 180px;">
+                                <li class="px-3 py-2 text-sm text-gray-700 font-semibold border-b border-gray-100">
+                                    Halo, Admin!
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="profile_admin.html">
+                                        <i class="fas fa-user-circle mr-2 w-5 text-[var(--clr-primary-brand)]"></i> Lihat Profil
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#" id="btn-logout-dropdown">
+                                        <i class="fas fa-arrow-right-from-bracket mr-2 w-5 text-red-500"></i> Keluar
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6">
+                
+                <h1 class="text-xl font-semibold text-gray-800 mb-4">Formulir Event Baru</h1>
+                
+                <form id="form-buat-event" class="space-y-6" enctype="multipart/form-data">
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Detail Acara</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="judul_event" class="form-label font-medium text-gray-700">Judul Event (Wajib)</label>
+                                <input type="text" class="form-control" id="judul_event" required placeholder="Contoh: Electrical Engineering in Action (EEA) 2025">
+                            </div>
+                            <div>
+                                <label for="deskripsi_event" class="form-label font-medium text-gray-700">Deskripsi Singkat</label>
+                                <textarea class="form-control" id="deskripsi_event" rows="3" placeholder="Jelaskan ringkasan atau tujuan acara."></textarea>
+                            </div>
+                            
+                            <div>
+                                <label for="banner_event" class="form-label font-medium text-gray-700">Pamflet/Banner Kegiatan</label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-teal-500 transition-colors cursor-pointer" id="banner_upload_area" onclick="document.getElementById('banner_event').click()">
+                                    <input type="file" class="hidden" id="banner_event" accept="image/jpeg,image/png,image/gif,image/webp" onchange="previewBanner(this)">
+                                    <div id="banner_preview_container" class="hidden">
+                                        <img id="banner_preview" class="max-h-48 mx-auto rounded-lg mb-2" alt="Preview">
+                                        <button type="button" class="text-red-500 hover:text-red-700 text-sm" onclick="removeBanner(event)">
+                                            <i class="fas fa-times mr-1"></i>Hapus Gambar
+                                        </button>
+                                    </div>
+                                    <div id="banner_placeholder">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                                        <p class="text-gray-500">Klik untuk upload pamflet kegiatan</p>
+                                        <p class="text-xs text-gray-400">Format: JPG, PNG, GIF, WebP (Max 2MB)</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label for="tanggal_mulai" class="form-label font-medium text-gray-700">Tanggal Event (Wajib)</label>
+                                    <input type="date" class="form-control" id="tanggal_mulai" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lokasi_event" class="form-label font-medium text-gray-700">Lokasi Event</label>
+                                    <input type="text" class="form-control" id="lokasi_event" placeholder="Contoh: Aula Gedung A, Lt. 3">
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label for="waktu_mulai" class="form-label font-medium text-gray-700">Waktu Mulai (Wajib)</label>
+                                    <input type="time" class="form-control" id="waktu_mulai" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="waktu_selesai" class="form-label font-medium text-gray-700">Waktu Selesai</label>
+                                    <input type="time" class="form-control" id="waktu_selesai">
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <label for="status_event" class="form-label font-medium text-gray-700">Status Event</label>
+                                <select class="form-control" id="status_event">
+                                    <option value="published">Publish (Tampil ke anggota)</option>
+                                    <option value="draft">Draft (Simpan sebagai konsep)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Pendaftaran Panitia (Open Registration)</h2>
+                        
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" id="toggle_pendaftaran_panitia" onchange="togglePanitiaOptions(this)">
+                            <label class="form-check-label font-medium text-gray-700" for="toggle_pendaftaran_panitia">
+                                Buka Pendaftaran Panitia untuk Event Ini
+                            </label>
+                        </div>
+
+                        <div id="opsi_pendaftaran_panitia" class="space-y-4 border p-4 rounded-lg bg-gray-50 hidden">
+                            
+                            <div>
+                                <label for="batas_waktu_pendaftaran" class="form-label font-medium text-gray-700">Batas Waktu Pendaftaran</label>
+                                <input type="datetime-local" class="form-control" id="batas_waktu_pendaftaran">
+                                <small class="text-gray-500">Tanggal dan jam terakhir pendaftar dapat mendaftar sebagai panitia.</small>
+                            </div>
+
+                            <div>
+                                <label class="form-label font-medium text-gray-700 mb-2">Kebutuhan Jumlah Panitia</label>
+                                <div class="space-y-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="jumlah_panitia_option" id="panitia_tak_terbatas" value="unlimited" checked onchange="toggleJumlahSpesifik()">
+                                        <label class="form-check-label text-gray-700" for="panitia_tak_terbatas">
+                                            Tak Terbatas (Semua pendaftar diterima)
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="jumlah_panitia_option" id="panitia_jumlah_spesifik" value="specific" onchange="toggleJumlahSpesifik()">
+                                        <label class="form-check-label text-gray-700" for="panitia_jumlah_spesifik">
+                                            Jumlah Spesifik
+                                        </label>
+                                    </div>
+                                    
+                                    <div id="input_jumlah_panitia" class="mt-2 pl-6 hidden">
+                                        <label for="jumlah_panitia_required" class="form-label font-medium text-gray-700">Jumlah Orang yang Dibutuhkan</label>
+                                        <input type="number" class="form-control w-full md:w-1/2" id="jumlah_panitia_required" min="1" placeholder="Masukkan angka kebutuhan">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" class="btn btn-outline-secondary font-medium" onclick="history.back()">Batal</button>
+                        <button type="submit" class="btn-action-primary">
+                            <i class="fas fa-save mr-2"></i> Simpan Event
+                        </button>
+                    </div>
+
+                </form>
+                
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+        const isDotTest = hostname.endsWith('.test');
+        
+        let basePath = '';
+        if (isLocalhost) {
+            basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+        } else if (isDotTest) {
+            basePath = '/kelompok/kelompok_17/src';
+        }
+        
+        const API_BASE = `${basePath}/backend/api`;
+        let pendingFormData = null;
+        let pendingEventTitle = '';
+        let pendingEventStatus = '';
+
+        function previewBanner(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                if (file.size > 2 * 1024 * 1024) {
+                    showErrorModal('Ukuran file terlalu besar. Maksimal 2MB.');
+                    input.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('banner_preview').src = e.target.result;
+                    document.getElementById('banner_preview_container').classList.remove('hidden');
+                    document.getElementById('banner_placeholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeBanner(event) {
+            event.stopPropagation();
+            document.getElementById('banner_event').value = '';
+            document.getElementById('banner_preview').src = '';
+            document.getElementById('banner_preview_container').classList.add('hidden');
+            document.getElementById('banner_placeholder').classList.remove('hidden');
+        }
+
+        document.getElementById('form-buat-event').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('judul_event').value.trim();
+            const description = document.getElementById('deskripsi_event').value.trim();
+            const eventDate = document.getElementById('tanggal_mulai').value;
+            const startTime = document.getElementById('waktu_mulai').value;
+            const endTime = document.getElementById('waktu_selesai').value;
+            const location = document.getElementById('lokasi_event').value.trim();
+            const status = document.getElementById('status_event').value;
+            const bannerFile = document.getElementById('banner_event').files[0];
+            
+            const togglePanitia = document.getElementById('toggle_pendaftaran_panitia');
+            const openRegistration = togglePanitia ? togglePanitia.checked : false;
+            const deadlineInput = document.getElementById('batas_waktu_pendaftaran');
+            const registrationDeadline = deadlineInput ? deadlineInput.value : null;
+            const specificRadio = document.getElementById('panitia_jumlah_spesifik');
+            const maxParticipantsInput = document.getElementById('jumlah_panitia_required');
+            let maxParticipants = null;
+            if (openRegistration && specificRadio && specificRadio.checked && maxParticipantsInput) {
+                maxParticipants = parseInt(maxParticipantsInput.value) || null;
+            }
+            
+            if (!title || !eventDate || !startTime) {
+                showErrorModal('Mohon lengkapi semua field yang wajib diisi (Judul, Tanggal, Waktu Mulai).');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('description', description);
+            formData.append('event_date', eventDate);
+            formData.append('start_time', startTime);
+            if (endTime) formData.append('end_time', endTime);
+            formData.append('location', location);
+            formData.append('status', status);
+            formData.append('open_registration', openRegistration ? '1' : '0');
+            if (registrationDeadline) formData.append('registration_deadline', registrationDeadline);
+            if (maxParticipants) formData.append('max_participants', maxParticipants);
+            
+            if (bannerFile) {
+                formData.append('banner', bannerFile);
+            }
+            
+            pendingFormData = formData;
+            pendingEventTitle = title;
+            pendingEventStatus = status;
+            
+            const statusText = status === 'published' ? 'dan akan dipublikasikan ke anggota' : 'sebagai draft';
+            document.getElementById('confirmMessage').textContent = 
+                `Anda akan menyimpan event "${title}" ${statusText}. Lanjutkan?`;
+            showConfirmModal();
+        });
+
+        async function submitEvent() {
+            if (!pendingFormData) return;
+            
+            const btnSubmit = document.getElementById('btnConfirmSubmit');
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
+            btnSubmit.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_BASE}/events.php?action=create`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: pendingFormData
+                });
+                
+                const result = await response.json();
+                
+                closeConfirmModal();
+                
+                if (response.ok && result.status === 'success') {
+                    const statusText = pendingEventStatus === 'published' 
+                        ? 'Event telah dipublikasikan dan akan tampil di halaman anggota.' 
+                        : 'Event disimpan sebagai draft.';
+                    document.getElementById('successMessage').textContent = statusText;
+                    showSuccessModal();
+                } else {
+                    const errorMsg = result.message || (result.errors ? Object.values(result.errors).join(', ') : 'Terjadi kesalahan saat menyimpan event.');
+                    showErrorModal(errorMsg);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                closeConfirmModal();
+                showErrorModal('Gagal terhubung ke server. Silakan coba lagi.');
+            } finally {
+                btnSubmit.innerHTML = '<i class="fas fa-check mr-2"></i>Ya, Simpan';
+                btnSubmit.disabled = false;
+            }
+        }
+
+        function showConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('hidden');
+            document.getElementById('confirmModal').classList.add('flex');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+            document.getElementById('confirmModal').classList.remove('flex');
+        }
+
+        function showSuccessModal() {
+            document.getElementById('successModal').classList.remove('hidden');
+            document.getElementById('successModal').classList.add('flex');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+            document.getElementById('successModal').classList.remove('flex');
+        }
+
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').classList.remove('hidden');
+            document.getElementById('errorModal').classList.add('flex');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.add('hidden');
+            document.getElementById('errorModal').classList.remove('flex');
+        }
+
+        function resetFormAndCloseModal() {
+            closeSuccessModal();
+            document.getElementById('form-buat-event').reset();
+            pendingFormData = null;
+            pendingEventTitle = '';
+            pendingEventStatus = '';
+            document.getElementById('banner_event').value = '';
+            document.getElementById('banner_preview').src = '';
+            document.getElementById('banner_preview_container').classList.add('hidden');
+            document.getElementById('banner_placeholder').classList.remove('hidden');
+            document.getElementById('opsi_pendaftaran_panitia').classList.add('hidden');
+            document.getElementById('input_jumlah_panitia').classList.add('hidden');
+        }
+
+        function togglePanitiaOptions(checkbox) {
+            const optionsDiv = document.getElementById('opsi_pendaftaran_panitia');
+            if (checkbox.checked) {
+                optionsDiv.classList.remove('hidden');
+            } else {
+                optionsDiv.classList.add('hidden');
+                document.getElementById('panitia_tak_terbatas').checked = true;
+                document.getElementById('input_jumlah_panitia').classList.add('hidden');
+            }
+        }
+
+        function toggleJumlahSpesifik() {
+            const specificRadio = document.getElementById('panitia_jumlah_spesifik');
+            const inputDiv = document.getElementById('input_jumlah_panitia');
+            
+            if (specificRadio.checked) {
+                inputDiv.classList.remove('hidden');
+            } else {
+                inputDiv.classList.add('hidden');
+                document.getElementById('jumlah_panitia_required').value = '';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if(document.getElementById('panitia_tak_terbatas') && document.getElementById('panitia_jumlah_spesifik')) {
+                toggleJumlahSpesifik();
+            }
+        });
+        
+        window.toggleMobileSidebar = function() {
+            const sidebar = document.getElementById('sidebar-mobile');
+            const overlay = document.getElementById('sidebar-mobile-overlay');
+            
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('overflow-hidden');
+        };
+    </script>
+    <div id="sidebar-mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
+
+    <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeConfirmModal()"></div>
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 relative z-10 transform transition-all">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-teal-100 mb-4">
+                    <i class="fas fa-calendar-plus text-3xl text-teal-600"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Konfirmasi Simpan Event</h3>
+                <p class="text-gray-600 mb-6" id="confirmMessage">Apakah Anda yakin ingin menyimpan event ini?</p>
+                <div class="flex justify-center space-x-3">
+                    <button type="button" onclick="closeConfirmModal()" class="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                        Batal
+                    </button>
+                    <button type="button" onclick="submitEvent()" id="btnConfirmSubmit" class="px-6 py-2.5 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors">
+                        <i class="fas fa-check mr-2"></i>Ya, Simpan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="successModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 relative z-10 transform transition-all">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                    <i class="fas fa-check-circle text-3xl text-green-600"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Event Berhasil Disimpan!</h3>
+                <p class="text-gray-600 mb-6" id="successMessage">Event baru telah ditambahkan ke sistem.</p>
+                <div class="flex justify-center space-x-3">
+                    <button type="button" onclick="window.location.href='kelola_event.html'" class="px-6 py-2.5 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors">
+                        <i class="fas fa-list mr-2"></i>Lihat Daftar Event
+                    </button>
+                    <button type="button" onclick="resetFormAndCloseModal()" class="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                        Buat Event Lagi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeErrorModal()"></div>
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 relative z-10 transform transition-all">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-exclamation-circle text-3xl text-red-600"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Gagal Menyimpan Event</h3>
+                <p class="text-gray-600 mb-6" id="errorMessage">Terjadi kesalahan saat menyimpan event.</p>
+                <button type="button" onclick="closeErrorModal()" class="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <aside id="sidebar-mobile" class="sidebar-custom fixed top-0 left-0 h-full w-64 transform -translate-x-full z-50 lg:hidden transition-transform duration-300 ease-in-out">
+        <div class="p-4 flex items-center justify-start h-16">
+            <span class="text-2xl font-extrabold text-white">SIMORA</span>
+        </div>
+        <nav class="flex-1 flex flex-col mt-4 px-2">
+            <a href="admin.html" class="nav-item-custom"><i class="fas fa-chart-line"></i> DASHBOARD</a>
+            <a href="kelola_anggota.html" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
+            <a href="kelola_event.html" class="nav-item-custom nav-item-data-event active-dark-bg"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
+            <a href="kalender_kegiatan.html" class="nav-item-custom"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
+            <a href="laporan_kegiatan.html" class="nav-item-custom"><i class="fas fa-chart-bar"></i> Laporan Kegiatan</a>
+        </nav>
+        <div class="p-4 border-t mt-auto border-gray-700">
+            <a href="#" id="btn-logout-mobile" class="btn-logout-custom w-full">
+                <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+            </a>
+        </div>
+    </aside>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/logout-helper.js"></script>
+    <script src="js/admin.js"></script> 
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMORA | Dashboard Anggota</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css?v=20251211-2">
+</head>
+<body>
+
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">SIMORA</a>
+            
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="dashboard.html" class="nav-link active">Dashboard</a></li>
+                <li><a href="events.html" class="nav-link">Kegiatan</a></li>
+                <li><a href="kalender.html" class="nav-link">Kalender</a></li>
+                <li><a href="anggota.html" class="nav-link">Anggota</a></li>
+                <li><a href="profil.html" class="nav-link">Profil</a></li>
+            </ul>
+
+            <div class="nav-user">
+                <div class="user-avatar" id="userAvatar">
+                    <span id="userInitials">BS</span>
+                </div>
+                <span class="user-name" id="navUsername">Budi Santoso</span>
+                <button class="btn-logout" id="btnLogout">Keluar</button>
+            </div>
+        </div>
+    </nav>
+
+    
+    <main class="main-content">
+        <div class="container">
+            
+            
+            <section class="welcome-section">
+                <h1 class="page-title">Dashboard</h1>
+                <p class="page-subtitle">Selamat datang kembali! Inilah yang terjadi di organisasi Anda.</p>
+            </section>
+
+            
+            <section class="hero-slider-section">
+                <div class="slider-container">
+                    <div class="slider-wrapper" id="sliderWrapper">
+                        
+                        <div class="slide active">
+                            <div class="slide-content">
+                                <span class="slide-badge">Memuat...</span>
+                                <h2 class="slide-title">Memuat Event Terbaru</h2>
+                                <p class="slide-desc">Silakan tunggu sebentar...</p>
+                                <div class="slide-meta">
+                                    <span>-</span>
+                                    <span>-</span>
+                                </div>
+                            </div>
+                            <div class="slide-visual">
+                                <div class="slide-icon"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <button class="slider-btn slider-prev" id="sliderPrev" aria-label="Previous">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                    </button>
+                    <button class="slider-btn slider-next" id="sliderNext" aria-label="Next">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                    </button>
+                    
+                    
+                    <div class="slider-dots" id="sliderDots">
+                        
+                    </div>
+                </div>
+            </section>
+
+            
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">Total Anggota</span>
+                            <h2 class="stat-value" id="statTotalAnggota">0</h2>
+                        </div>
+                        <div class="stat-icon blue">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">Kegiatan Aktif</span>
+                            <h2 class="stat-value" id="statKegiatanAktif">0</h2>
+                        </div>
+                        <div class="stat-icon green">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">Bulan Ini</span>
+                            <h2 class="stat-value" id="statBulanIni">0</h2>
+                        </div>
+                        <div class="stat-icon purple">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            
+            <section class="events-section">
+                <h3 class="section-title">Kegiatan Mendatang</h3>
+                <div class="events-grid" id="upcomingEventsContainer">
+                    <p class="text-gray-500 text-center">Memuat kegiatan...</p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script src="js/logout-helper.js"></script>
+    <script src="js/dashboard.js?v=20251211"></script>
+</body>
+</html>

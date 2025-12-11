@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMORA | Profil Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/admin.css">
+
+    <style>
+        :root {
+            --clr-primary-brand: #01A29D;
+            --clr-hover-dark: #005A54;
+            --clr-sidebar-bg: #01A29D;
+            --clr-sidebar-base-text: #E5E7EB;
+            --clr-sidebar-active-text: #FFFFFF;
+            --clr-menu-active-bg-dark: #00877C;
+            --clr-base-bg: #F4FBF9;
+            --clr-btn-red: #F75B50;
+            --clr-btn-orange: #FF853D;
+        }
+        .d-none { display: none !important; }
+        
+        .nav-item-dashboard.active-dark-bg { 
+            background-color: var(--clr-menu-active-bg-dark); 
+            color: white; 
+            font-weight: 700;
+            border-left: 4px solid #F3F4F6;
+            padding-left: calc(1rem - 4px);
+        }
+        .btn-edit-profile {
+            background-color: #3B82F6; 
+            color: white;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .btn-edit-profile:hover {
+            background-color: #2563EB;
+        }
+    </style>
+</head>
+<body class="bg-[var(--clr-base-bg)]">
+
+    <div class="flex h-screen bg-gray-50 overflow-hidden">
+
+        <aside id="sidebar-desktop" class="sidebar-custom hidden lg:flex flex-col flex-shrink-0">
+            <div class="p-4 flex items-center justify-start h-16">
+                <span class="text-2xl font-extrabold text-white">SIMORA</span> 
+            </div>
+            <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
+                <a href="admin.html" class="nav-item-custom nav-item-dashboard active-dark-bg"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
+                <a href="kelola_anggota.html" class="nav-item-custom"> <i class="fas fa-users"></i> Kelola Anggota </a>
+                <a href="kelola_event.html" class="nav-item-custom"> <i class="fas fa-calendar-alt"></i> Kelola Event </a>
+                <a href="kalender_kegiatan.html" class="nav-item-custom"> <i class="fas fa-calendar-check"></i> Kalender Kegiatan </a>
+                <a href="laporan_kegiatan.html" class="nav-item-custom"> <i class="fas fa-chart-bar"></i> Laporan Kegiatan </a>
+            </nav>
+            <div class="p-4 border-t mt-auto border-gray-700">
+                <a href="#" id="btn-logout-desktop" class="btn-logout-custom w-full">
+                    <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            
+            <header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-30 h-16 border-b border-gray-100">
+                <button id="mobile-menu-button" class="lg:hidden text-gray-600 hover:text-gray-900" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <div class="flex-1 flex items-center justify-between ml-0 lg:ml-4">
+                    <h1 class="text-xl font-bold text-gray-800">Profil Admin</h1>
+                    
+                    <div class="flex items-center space-x-4">
+                        
+                        <a href="buat_event.html" class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
+                            <i class="fas fa-plus mr-2"></i> Buat Event Baru
+                        </a>
+
+                        <a href="notifikasi.html" id="notification-link" class="text-gray-600 hover:text-gray-900 relative p-2">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notification-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full d-none">0</span>
+                        </a>
+                        
+                        <div class="profile-indicator flex items-center">
+                            <div class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</div>
+                            <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base">A</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6">
+                
+                <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="text-center mb-6">
+                        <div id="main-avatar" class="avatar-admin-circle w-24 h-24 mx-auto mb-3 flex items-center justify-center font-bold text-2xl cursor-pointer hover:opacity-75 transition-opacity relative group" style="background-size: cover; background-position: center;">
+                            A
+                            <span class="absolute bottom-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Edit</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900" id="profile-full-name">Admin SIMORA Utama</h2>
+                        <p class="text-gray-500">Role: Administrator Penuh</p>
+                        <small class="text-gray-400">Klik foto untuk ganti</small>
+                    </div>
+
+                    <form id="profile-form" class="space-y-4">
+                        <div class="mb-3">
+                            <label for="username" class="form-label font-medium text-gray-700">Username</label>
+                            <input type="text" class="form-control" id="username" value="admin.simora" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label font-medium text-gray-700">Email</label>
+                            <input type="email" class="form-control" id="email" value="admin@simora.com" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="last-login" class="form-label font-medium text-gray-700">Terakhir Login</label>
+                            <input type="text" class="form-control" id="last-login" value="10 Des 2025, 01:50 WIB" disabled>
+                        </div>
+
+                        <div class="pt-4 flex justify-end space-x-3">
+                            <button type="button" class="btn btn-outline-secondary font-medium" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Ubah Kata Sandi</button>
+                            <button type="button" class="btn-edit-profile" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                                <i class="fas fa-edit mr-2"></i> Edit Profil
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+            </div>
+        </main>
+
+    </div>
+    
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <form id="form-change-password">
+                    <div class="modal-header bg-warning-subtle">
+                        <h5 class="modal-title font-bold" id="changePasswordModalLabel">Ubah Kata Sandi</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body space-y-3">
+                        <p class="text-sm text-gray-600">Anda akan diminta login ulang setelah perubahan kata sandi berhasil.</p>
+                        <div>
+                            <label for="old_password" class="form-label">Kata Sandi Lama</label>
+                            <input type="password" class="form-control" id="old_password" required>
+                        </div>
+                        <div>
+                            <label for="new_password" class="form-label">Kata Sandi Baru</label>
+                            <input type="password" class="form-control" id="new_password" required>
+                        </div>
+                        <div>
+                            <label for="confirm_password" class="form-label">Konfirmasi Kata Sandi Baru</label>
+                            <input type="password" class="form-control" id="confirm_password" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <form id="form-edit-profile">
+                    <div class="modal-header bg-info-subtle">
+                        <h5 class="modal-title font-bold" id="editProfileModalLabel">Edit Data Profil</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body space-y-3">
+                        <div class="text-center mb-3">
+                            <div id="modal-avatar-preview" class="avatar-admin-circle w-20 h-20 mx-auto mb-2 flex items-center justify-center font-bold text-lg cursor-pointer hover:opacity-80 transition-opacity" style="background-size: cover; background-position: center;">A</div>
+                            <small class="text-gray-600">Klik untuk ganti foto</small>
+                            <input type="file" id="profile_picture_upload" class="d-none" accept="image/*">
+                        </div>
+                        <div>
+                            <label for="edit_full_name" class="form-label">Nama Lengkap</label>
+                            <input type="text" class="form-control" id="edit_full_name" value="Admin SIMORA Utama" required>
+                        </div>
+                        <div>
+                            <label for="edit_username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="edit_username" value="admin.simora" disabled>
+                        </div>
+                        <div>
+                            <label for="edit_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="edit_email" value="admin@simora.com" disabled>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Profil</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="sidebar-mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
+    <aside id="sidebar-mobile" class="sidebar-custom fixed top-0 left-0 h-full w-64 transform -translate-x-full z-50 lg:hidden transition-transform duration-300 ease-in-out">
+        <div class="p-4 flex items-center justify-start h-16">
+            <span class="text-2xl font-extrabold text-white">SIMORA</span>
+        </div>
+        <nav class="flex-1 flex flex-col mt-4 px-2">
+            <a href="admin.html" class="nav-item-custom nav-item-dashboard active-dark-bg"><i class="fas fa-chart-line"></i> DASHBOARD</a>
+            <a href="kelola_anggota.html" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
+            <a href="kelola_event.html" class="nav-item-custom"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
+            <a href="kalender_kegiatan.html" class="nav-item-custom"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
+            <a href="laporan_kegiatan.html" class="nav-item-custom"><i class="fas fa-chart-bar"></i> Laporan Kegiatan</a>
+        </nav>
+        <div class="p-4 border-t mt-auto border-gray-700">
+            <a href="#" id="btn-logout-mobile" class="btn-logout-custom w-full">
+                <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+            </a>
+        </div>
+    </aside>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/logout-helper.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+        const isDotTest = hostname.endsWith('.test');
+        
+        let basePath = '';
+        if (isLocalhost) {
+            basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+        } else if (isDotTest) {
+            basePath = '/kelompok/kelompok_17/src';
+        }
+        
+        const API_BASE = `${basePath}/backend/api`;
+        const UPLOAD_BASE = basePath.replace('/src', '/upload');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const mainAvatar = document.getElementById('main-avatar');
+            const modalAvatarPreview = document.getElementById('modal-avatar-preview');
+            const fileInput = document.getElementById('profile_picture_upload');
+            let selectedFile = null;
+
+            // Main avatar click to upload
+            if (mainAvatar && fileInput) {
+                mainAvatar.addEventListener('click', () => fileInput.click());
+            }
+
+            // Modal avatar click to upload
+            if (modalAvatarPreview && fileInput) {
+                modalAvatarPreview.addEventListener('click', () => fileInput.click());
+            }
+
+            if (fileInput) {
+                fileInput.addEventListener('change', (event) => {
+                    if (event.target.files && event.target.files[0]) {
+                        selectedFile = event.target.files[0];
+                        
+                        // Validate file size (max 2MB)
+                        if (selectedFile.size > 2 * 1024 * 1024) {
+                            alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                            fileInput.value = '';
+                            return;
+                        }
+                        
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // Update both avatar displays
+                            if (mainAvatar) {
+                                mainAvatar.style.backgroundImage = `url(${e.target.result})`;
+                                mainAvatar.style.backgroundSize = 'cover';
+                                mainAvatar.style.backgroundPosition = 'center';
+                                mainAvatar.textContent = '';
+                            }
+                            if (modalAvatarPreview) {
+                                modalAvatarPreview.style.backgroundImage = `url(${e.target.result})`;
+                                modalAvatarPreview.style.backgroundSize = 'cover';
+                                modalAvatarPreview.style.backgroundPosition = 'center';
+                                modalAvatarPreview.textContent = '';
+                            }
+                            
+                            // Auto submit edit profil setelah foto dipilih
+                            if (mainAvatar) {
+                                setTimeout(() => {
+                                    handleEditProfileWithPhoto();
+                                }, 500);
+                            }
+                        };
+                        reader.readAsDataURL(selectedFile);
+                    }
+                });
+            }
+
+            const formEditProfile = document.getElementById('form-edit-profile');
+            if (formEditProfile) {
+                formEditProfile.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    await handleEditProfile();
+                });
+            }
+
+            const formChangePassword = document.getElementById('form-change-password');
+            if (formChangePassword) {
+                formChangePassword.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    await handleChangePassword();
+                });
+            }
+
+            loadAdminProfile();
+        });
+
+        async function loadAdminProfile() {
+            try {
+                const response = await fetch(`${API_BASE}/profile.php?action=get`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (response.ok && result.status === 'success' && result.data) {
+                    const admin = result.data;
+                    document.getElementById('profile-full-name').textContent = admin.full_name || 'Admin SIMORA';
+                    document.getElementById('username').value = admin.username || '';
+                    document.getElementById('email').value = admin.email || '';
+                    document.getElementById('edit_full_name').value = admin.full_name || '';
+                    document.getElementById('edit_username').value = admin.username || '';
+                    document.getElementById('edit_email').value = admin.email || '';
+                    
+                    if (admin.profile_photo) {
+                        const photoUrl = `${UPLOAD_BASE}/profile/${admin.profile_photo}`;
+                        const avatarElement = document.querySelector('.avatar-admin-circle');
+                        const modalAvatarElement = document.getElementById('modal-avatar-preview');
+                        
+                        if (avatarElement) {
+                            avatarElement.style.backgroundImage = `url(${photoUrl})`;
+                            avatarElement.style.backgroundSize = 'cover';
+                            avatarElement.style.backgroundPosition = 'center';
+                            avatarElement.textContent = '';
+                        }
+                        
+                        if (modalAvatarElement) {
+                            modalAvatarElement.style.backgroundImage = `url(${photoUrl})`;
+                            modalAvatarElement.style.backgroundSize = 'cover';
+                            modalAvatarElement.style.backgroundPosition = 'center';
+                            modalAvatarElement.textContent = '';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        async function handleEditProfile() {
+            const fullName = document.getElementById('edit_full_name').value.trim();
+            const fileInput = document.getElementById('profile_picture_upload');
+            
+            if (!fullName) {
+                alert('Nama lengkap tidak boleh kosong.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('full_name', fullName);
+            
+            if (fileInput.files && fileInput.files[0]) {
+                formData.append('profile_photo', fileInput.files[0]);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/profile.php?action=update`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    alert('Profil berhasil diperbarui.');
+                    // Clear file input
+                    fileInput.value = '';
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+                    if (modal) modal.hide();
+                    // Reset form
+                    document.getElementById('form-edit-profile').reset();
+                    // Reload profile data
+                    await loadAdminProfile();
+                } else {
+                    alert(`Gagal memperbarui profil: ${result.message || 'Error'}`);
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Terjadi kesalahan saat memperbarui profil.');
+            }
+        }
+
+        async function handleEditProfileWithPhoto() {
+            const fileInput = document.getElementById('profile_picture_upload');
+            
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert('Pilih foto terlebih dahulu.');
+                return;
+            }
+
+            // Get current full name from main profile (atau dari admin data)
+            const fullNameElement = document.getElementById('profile-full-name');
+            const fullName = fullNameElement ? fullNameElement.textContent : 'Admin';
+
+            const formData = new FormData();
+            formData.append('full_name', fullName);
+            formData.append('profile_photo', fileInput.files[0]);
+
+            try {
+                const response = await fetch(`${API_BASE}/profile.php?action=update`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    // Clear file input
+                    fileInput.value = '';
+                    // Reload profile data to show updated photo
+                    await loadAdminProfile();
+                } else {
+                    alert(`Gagal memperbarui foto: ${result.message || 'Error'}`);
+                }
+            } catch (error) {
+                console.error('Error updating profile photo:', error);
+                alert('Terjadi kesalahan saat memperbarui foto.');
+            }
+        }
+
+        async function handleChangePassword() {
+            const oldPassword = document.getElementById('old_password').value;
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                alert('Semua field wajib diisi.');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('Kata sandi baru dan konfirmasi tidak cocok.');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert('Kata sandi baru minimal 6 karakter.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/profile.php?action=change_password`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        old_password: oldPassword,
+                        new_password: newPassword
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    alert('Kata sandi berhasil diubah. Anda akan diarahkan untuk login ulang.');
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                    if (modal) modal.hide();
+                    // Reset form
+                    document.getElementById('form-change-password').reset();
+                    // Redirect to login
+                    setTimeout(() => {
+                        window.location.href = `${basePath}/frontend/auth/login.html`;
+                    }, 1500);
+                } else {
+                    alert(`Gagal mengubah kata sandi: ${result.message || 'Error'}`);
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+                alert('Terjadi kesalahan saat mengubah kata sandi.');
+            }
+        }
+
+        window.toggleMobileSidebar = function() {
+            const sidebar = document.getElementById('sidebar-mobile');
+            const overlay = document.getElementById('sidebar-mobile-overlay');
+
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('overflow-hidden');
+        };
+    </script>
+</body>
+</html>

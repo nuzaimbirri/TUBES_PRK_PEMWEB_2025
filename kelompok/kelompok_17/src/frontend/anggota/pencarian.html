@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SIMORA | Pencarian Anggota</title>
+
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  
+  <link rel="stylesheet" href="css/anggota_app.css">
+
+  <style>
+    /* Page-specific small overrides */
+    .search-hero { align-items:center; }
+    .view-toggle .btn { min-width:44px; }
+    .skeleton-row { height:56px; border-radius:10px; margin-bottom:10px; }
+    .result-empty { padding:28px; border-radius:12px; text-align:center; }
+    /* highlight matched text */
+    .match { background: linear-gradient(90deg, rgba(59,130,246,0.16), rgba(139,92,246,0.06)); padding:1px 6px; border-radius:6px; }
+  </style>
+</head>
+<body>
+
+  <main class="container mt-24">
+    <section class="section-header">
+      <div>
+        <h2 class="section-title">Pencarian Anggota</h2>
+        <div class="section-sub">Cari berdasarkan nama, email, atau tipe keanggotaan (role)</div>
+      </div>
+      <div class="simple-nav">
+        <a href="dashboard.html" class="nav-link">Kembali ke Dashboard</a>
+      </div>
+    </section>
+
+    
+    <section class="search-page card">
+      <div class="search-hero" style="flex-direction:column;gap:12px;">
+        <div style="width:100%; display:flex; gap:12px; align-items:center; justify-content:space-between;">
+          
+          <div style="flex:1; display:flex; gap:10px; align-items:center;">
+            <div class="search-box" style="flex:1">
+              <input id="searchInput" class="search-input" type="search" placeholder="Cari nama, email, atau ketik tipe (mis: anggota, admin)" aria-label="Cari anggota" />
+              <button id="searchBtn" class="search-btn" aria-label="Cari">Cari</button>
+            </div>
+
+            
+            <button id="clearBtn" class="btn btn-ghost" title="Bersihkan pencarian">Bersihkan</button>
+          </div>
+
+          
+          <div style="display:flex; gap:8px; align-items:center;">
+            <div class="view-toggle" role="tablist" aria-label="Tampilan hasil">
+              <button id="toggleTable" class="btn btn-ghost btn-sm active" title="Tabel">Tabel</button>
+              <button id="toggleCards" class="btn btn-ghost btn-sm" title="Kartu">Kartu</button>
+            </div>
+
+            <select id="sortSelect" class="input" style="min-width:160px;">
+              <option value="relevance">Terbaik</option>
+              <option value="name_asc">Nama A–Z</option>
+              <option value="name_desc">Nama Z–A</option>
+              <option value="npm_asc">NPM Asc</option>
+            </select>
+          </div>
+        </div>
+
+        
+        <div class="pencarian-filter-bar" style="width:100%;">
+          <div class="pencarian-filter-left">
+            <div class="chips" id="typeChips" aria-label="Filter tipe">
+              
+            </div>
+            <div style="margin-left:12px; color:var(--text-secondary); font-weight:600;">
+              <span id="resultsCount">—</span>
+            </div>
+          </div>
+
+          <div class="simple-nav">
+            <button id="prevPage" class="btn btn-ghost btn-sm" title="Prev page">Prev</button>
+            <div class="pagination" id="paginationControls" aria-label="Navigasi halaman">
+              
+            </div>
+            <button id="nextPage" class="btn btn-ghost btn-sm" title="Next page">Next</button>
+          </div>
+        </div>
+      </div>
+
+      
+      <div id="resultsArea" class="mt-12">
+        
+        <div id="skeletons" class="mb-12">
+          
+        </div>
+
+        
+        <div id="tableView" class="table-wrapper">
+          <table class="table hover compact" aria-describedby="resultsCount" role="table">
+            <thead>
+              <tr>
+                <th>Nama</th>
+                <th>Email</th>
+                <th>NPM</th>
+                <th>Tipe</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="resultsTableBody">
+              
+            </tbody>
+          </table>
+        </div>
+
+        
+        <div id="cardsView" class="search-results mt-12 hidden" aria-hidden="true">
+          
+        </div>
+
+        
+        <div id="emptyState" class="search-empty hidden mt-12">
+          <h4>Tidak ada hasil</h4>
+          <p>Coba variasikan kata kunci atau hapus filter pencarian.</p>
+        </div>
+
+      </div>
+    </section>
+
+    
+    <section class="mt-16">
+      <div class="card-sm helper">
+        <strong>Tip:</strong> Kamu dapat mengetik nama lengkap, sebagian nama, email, atau kata kunci tipe seperti <code>anggota</code> / <code>admin</code> / <code>pengurus</code>.
+      </div>
+    </section>
+  </main>
+
+  
+  <div id="profileModalBackdrop" class="modal-backdrop"></div>
+  <div id="profileModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-header">
+      <h3 id="profileModalTitle">Profil Anggota</h3>
+      <button id="closeProfileModal" class="btn btn-ghost">Tutup</button>
+    </div>
+    <div class="modal-body" id="profileModalBody" style="min-height:140px;">
+      
+    </div>
+    <div class="modal-footer">
+      <button id="profileModalCloseBtn" class="btn btn-ghost">Tutup</button>
+    </div>
+  </div>
+
+  
+  <div id="toastContainer" class="toast-container"></div>
+
+  
+  <script src="js/pencarian.js"></script>
+</body>
+</html>

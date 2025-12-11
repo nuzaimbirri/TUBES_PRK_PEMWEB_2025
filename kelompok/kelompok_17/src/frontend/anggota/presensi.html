@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMORA | Presensi Anggota</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="css/anggota_app.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a class="nav-logo">SIMORA</a>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="kalender.html" class="nav-link">Kalender</a></li>
+                <li><a href="pencarian.html" class="nav-link">Pencarian</a></li>
+                <li><a href="pendaftaran.html" class="nav-link">Pendaftaran</a></li>
+                <li><a href="presensi.html" class="nav-link active">Presensi</a></li>
+                <li><a href="profil.html" class="nav-link">Profil</a></li>
+            </ul>
+
+            <div class="nav-user">
+                <div class="user-avatar">
+                    <span id="userInitials">AG</span>
+                </div>
+                <span id="navUsername" class="user-name">Anggota</span>
+                <button id="btnLogout" class="btn btn-primary btn-sm">Keluar</button>
+            </div>
+        </div>
+    </nav>
+
+
+    <main class="main-content">
+        <div class="container fade-in">
+
+            <section class="mb-24">
+                <h1 class="page-title">Presensi Anggota</h1>
+                <p class="text-muted">
+                    Kelola dan catat status keaktifan semua anggota organisasi.
+                </p>
+            </section>
+
+            
+            <div class="card mb-24">
+                <div class="card-header">
+                    <h3 class="card-title">Cari Anggota</h3>
+                </div>
+                <div class="search-row">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="search-input" 
+                        placeholder="Cari anggota berdasarkan nama, email atau npm..."
+                    >
+                    <button id="btnSearch" class="btn btn-primary">Cari</button>
+                </div>
+            </div>
+
+            
+            <div id="presensiContainer" class="presensi-list"></div>
+
+            
+            <div id="emptyState" class="empty" style="display:none;">
+                <h4>Tidak ada data ditemukan</h4>
+                <p>Silakan lakukan pencarian lain.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="js/presensi.js"></script>
+</body>
+</html>

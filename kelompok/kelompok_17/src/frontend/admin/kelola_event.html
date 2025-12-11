@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMORA | Kelola Event</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/admin.css">
+
+    <style>
+        :root {
+            --clr-primary-brand: #01A29D;
+            --clr-hover-dark: #005A54;
+            --clr-sidebar-bg: #01A29D;
+            --clr-sidebar-base-text: #E5E7EB;
+            --clr-sidebar-active-text: #FFFFFF;
+            --clr-menu-active-bg-dark: #00877C;
+            --clr-base-bg: #F4FBF9;
+            --clr-btn-red: #F75B50;
+            --clr-btn-orange: #FF853D;
+        }
+        .d-none { display: none !important; }
+
+        .nav-item-data-event.active-dark-bg { 
+            background-color: var(--clr-menu-active-bg-dark); 
+            color: white; 
+            font-weight: 700;
+            border-left: 4px solid #F3F4F6;
+            padding-left: calc(1rem - 4px);
+        }
+        .nav-tabs-custom {
+            border-bottom: 1px solid #E5E7EB;
+            margin-bottom: 1.5rem;
+        }
+        .nav-link-custom {
+            font-weight: 600;
+            color: #6B7280; 
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s;
+        }
+        .nav-link-custom:hover {
+            color: var(--clr-primary-brand);
+        }
+        .nav-link-custom.active {
+            color: var(--clr-primary-brand);
+            border-bottom: 3px solid var(--clr-primary-brand);
+            background-color: transparent;
+        }
+        .btn-lihat-laporan {
+            background-color: #3B82F6; 
+            color: white;
+            font-weight: 600;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .btn-lihat-laporan:hover {
+            background-color: #2563EB;
+        }
+        .btn-manage-pendaftaran {
+             background-color: #fcd34d; 
+             color: #78350f; 
+             font-weight: 600;
+             padding: 0.4rem 0.8rem;
+             border-radius: 0.5rem;
+             font-size: 0.8rem;
+             transition: background-color 0.2s;
+        }
+        .btn-manage-pendaftaran:hover {
+            background-color: #fbbf24;
+        }
+        .member-list-modal {
+            list-style: none;
+            padding: 0;
+        }
+        .member-list-modal li {
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #E5E7EB;
+        }
+        .btn-modal-action {
+             background-color: #3B82F6; 
+             color: white;
+             font-weight: 600;
+             padding: 0.5rem 1rem;
+             border-radius: 0.5rem;
+             transition: background-color 0.2s;
+        }
+        .btn-modal-action:hover {
+             background-color: #2563EB;
+        }
+    </style>
+</head>
+<body class="bg-[var(--clr-base-bg)]">
+
+    <div class="flex h-screen bg-gray-50 overflow-hidden">
+
+        <aside id="sidebar-desktop" class="sidebar-custom hidden lg:flex flex-col flex-shrink-0">
+            <div class="p-4 flex items-center justify-start h-16">
+                <span class="text-2xl font-extrabold text-white">SIMORA</span> 
+            </div>
+            <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
+                <a href="admin.html" class="nav-item-custom"> <i class="fas fa-chart-line"></i> DASHBOARD </a>
+                <a href="kelola_anggota.html" class="nav-item-custom"> <i class="fas fa-users"></i> Kelola Anggota </a>
+                <a href="kelola_event.html" class="nav-item-custom nav-item-data-event active-dark-bg"> <i class="fas fa-calendar-alt"></i> Kelola Event </a>
+                <a href="kalender_kegiatan.html" class="nav-item-custom"> <i class="fas fa-calendar-check"></i> Kalender Kegiatan </a>
+                <a href="laporan_kegiatan.html" class="nav-item-custom"> <i class="fas fa-chart-bar"></i> Laporan Kegiatan </a>
+            </nav>
+            <div class="p-4 border-t mt-auto border-gray-700">
+                <a href="#" id="btn-logout-desktop" class="btn-logout-custom w-full">
+                    <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            
+            <header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-30 h-16 border-b border-gray-100">
+                <button id="mobile-menu-button" class="lg:hidden text-gray-600 hover:text-gray-900" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <div class="flex-1 flex items-center justify-end ml-0 lg:ml-4">
+                    <div class="flex items-center space-x-4">
+                        
+                        <a href="buat_event.html" class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
+                            <i class="fas fa-plus mr-2"></i> Buat Event Baru
+                        </a>
+
+                        <a href="notifikasi.html" id="notification-link" class="text-gray-600 hover:text-gray-900 relative p-2">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notification-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full d-none">0</span>
+                        </a>
+                        
+                        <div class="relative">
+                            <button id="profile-dropdown-button" class="flex items-center text-gray-600 hover:text-gray-900 focus:outline-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="profile-indicator flex items-center">
+                                    <div class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</div>
+                                    <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base">A</div>
+                                </div>
+                            </button>
+                            
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="profile-dropdown-button" style="min-width: 180px;">
+                                <li class="px-3 py-2 text-sm text-gray-700 font-semibold border-b border-gray-100">
+                                    Halo, Admin!
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="profile_admin.html">
+                                        <i class="fas fa-user-circle mr-2 w-5 text-[var(--clr-primary-brand)]"></i> Lihat Profil
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#" id="btn-logout-dropdown">
+                                        <i class="fas fa-arrow-right-from-bracket mr-2 w-5 text-red-500"></i> Keluar
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6">
+                
+                <h1 class="text-xl font-semibold text-gray-800 mb-6">Data Event</h1>
+                
+                <ul class="nav nav-tabs nav-tabs-custom" id="eventTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link nav-link-custom active" id="tab-mendatang" data-bs-toggle="tab" data-bs-target="#content-mendatang" type="button" role="tab" aria-controls="content-mendatang" aria-selected="true">Event Akan Datang</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link nav-link-custom" id="tab-berlalu" data-bs-toggle="tab" data-bs-target="#content-berlalu" type="button" role="tab" aria-controls="content-berlalu" aria-selected="false">Event Sudah Berlalu</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a href="buat_event.html" class="nav-link nav-link-custom">Buat Event Baru</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="eventTabContent">
+                    
+                    <div class="tab-pane fade show active" id="content-mendatang" role="tabpanel" aria-labelledby="tab-mendatang">
+                        <p class="text-gray-600 mb-4">Daftar Event yang akan datang atau sedang berlangsung.</p>
+                        
+                        <div id="agenda-mendatang-list" class="space-y-4">
+                            <p class="text-gray-500 text-center py-4">Memuat data event...</p>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="content-berlalu" role="tabpanel" aria-labelledby="tab-berlalu">
+                        
+                        <p class="text-gray-600 mb-4" id="past-events-summary">Memuat data event yang sudah selesai...</p>
+
+                        <div id="agenda-berlalu-list" class="space-y-4">
+                            <p class="text-gray-500 text-center py-4">Memuat data event...</p>
+                        </div>
+
+                    </div>
+
+                </div>
+                
+            </div>
+        </main>
+
+    </div>
+    
+    <div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-bold text-xl" id="eventDetailModalLabel">Detail Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="space-y-4">
+                        <h6 class="font-bold text-lg text-gray-800 border-b pb-2">Informasi Dasar</h6>
+                        <div class="border rounded-lg p-3 bg-gray-50 text-sm" id="modal-event-info">
+                            <p>Memuat data...</p>
+                        </div>
+                        
+                        <h6 class="font-bold text-lg text-gray-800 border-b pb-2">Deskripsi Lengkap</h6>
+                        <p class="text-gray-700 text-sm" id="modal-event-description">Memuat deskripsi...</p>
+                        
+                        <h6 class="font-bold text-lg text-gray-800 border-b pb-2">Status Event</h6>
+                        <p class="text-sm font-medium text-gray-600" id="modal-event-status">Memuat status...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="sidebar-mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
+    <aside id="sidebar-mobile" class="sidebar-custom fixed top-0 left-0 h-full w-64 transform -translate-x-full z-50 lg:hidden transition-transform duration-300 ease-in-out">
+        <div class="p-4 flex items-center justify-start h-16">
+            <span class="text-2xl font-extrabold text-white">SIMORA</span>
+        </div>
+        <nav class="flex-1 flex flex-col mt-4 px-2">
+            <a href="admin.html" class="nav-item-custom"><i class="fas fa-chart-line"></i> DASHBOARD</a>
+            <a href="kelola_anggota.html" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
+            <a href="kelola_event.html" class="nav-item-custom nav-item-data-event active-dark-bg"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
+            <a href="kalender_kegiatan.html" class="nav-item-custom"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
+            <a href="laporan_kegiatan.html" class="nav-item-custom"><i class="fas fa-chart-bar"></i> Laporan Kegiatan</a>
+        </nav>
+        <div class="p-4 border-t mt-auto border-gray-700">
+            <a href="#" id="btn-logout-mobile" class="btn-logout-custom w-full">
+                <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+            </a>
+        </div>
+    </aside>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/logout-helper.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+        const isDotTest = hostname.endsWith('.test');
+        
+        let basePath = '';
+        if (isLocalhost) {
+            basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+        } else if (isDotTest) {
+            basePath = '/kelompok/kelompok_17/src';
+        }
+        
+        const API_BASE = `${basePath}/backend/api`;
+        
+        let allEvents = [];
+        let currentEventDetail = null;
+        
+        async function loadEventsFromAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/events.php?action=list&limit=100`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (response.ok && result.status === 'success' && result.data && result.data.data) {
+                    allEvents = result.data.data;
+                } else {
+                    allEvents = [];
+                }
+            } catch (error) {
+                console.error('Error loading events:', error);
+                allEvents = [];
+            }
+            
+            renderEvents();
+        }
+        
+        function renderEvents() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const upcomingEvents = allEvents.filter(e => {
+                const eventDate = new Date(e.event_date);
+                eventDate.setHours(0, 0, 0, 0);
+                return eventDate >= today;
+            });
+            
+            const pastEvents = allEvents.filter(e => {
+                const eventDate = new Date(e.event_date);
+                eventDate.setHours(0, 0, 0, 0);
+                return eventDate < today;
+            });
+            
+            const upcomingContainer = document.getElementById('agenda-mendatang-list');
+            if (upcomingEvents.length === 0) {
+                upcomingContainer.innerHTML = '<p class="text-gray-500 text-center py-4">Tidak ada event mendatang.</p>';
+            } else {
+                upcomingContainer.innerHTML = upcomingEvents.map(event => createEventCard(event, false)).join('');
+            }
+            
+            const pastContainer = document.getElementById('agenda-berlalu-list');
+            const pastSummary = document.getElementById('past-events-summary');
+            pastSummary.textContent = `Total ${pastEvents.length} Event yang Sudah Selesai. Gunakan laporan detail untuk rekapitulasi.`;
+            
+            if (pastEvents.length === 0) {
+                pastContainer.innerHTML = '<p class="text-gray-500 text-center py-4">Tidak ada event yang sudah berlalu.</p>';
+            } else {
+                pastContainer.innerHTML = pastEvents.map(event => createEventCard(event, true)).join('');
+            }
+            
+            document.querySelectorAll('[data-event-id]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const eventId = btn.getAttribute('data-event-id');
+                    showEventDetail(eventId);
+                });
+            });
+        }
+        
+        function createEventCard(event, isPast) {
+            const eventDate = new Date(event.event_date);
+            const options = { day: '2-digit', month: 'short', year: 'numeric' };
+            const formattedDate = eventDate.toLocaleDateString('id-ID', options);
+            
+            const statusColor = isPast ? 'text-red-500' : 'text-green-500';
+            const statusIcon = isPast ? 'fa-check-circle' : 'fa-calendar-day';
+            const statusText = isPast ? `Selesai: ${formattedDate}` : `Tanggal Acara: ${formattedDate}`;
+            
+            const buttonContent = isPast 
+                ? `<a href="laporan_kegiatan.html" class="btn-lihat-laporan text-sm">Lihat Laporan</a>`
+                : `<button class="btn-lihat-laporan text-sm" data-bs-toggle="modal" data-bs-target="#eventDetailModal" data-event-id="${event.event_id}">Lihat Detail</button>`;
+            
+            return `
+                <div class="bg-white p-5 rounded-xl shadow-md border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div class="w-3/4">
+                            <h3 class="text-lg font-bold text-gray-900 mb-1">${event.title}</h3>
+                            <p class="text-sm text-gray-600 mb-2">${event.description || 'Tidak ada deskripsi'}</p>
+                            
+                            <p class="text-sm text-gray-500">
+                                <i class="fas ${statusIcon} mr-1 ${statusColor}"></i> ${statusText}
+                            </p>
+                        </div>
+                        <div class="flex-shrink-0 flex flex-col space-y-2 items-end">
+                            ${buttonContent}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showEventDetail(eventId) {
+            const event = allEvents.find(e => e.event_id == eventId);
+            if (!event) return;
+            
+            currentEventDetail = event;
+            
+            document.getElementById('eventDetailModalLabel').textContent = `Detail Event: ${event.title}`;
+            
+            const eventDate = new Date(event.event_date);
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const formattedDate = eventDate.toLocaleDateString('id-ID', options);
+            
+            document.getElementById('modal-event-info').innerHTML = `
+                <p><span class="font-medium">Judul:</span> ${event.title}</p>
+                <p><span class="font-medium">Tanggal:</span> ${formattedDate}</p>
+                <p><span class="font-medium">Waktu:</span> ${event.start_time ? event.start_time.substring(0,5) : '00:00'} - ${event.end_time ? event.end_time.substring(0,5) : 'selesai'}</p>
+                <p><span class="font-medium">Lokasi:</span> ${event.location || 'TBD'}</p>
+            `;
+            
+            document.getElementById('modal-event-description').textContent = event.description || 'Tidak ada deskripsi';
+            
+            const today = new Date().toISOString().split('T')[0];
+            const statusText = event.event_date >= today ? 'Akan Datang' : 'Selesai';
+            const statusClass = event.event_date >= today ? 'text-green-600' : 'text-gray-600';
+            document.getElementById('modal-event-status').innerHTML = `Status: <span class="${statusClass} font-bold">${statusText}</span>`;
+        }
+        
+        window.toggleMobileSidebar = function() {
+            const sidebar = document.getElementById('sidebar-mobile');
+            const overlay = document.getElementById('sidebar-mobile-overlay');
+            
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('overflow-hidden');
+        };
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEventsFromAPI();
+        });
+
+    </script> 
+</body>
+</html>

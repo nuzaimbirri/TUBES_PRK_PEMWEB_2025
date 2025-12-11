@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMORA | Kalender Kegiatan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/kalender.css">
+</head>
+<body>
+
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">SIMORA</a>
+            
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="events.html" class="nav-link">Kegiatan</a></li>
+                <li><a href="kalender.html" class="nav-link active">Kalender</a></li>
+                <li><a href="anggota.html" class="nav-link">Anggota</a></li>
+                <li><a href="profil.html" class="nav-link">Profil</a></li>
+            </ul>
+
+            <div class="nav-user">
+                <div class="user-avatar" id="userAvatar">
+                    <span id="userInitials">BS</span>
+                </div>
+                <span class="user-name" id="navUsername">Budi Santoso</span>
+                <button class="btn-logout" id="btnLogout">Keluar</button>
+            </div>
+        </div>
+    </nav>
+
+    
+    <main class="main-content">
+        <div class="container">
+            
+            
+            <section class="calendar-header">
+                <div class="header-text">
+                    <h1 class="page-title">Kalender Kegiatan</h1>
+                    <p class="page-subtitle">Lihat dan kelola semua kegiatan organisasi.</p>
+                </div>
+            </section>
+
+            
+            <section class="calendar-section">
+                <div class="calendar-container">
+                    
+                    <div class="calendar-controls">
+                        <div class="calendar-title">
+                            <h2 id="currentMonthYear">September 2025</h2>
+                        </div>
+                        <div class="calendar-nav">
+                            <button class="nav-btn" id="prevMonth" aria-label="Bulan sebelumnya">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M15 18l-6-6 6-6"/>
+                                </svg>
+                            </button>
+                            <button class="nav-btn" id="nextMonth" aria-label="Bulan selanjutnya">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M9 18l6-6-6-6"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    
+                    <div class="calendar-grid">
+                        
+                        <div class="calendar-day-header">Min</div>
+                        <div class="calendar-day-header">Sen</div>
+                        <div class="calendar-day-header">Sel</div>
+                        <div class="calendar-day-header">Rab</div>
+                        <div class="calendar-day-header">Kam</div>
+                        <div class="calendar-day-header">Jum</div>
+                        <div class="calendar-day-header">Sab</div>
+                        
+                        
+                    </div>
+                </div>
+            </section>
+
+            
+            <section class="events-sidebar">
+                <h3 class="sidebar-title">Kegiatan Bulan Ini</h3>
+                <div class="events-list" id="eventsList">
+                    
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script src="js/logout-helper.js"></script>
+    <script src="js/kalender.js?v=20251211b"></script>
+</body>
+</html>

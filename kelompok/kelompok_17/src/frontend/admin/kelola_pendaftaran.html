@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMORA | Kelola Pendaftaran Panitia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <style>
+        :root {
+            --clr-primary-brand: #01A29D;
+            --clr-hover-dark: #005A54;
+            --clr-sidebar-bg: #01A29D;
+            --clr-sidebar-base-text: #E5E7EB;
+            --clr-sidebar-active-text: #FFFFFF;
+            --clr-menu-active-bg-dark: #00877C;
+            --clr-base-bg: #F4FBF9;
+            --clr-btn-red: #F75B50;
+            --clr-btn-orange: #FF853D;
+            --clr-light-teal-bg: #E0F2F1;
+        }
+        .d-none { display: none !important; }
+        .bg-light-teal { background-color: var(--clr-light-teal-bg); }
+        
+        .registration-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        .registration-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-approved { background: #d1fae5; color: #065f46; }
+        .badge-rejected { background: #fee2e2; color: #991b1b; }
+        .filter-btn.active {
+            background: var(--clr-primary-brand);
+            color: white;
+        }
+        .division-badge {
+            background: #e0f2fe;
+            color: #0369a1;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+    </style>
+</head>
+<body class="bg-[var(--clr-base-bg)]">
+
+    <div class="flex h-screen bg-light-teal overflow-hidden">
+        <aside id="sidebar-desktop" class="sidebar-custom hidden lg:flex flex-col flex-shrink-0">
+            <div class="p-4 flex items-center justify-start h-16">
+                <span class="text-2xl font-extrabold text-white">SIMORA</span>
+            </div>
+            <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
+                <a href="admin.html" class="nav-item-custom"><i class="fas fa-chart-line"></i> DASHBOARD</a>
+                <a href="kelola_anggota.html" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
+                <a href="kelola_event.html" class="nav-item-custom"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
+                <a href="kelola_pendaftaran.html" class="nav-item-custom active-dark-bg"><i class="fas fa-user-plus"></i> Kelola Pendaftaran</a>
+                <a href="kalender_kegiatan.html" class="nav-item-custom"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
+                <a href="laporan_kegiatan.html" class="nav-item-custom"><i class="fas fa-chart-bar"></i> Laporan Kegiatan</a>
+            </nav>
+            <div class="p-4 border-t mt-auto border-gray-700">
+                <a href="#" id="btn-logout-desktop" class="btn-logout-custom w-full">
+                    <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            <header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-30 h-16 border-b border-gray-100">
+                <button id="mobile-menu-button" class="lg:hidden text-gray-600 hover:text-gray-900" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div class="flex-1 flex items-center justify-between ml-0 lg:ml-4">
+                    <h1 class="text-xl font-semibold text-gray-800">Kelola Pendaftaran Panitia</h1>
+                    <div class="flex items-center space-x-4">
+                        <a href="buat_event.html" class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
+                            <i class="fas fa-plus mr-2"></i> Buat Event Baru
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Menunggu Approval</p>
+                                <p class="text-2xl font-bold text-amber-600" id="stat-pending">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-clock text-amber-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Disetujui</p>
+                                <p class="text-2xl font-bold text-green-600" id="stat-approved">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-green-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Ditolak</p>
+                                <p class="text-2xl font-bold text-red-600" id="stat-rejected">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-times text-red-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="flex gap-2 flex-wrap">
+                            <button class="filter-btn active px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-filter="all">
+                                Semua
+                            </button>
+                            <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors" data-filter="pending">
+                                Menunggu
+                            </button>
+                            <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors" data-filter="approved">
+                                Disetujui
+                            </button>
+                            <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors" data-filter="rejected">
+                                Ditolak
+                            </button>
+                        </div>
+                        <div class="flex gap-2">
+                            <select class="form-select rounded-lg border-gray-300 text-sm" id="filter-event">
+                                <option value="">Semua Event</option>
+                            </select>
+                            <input type="text" class="form-control rounded-lg border-gray-300 text-sm" placeholder="Cari pendaftar..." id="search-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="loading-state" class="text-center py-12">
+                    <div class="spinner-border text-teal-600" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-gray-500 mt-3">Memuat data pendaftaran...</p>
+                </div>
+
+                <div id="empty-state" class="text-center py-12 hidden">
+                    <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-700">Tidak ada pendaftaran</h3>
+                    <p class="text-gray-500">Belum ada pendaftaran panitia untuk ditampilkan</p>
+                </div>
+
+                <div id="registration-list" class="space-y-4 hidden">
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="sidebar-mobile" class="sidebar-mobile">
+        <div class="flex justify-between items-center p-4 border-b border-teal-700">
+            <span class="text-xl font-bold text-white">SIMORA</span>
+            <button onclick="toggleMobileSidebar()" class="text-white"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
+            <a href="admin.html" class="nav-item-custom"><i class="fas fa-chart-line"></i> DASHBOARD</a>
+            <a href="kelola_anggota.html" class="nav-item-custom"><i class="fas fa-users"></i> Kelola Anggota</a>
+            <a href="kelola_event.html" class="nav-item-custom"><i class="fas fa-calendar-alt"></i> Kelola Event</a>
+            <a href="kelola_pendaftaran.html" class="nav-item-custom active-dark-bg"><i class="fas fa-user-plus"></i> Kelola Pendaftaran</a>
+            <a href="kalender_kegiatan.html" class="nav-item-custom"><i class="fas fa-calendar-check"></i> Kalender Kegiatan</a>
+            <a href="laporan_kegiatan.html" class="nav-item-custom"><i class="fas fa-chart-bar"></i> Laporan Kegiatan</a>
+        </nav>
+        <div class="p-4 border-t border-teal-700">
+            <a href="#" id="btn-logout-mobile" class="btn-logout-custom w-full">
+                <i class="fas fa-arrow-right-from-bracket -rotate-180 mr-2"></i> Keluar
+            </a>
+        </div>
+    </div>
+    <div id="sidebar-mobile-overlay" class="sidebar-mobile-overlay" onclick="toggleMobileSidebar()"></div>
+
+    <div id="detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeDetailModal()"></div>
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 relative z-10 max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">Detail Pendaftaran</h3>
+                    <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div id="detail-content">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeConfirmModal()"></div>
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 relative z-10 p-6 text-center">
+            <div id="confirm-icon" class="mb-4">
+                <i class="fas fa-question-circle text-6xl text-teal-600"></i>
+            </div>
+            <h3 id="confirm-title" class="text-xl font-bold text-gray-800 mb-2">Konfirmasi</h3>
+            <p id="confirm-message" class="text-gray-600 mb-6">Apakah Anda yakin?</p>
+            <div class="flex justify-center gap-3">
+                <button onclick="closeConfirmModal()" class="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                    Batal
+                </button>
+                <button id="confirm-ok-btn" class="px-6 py-2.5 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors">
+                    Ya, Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/logout-helper.js"></script>
+    <script>
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+        const isDotTest = hostname.endsWith('.test');
+        
+        let basePath = '';
+        if (isLocalhost) {
+            basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+        } else if (isDotTest) {
+            basePath = '/kelompok/kelompok_17/src';
+        }
+        
+        const API_BASE = `${basePath}/backend/api`;
+        const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
+
+        let allRegistrations = [];
+        let allEvents = [];
+        let currentFilter = 'all';
+        let currentEventFilter = '';
+        let searchQuery = '';
+        let confirmCallback = null;
+
+        const loadingState = document.getElementById('loading-state');
+        const emptyState = document.getElementById('empty-state');
+        const registrationList = document.getElementById('registration-list');
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuth();
+            await loadEvents();
+            await loadRegistrations();
+            setupEventListeners();
+        });
+
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_BASE}/auth.php?action=me`, {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                if (!response.ok || result.data?.role !== 'admin') {
+                    window.location.href = LOGIN_PAGE;
+                }
+            } catch (error) {
+                window.location.href = LOGIN_PAGE;
+            }
+        }
+
+        async function loadEvents() {
+            try {
+                const response = await fetch(`${API_BASE}/events.php?action=list&limit=100`, {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                if (result.status === 'success' && result.data?.data) {
+                    allEvents = result.data.data;
+                    populateEventFilter();
+                }
+            } catch (error) {
+                console.error('Error loading events:', error);
+            }
+        }
+
+        function populateEventFilter() {
+            const select = document.getElementById('filter-event');
+            allEvents.forEach(event => {
+                const option = document.createElement('option');
+                option.value = event.event_id;
+                option.textContent = event.title;
+                select.appendChild(option);
+            });
+        }
+
+        async function loadRegistrations() {
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE}/registrations.php?action=all`, {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.status === 'success' && result.data) {
+                    allRegistrations = result.data;
+                    updateStats();
+                    renderRegistrations();
+                } else {
+                    showEmpty();
+                }
+            } catch (error) {
+                console.error('Error loading registrations:', error);
+                showEmpty();
+            }
+        }
+
+        function updateStats() {
+            const pending = allRegistrations.filter(r => r.status === 'pending').length;
+            const approved = allRegistrations.filter(r => r.status === 'approved').length;
+            const rejected = allRegistrations.filter(r => r.status === 'rejected').length;
+            
+            document.getElementById('stat-pending').textContent = pending;
+            document.getElementById('stat-approved').textContent = approved;
+            document.getElementById('stat-rejected').textContent = rejected;
+        }
+
+        function filterRegistrations() {
+            return allRegistrations.filter(reg => {
+                const matchStatus = currentFilter === 'all' || reg.status === currentFilter;
+                const matchEvent = !currentEventFilter || reg.event_id == currentEventFilter;
+                const matchSearch = !searchQuery || 
+                    reg.user_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    reg.division?.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchStatus && matchEvent && matchSearch;
+            });
+        }
+
+        function renderRegistrations() {
+            const filtered = filterRegistrations();
+            
+            if (filtered.length === 0) {
+                showEmpty();
+                return;
+            }
+
+            hideLoading();
+            emptyState.classList.add('hidden');
+            registrationList.classList.remove('hidden');
+
+            registrationList.innerHTML = filtered.map(reg => `
+                <div class="registration-card p-4">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+                                    <span class="text-teal-700 font-bold">${getInitials(reg.user_name || 'User')}</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">${reg.user_name || 'Unknown User'}</h4>
+                                    <p class="text-sm text-gray-500">${reg.event_title || 'Unknown Event'}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap mt-2">
+                                <span class="division-badge">${getDivisionName(reg.division)}</span>
+                                <span class="badge-${reg.status} px-2 py-1 rounded text-xs font-medium">
+                                    ${getStatusText(reg.status)}
+                                </span>
+                                <span class="text-xs text-gray-400">
+                                    <i class="fas fa-clock mr-1"></i>${formatDate(reg.registered_at)}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="viewDetail(${reg.registration_id})" class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                                <i class="fas fa-eye mr-1"></i>Detail
+                            </button>
+                            ${reg.status === 'pending' ? `
+                                <button onclick="approveRegistration(${reg.registration_id})" class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-check mr-1"></i>Setujui
+                                </button>
+                                <button onclick="rejectRegistration(${reg.registration_id})" class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors">
+                                    <i class="fas fa-times mr-1"></i>Tolak
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewDetail(id) {
+            const reg = allRegistrations.find(r => r.registration_id === id);
+            if (!reg) return;
+
+            document.getElementById('detail-content').innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3 pb-4 border-b">
+                        <div class="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center">
+                            <span class="text-teal-700 font-bold text-xl">${getInitials(reg.user_name || 'User')}</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-gray-800">${reg.user_name || 'Unknown User'}</h4>
+                            <span class="badge-${reg.status} px-2 py-1 rounded text-xs font-medium">
+                                ${getStatusText(reg.status)}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm text-gray-500">Event</label>
+                        <p class="font-medium text-gray-800">${reg.event_title || 'Unknown Event'}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm text-gray-500">Divisi yang Diminati</label>
+                        <p class="font-medium text-gray-800">${getDivisionName(reg.division)}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm text-gray-500">Alasan Mendaftar</label>
+                        <p class="text-gray-700">${reg.reason || '-'}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm text-gray-500">Pengalaman</label>
+                        <p class="text-gray-700">${reg.experience || '-'}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm text-gray-500">Waktu Pendaftaran</label>
+                        <p class="text-gray-700">${formatDate(reg.registered_at)}</p>
+                    </div>
+                    
+                    ${reg.status === 'pending' ? `
+                        <div class="flex gap-3 pt-4 border-t">
+                            <button onclick="closeDetailModal(); approveRegistration(${reg.registration_id})" class="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                                <i class="fas fa-check mr-2"></i>Setujui
+                            </button>
+                            <button onclick="closeDetailModal(); rejectRegistration(${reg.registration_id})" class="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors">
+                                <i class="fas fa-times mr-2"></i>Tolak
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('detail-modal').classList.remove('hidden');
+            document.getElementById('detail-modal').classList.add('flex');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+            document.getElementById('detail-modal').classList.remove('flex');
+        }
+
+        function approveRegistration(id) {
+            showConfirmModal(
+                'Setujui Pendaftaran',
+                'Anda akan menyetujui pendaftaran ini. Pendaftar akan dapat mengikuti kegiatan sebagai panitia.',
+                async () => {
+                    await updateStatus(id, 'approved');
+                }
+            );
+        }
+
+        function rejectRegistration(id) {
+            showConfirmModal(
+                'Tolak Pendaftaran',
+                'Anda akan menolak pendaftaran ini. Pendaftar tidak dapat bergabung sebagai panitia.',
+                async () => {
+                    await updateStatus(id, 'rejected');
+                }
+            );
+        }
+
+        async function updateStatus(id, status) {
+            try {
+                const response = await fetch(`${API_BASE}/registrations.php?action=update-status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ registration_id: id, status: status })
+                });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    await loadRegistrations();
+                    showToast(status === 'approved' ? 'Pendaftaran berhasil disetujui' : 'Pendaftaran berhasil ditolak', 'success');
+                } else {
+                    showToast(result.message || 'Gagal mengupdate status', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+                showToast('Gagal terhubung ke server', 'error');
+            }
+        }
+
+        function showConfirmModal(title, message, callback) {
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-message').textContent = message;
+            confirmCallback = callback;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+            document.getElementById('confirm-modal').classList.add('flex');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            document.getElementById('confirm-modal').classList.remove('flex');
+            confirmCallback = null;
+        }
+
+        document.getElementById('confirm-ok-btn').addEventListener('click', async () => {
+            if (confirmCallback) {
+                await confirmCallback();
+            }
+            closeConfirmModal();
+        });
+
+        function setupEventListeners() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.classList.add('bg-gray-100', 'text-gray-700');
+                    });
+                    btn.classList.add('active');
+                    btn.classList.remove('bg-gray-100', 'text-gray-700');
+                    currentFilter = btn.dataset.filter;
+                    renderRegistrations();
+                });
+            });
+
+            document.getElementById('filter-event').addEventListener('change', (e) => {
+                currentEventFilter = e.target.value;
+                renderRegistrations();
+            });
+
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                renderRegistrations();
+            });
+        }
+
+        function showLoading() {
+            loadingState.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            registrationList.classList.add('hidden');
+        }
+
+        function hideLoading() {
+            loadingState.classList.add('hidden');
+        }
+
+        function showEmpty() {
+            hideLoading();
+            emptyState.classList.remove('hidden');
+            registrationList.classList.add('hidden');
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(w => w.charAt(0)).join('').substring(0, 2).toUpperCase();
+        }
+
+        function getDivisionName(code) {
+            const divisions = {
+                'acara': 'Sie Acara',
+                'perkap': 'Sie Perlengkapan',
+                'humas': 'Sie Humas',
+                'pubdok': 'Sie Publikasi & Dokumentasi',
+                'konsumsi': 'Sie Konsumsi',
+                'dana': 'Sie Dana',
+                'dekor': 'Sie Dekorasi',
+                'keamanan': 'Sie Keamanan',
+                'lainnya': 'Lainnya'
+            };
+            return divisions[code] || code || 'Tidak Ditentukan';
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'pending': 'Menunggu',
+                'approved': 'Disetujui',
+                'rejected': 'Ditolak'
+            };
+            return texts[status] || status;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function showToast(message, type = 'info') {
+            alert(message);
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar-mobile');
+            const overlay = document.getElementById('sidebar-mobile-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
