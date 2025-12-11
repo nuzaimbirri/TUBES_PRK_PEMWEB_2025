@@ -8,22 +8,27 @@
  * - Very verbose logging & comments, matching style of dashboard.js
  */
 
-/* ================================
-   CONFIGURATION
-   ================================ */
 
-// Base path to backend API (relative like dashboard.js)
-const API_BASE = '../../backend/api';
 
-// Endpoint for member search - if backend differs, change this line
-const SEARCH_ENDPOINT = `${API_BASE}/members.php?action=search`;
+const hostname = window.location.hostname;
+const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+const isDotTest = hostname.endsWith('.test');
 
-// Debug: print computed endpoint
-console.log('📍 pencarian.js - SEARCH_ENDPOINT:', SEARCH_ENDPOINT);
+let basePath = '';
+if (isLocalhost) {
+    basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+} else if (isDotTest) {
+    basePath = '/kelompok/kelompok_17/src';
+}
 
-/* ================================
-   UTILS / HELPERS (reusable)
-   ================================ */
+const API_BASE = `${basePath}/backend/api`;
+const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
+
+const SEARCH_ENDPOINT = `${API_BASE}/auth.php?action=all_members`;
+
+console.log(' pencarian.js - SEARCH_ENDPOINT:', SEARCH_ENDPOINT);
+
+
 
 /**
  * debounce(fn, wait) - return debounced function
@@ -85,9 +90,7 @@ function highlightText(text = '', terms = []) {
   return result;
 }
 
-/* ================================
-   DOM CACHING
-   ================================ */
+
 
 document.addEventListener('DOMContentLoaded', () => {
   // Inputs & controls
@@ -125,9 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Toast container
   const toastContainer = document.getElementById('toastContainer');
 
-  /* ================================
-     STATE
-     ================================ */
+  
   let currentView = 'table'; // 'table' or 'cards'
   let currentPage = 1;
   const PAGE_SIZE = 10;
@@ -138,9 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let totalPages = 1;
   let cache = new Map(); // simple in-memory caching by query+types+page+sort
 
-  /* ================================
-     UI HELPERS
-     ================================ */
+  
 
   function showToast(title, msg, variant = 'info', timeout = 4000) {
     const t = document.createElement('div');
@@ -172,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     c.className = 'chip';
     if (active) c.classList.add('active');
     c.dataset.type = type;
-    c.innerHTML = `${escapeHtml(type)} <span class="remove" aria-hidden="true">✕</span>`;
+    c.innerHTML = `${escapeHtml(type)} <span class="remove" aria-hidden="true"></span>`;
     c.addEventListener('click', (e) => {
       // Toggle selection
       if (selectedTypes.has(type)) {
@@ -317,9 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ================================
-     SMALL UI UTILITIES
-     ================================ */
+  
 
   function getInitials(name = '') {
     if (!name) return 'U';
@@ -374,9 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
   profileModalCloseBtn?.addEventListener('click', closeProfileModalFn);
   profileModalBackdrop?.addEventListener('click', closeProfileModalFn);
 
-  /* ================================
-     CORE SEARCH LOGIC
-     ================================ */
+  
 
   // Build query key for cache
   function buildCacheKey(q, types, page, sort) {
@@ -400,69 +395,91 @@ document.addEventListener('DOMContentLoaded', () => {
     return { total: 0, items: [] };
   }
 
-  // Main function to run search
+  let allMembersCache = [];
+  let allMembersLoaded = false;
+
+  async function loadAllMembers() {
+    if (allMembersLoaded && allMembersCache.length > 0) {
+      return allMembersCache;
+    }
+    
+    const res = await safeFetchJson(SEARCH_ENDPOINT, { method: 'GET' }, 12000);
+    
+    if (!res.ok) {
+      console.error('Failed to load members', res);
+      showToast('Gagal', 'Gagal mengambil data anggota.', 'error', 5000);
+      return [];
+    }
+    
+    const data = res.data;
+    if (data && data.status === 'success' && Array.isArray(data.data)) {
+      allMembersCache = data.data;
+    } else if (Array.isArray(data)) {
+      allMembersCache = data;
+    } else if (data && Array.isArray(data.data)) {
+      allMembersCache = data.data;
+    } else {
+      allMembersCache = [];
+    }
+    
+    allMembersLoaded = true;
+    return allMembersCache;
+  }
+
   async function runSearch() {
-    const rawQuery = (searchInput.value || '').trim();
+    const rawQuery = (searchInput.value || '').trim().toLowerCase();
     const sort = (sortSelect.value || 'relevance');
-    // terms array for highlight (split by whitespace, remove empties)
     const terms = rawQuery.split(/\s+/).filter(Boolean);
 
-    // Update lastQuery
     lastQuery = rawQuery;
 
-    // Build cache key
-    const key = buildCacheKey(rawQuery, selectedTypes, currentPage, sort);
-    // If exist in cache, use it
-    if (cache.has(key)) {
-      const cached = cache.get(key);
-      console.log('📥 Using cached results for', key);
-      handleSearchResults(cached.payload, terms, true);
-      return;
-    }
-
-    // Show skeletons
     showSkeletons(Math.min(PAGE_SIZE, 6));
-    // optimistic: hide empty and table/cards
     emptyState.classList.add('hidden');
     tableView.classList.add('hidden');
     cardsContainer.classList.add('hidden');
 
-    // Build request URL and body
-    // Use GET query parameters for simple search; if results large consider POST
-    const params = new URLSearchParams();
-    if (rawQuery) params.append('q', rawQuery);
-    if (selectedTypes.size > 0) params.append('types', Array.from(selectedTypes).join(','));
-    params.append('page', String(currentPage));
-    params.append('page_size', String(PAGE_SIZE));
-    params.append('sort', sort);
-
-    const url = `${SEARCH_ENDPOINT}&${params.toString()}`;
-    console.log('🔎 Request URL:', url);
-
-    // Use safeFetchJson wrapper (includes credentials)
-    const res = await safeFetchJson(url, { method: 'GET' }, 12000);
-
+    const allMembers = await loadAllMembers();
+    
     clearSkeletons();
-
-    if (!res.ok) {
-      // show network/server error
-      console.error('Search request failed', res);
-      showToast('Gagal', 'Gagal mengambil data. Periksa koneksi atau server.', 'error', 5000);
-      // keep previous results if any
+    
+    if (!allMembers || allMembers.length === 0) {
+      handleSearchResults({ items: [], total: 0 }, terms, false);
       return;
     }
-
-    // normalize
-    const norm = normalizeServerResults(res.data);
-    totalResults = norm.total || 0;
-    lastResults = norm.items || [];
+    
+    let filtered = allMembers;
+    
+    if (rawQuery) {
+      filtered = allMembers.filter(m => {
+        const fullName = (m.full_name || '').toLowerCase();
+        const email = (m.email || '').toLowerCase();
+        const npm = (m.npm || '').toLowerCase();
+        const username = (m.username || '').toLowerCase();
+        return fullName.includes(rawQuery) || 
+               email.includes(rawQuery) || 
+               npm.includes(rawQuery) ||
+               username.includes(rawQuery);
+      });
+    }
+    
+    if (selectedTypes.size > 0) {
+      filtered = filtered.filter(m => {
+        const role = (m.role || 'anggota').toLowerCase();
+        return selectedTypes.has(role);
+      });
+    }
+    
+    if (sort === 'name') {
+      filtered.sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
+    } else if (sort === 'name-desc') {
+      filtered.sort((a, b) => (b.full_name || '').localeCompare(a.full_name || ''));
+    }
+    
+    totalResults = filtered.length;
+    lastResults = filtered;
     totalPages = Math.max(1, Math.ceil(totalResults / PAGE_SIZE));
-
-    // store to cache
-    cache.set(key, { payload: res.data, ts: Date.now() });
-
-    // render
-    handleSearchResults(res.data, terms, false);
+    
+    handleSearchResults({ items: filtered, total: filtered.length }, terms, false);
   }
 
   // handle results and render to correct view
@@ -504,9 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* ================================
-     EVENT BINDINGS / UX
-     ================================ */
+  
 
   // Debounced search handler (used on input)
   const debouncedSearch = debounce(() => {
@@ -574,10 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tableView.classList.add('hidden');
   });
 
-  /* ================================
-     INITIALIZE FILTER CHIPS (tipe keanggotaan)
-     - We create default chips; if backend has dynamic types, replace with API call
-     ================================ */
+  
 
   const defaultTypes = ['anggota', 'admin', 'pengurus', 'alumni', 'calon'];
   defaultTypes.forEach(t => {
@@ -585,9 +597,7 @@ document.addEventListener('DOMContentLoaded', () => {
     typeChipsEl.appendChild(chip);
   });
 
-  /* ================================
-     LOAD DEFAULT (initial) - show popular members / recent ones
-     ================================ */
+  
   (function init() {
     // initial skeletons
     showSkeletons(4);
@@ -596,12 +606,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // For now we run an empty search to fetch first page
     currentPage = 1;
     runSearch();
-    console.log('✅ pencarian.js initialized');
+    console.log(' pencarian.js initialized');
   })();
 
-  /* ================================
-     CLEANUP / UTIL: cache maintenance
-     ================================ */
+  
   // expire cache older than 5 minutes periodically
   setInterval(() => {
     const now = Date.now();

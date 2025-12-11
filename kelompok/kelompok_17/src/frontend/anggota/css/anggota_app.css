@@ -1,16 +1,6 @@
-/* =========================================================
-   APPEND: ANTIQUE — SUPER-MAXIMAL EXTENSIONS (Option C)
-   Append-only: Do NOT remove previous content. This block
-   adds per-feature components, advanced utilities,
-   accessibility & interaction helpers, and examples.
-   Target: pencarian, pendaftaran, presensi, profil + global
-   ========================================================= */
 
-/* -------------------------
-   LARGE THEME HELPERS (meta)
-   ------------------------- */
 :root{
-  /* micro scale for animation timings & spacing */
+  
   --easing-default: cubic-bezier(.2,.9,.2,1);
   --micro: 120ms;
   --tiny: 180ms;
@@ -18,7 +8,7 @@
   --medium: 420ms;
   --long: 650ms;
 
-  /* scale */
+  
   --space-xxs:4px; --space-xs:8px; --space-sm:12px; --space-md:16px;
   --space-lg:24px; --space-xl:32px; --space-xxl:48px;
 
@@ -26,15 +16,9 @@
   --glass-border: rgba(255,255,255,0.025);
 }
 
-/* -------------------------
-   FORMAT & PRETTY PRINT
-   ------------------------- */
 * { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
 code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; background: rgba(0,0,0,0.12); padding:4px 6px; border-radius:6px; }
 
-/* -------------------------
-   TYPOGRAPHY EXTENSIONS
-   ------------------------- */
 .h0 { font-size:2.6rem; font-weight:900; line-height:1.05; letter-spacing:-0.6px; }
 .h1 { font-size:2.1rem; font-weight:900; line-height:1.06; }
 .h2 { font-size:1.8rem; font-weight:800; }
@@ -42,49 +26,33 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mo
 .h5 { font-size:0.98rem; font-weight:700; }
 .caption { font-size:0.85rem; color:var(--text-secondary); }
 
-/* -------------------------
-   FULL SPACING UTILS
-   ------------------------- */
 .p-1{padding:4px} .p-2{padding:8px} .p-3{padding:12px} .p-4{padding:16px} .p-5{padding:20px} .p-6{padding:24px}
 .pt-1{padding-top:4px} .pt-2{padding-top:8px} .pt-3{padding-top:12px}
 .pb-1{padding-bottom:4px} .pb-2{padding-bottom:8px} .pb-3{padding-bottom:12px}
 .pl-1{padding-left:4px} .pl-2{padding-left:8px} .pl-3{padding-left:12px}
 .pr-1{padding-right:4px} .pr-2{padding-right:8px} .pr-3{padding-right:12px}
 
-/* margin */
 .m-1{margin:4px} .m-2{margin:8px} .m-3{margin:12px} .m-4{margin:16px} .m-5{margin:20px}
 
-/* gap helpers */
 .gap-4{gap:16px} .gap-3{gap:12px} .gap-2{gap:8px}
 
-/* -------------------------
-   FLEX / LAYOUT ADVANCED
-   ------------------------- */
 .center { display:flex; align-items:center; justify-content:center; }
 .v-center { display:flex; align-items:center; }
 .h-stack { display:flex; gap:12px; align-items:center; }
 .v-stack { display:flex; flex-direction:column; gap:12px; }
 .grid-auto { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:14px; }
 
-/* container helpers */
 .container-narrow { max-width:900px; margin:0 auto; padding:0 16px; }
 .container-wide { max-width:1400px; margin:0 auto; padding:0 18px; }
 
-/* -------------------------
-   INTERACTION STATES
-   ------------------------- */
 .clickable { cursor:pointer; transition: all var(--short); }
 .clickable:active { transform: translateY(1px); }
 .focus-ring { box-shadow: 0 6px 20px rgba(59,130,246,0.08); border-color: var(--accent-blue); }
 
-/* -------------------------
-   FORM ENHANCEMENTS (states + addons)
-   ------------------------- */
 .input-group { display:flex; align-items:center; gap:8px; }
 .input-addon { padding:10px 12px; border-radius:10px; background: rgba(255,255,255,0.02); border:1px solid var(--border-color); color:var(--text-secondary); }
 .input.with-addon { padding-right:44px; }
 
-/* floating labels */
 .field { position:relative; }
 .field .label-float {
   position:absolute; left:14px; top:12px; transform-origin:left top; transition: all var(--short);
@@ -98,16 +66,11 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mo
   background: transparent; padding:2px 6px;
 }
 
-/* validation states */
 .is-valid { border-color: rgba(16,185,129,0.22) !important; box-shadow: 0 6px 20px rgba(16,185,129,0.06); }
 .is-invalid { border-color: rgba(239,68,68,0.22) !important; box-shadow: 0 6px 20px rgba(239,68,68,0.06); }
 
-/* help text small */
 .form-note { font-size:0.85rem; color:var(--text-secondary); }
 
-/* -------------------------
-   FORMS: file uploader
-   ------------------------- */
 .uploader {
   border: 1px dashed rgba(255,255,255,0.04);
   border-radius:12px; padding:18px; display:flex; gap:12px; align-items:center; justify-content:space-between;
@@ -117,12 +80,8 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mo
 .uploader .meta { flex:1; color:var(--text-secondary); }
 .uploader.dragover { border-color: var(--accent-blue); background: linear-gradient(180deg, rgba(59,130,246,0.02), transparent); }
 
-/* image preview in uploader */
 .img-preview { max-width:100%; max-height:160px; object-fit:cover; border-radius:8px; display:block; }
 
-/* -------------------------
-   AVATAR UPLOADER (profile)
-   ------------------------- */
 .avatar-upload {
   position:relative; width:120px; height:120px; border-radius:50%; overflow:hidden; display:inline-block;
   border: 2px solid var(--soft-border);
@@ -134,15 +93,9 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mo
   border:1px solid var(--border-color); cursor:pointer;
 }
 
-/* -------------------------
-   PROFILE: editable mode helpers
-   ------------------------- */
 .profile-editable .profile-photo { border:2px dashed var(--border-color); }
 .profile-editable .profile-actions { margin-top:12px; display:flex; gap:8px; justify-content:center; }
 
-/* -------------------------
-   PENCARIAN (search) - COMPONENTS
-   ------------------------- */
 .search-page {
   display:flex; flex-direction:column; gap:18px;
 }
@@ -156,7 +109,6 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mo
 .search-input::placeholder{ color: rgba(255,255,255,0.22); }
 .search-btn { padding:10px 16px; border-radius:10px; border:none; background:var(--accent-blue); color:#fff; font-weight:700; }
 
-/* results grid/cards */
 .search-results { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .result-card {
   background: linear-gradient(180deg, var(--bg-card), var(--bg-card-hover));
@@ -164,42 +116,29 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mo
 }
 .result-card:hover { transform: translateY(-6px); }
 
-/* result meta row */
 .result-meta { display:flex; gap:10px; align-items:center; color:var(--text-secondary); font-size:0.92rem; }
 
-/* highlight term */
 .highlight { background: linear-gradient(90deg, rgba(59,130,246,0.12), rgba(139,92,246,0.07)); padding:0 6px; border-radius:6px; color:var(--text-primary); }
 
-/* empty search */
 .search-empty { padding:30px; border-radius:12px; text-align:center; border:1px dashed var(--border-color); color:var(--text-secondary); }
 
-/* -------------------------
-   PENDAFTARAN (registration) - COMPONENTS
-   ------------------------- */
 .registration-page { display:flex; gap:18px; align-items:flex-start; }
 .registration-form { flex:1; }
 .reg-aside { width:320px; min-width:250px; }
 
 .field-helper { color:var(--text-secondary); font-size:0.9rem; margin-top:6px; }
 
-/* multi-step wizard styles (specific for pendaftaran) */
 .wizard-steps { display:flex; gap:10px; align-items:center; margin-bottom:18px; }
 .wizard-step { padding:10px 14px; border-radius:10px; background:rgba(255,255,255,0.02); color:var(--text-secondary); font-weight:700; min-width:140px; display:flex; align-items:center; justify-content:center; }
 .wizard-step.active { background: linear-gradient(180deg, var(--accent-blue), var(--accent-blue-600)); color:#fff; }
 
-/* price / fee badge (if event paid) */
 .fee-badge { padding:8px 12px; border-radius:12px; background: rgba(255,255,255,0.02); font-weight:800; color:var(--text-primary); }
 
-/* form grid for registration */
 .form-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
 @media (max-width:720px){ .form-grid { grid-template-columns: 1fr; } }
 
-/* preview card for pendaftaran confirmation */
 .registration-preview { border-radius:12px; padding:14px; border:1px solid var(--border-color); background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); }
 
-/* -------------------------
-   PRESENSI (attendance) - COMPONENTS
-   ------------------------- */
 .presensi-page { display:flex; flex-direction:column; gap:16px; }
 .presensi-list { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .presensi-item {
@@ -209,25 +148,19 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mo
 .presensi-info { display:flex; gap:12px; align-items:center; }
 .presensi-actions { display:flex; gap:8px; align-items:center; }
 
-/* timeline for attendance history */
 .timeline { display:flex; flex-direction:column; gap:12px; }
 .timeline-item { display:flex; gap:12px; align-items:flex-start; }
 .timeline-dot { width:10px; height:10px; border-radius:50%; background:var(--accent-blue); margin-top:6px; }
 .timeline-content { background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); padding:10px 12px; border-radius:8px; border:1px solid var(--border-color); }
 
-/* presensi badge large */
 .presensi-badge-lg { padding:10px 14px; border-radius:12px; font-weight:800; background:var(--blue-soft); color:var(--accent-blue); }
 
-/* quick action floating (take attendance) */
 .presensi-fab {
   position: fixed; right:20px; bottom:28px; z-index:1400; width:64px; height:64px; border-radius:16px;
   background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)); display:flex; align-items:center; justify-content:center;
   color:white; font-weight:900; box-shadow: var(--shadow-lg);
 }
 
-/* -------------------------
-   PROFIL (profile) - COMPONENTS
-   ------------------------- */
 .profile-page { display:grid; grid-template-columns: 280px 1fr; gap:20px; align-items:start; }
 @media (max-width:900px) { .profile-page { grid-template-columns: 1fr; } }
 
@@ -235,16 +168,11 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mo
 .profile-details-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
 .kv-compact { display:flex; flex-direction:column; gap:6px; }
 
-/* editable text area */
 .editable { border-bottom:1px dashed rgba(255,255,255,0.03); padding:4px 0; }
 .editable[contenteditable="true"] { outline:none; padding:6px; border-radius:6px; }
 
-/* privacy / visibility tag */
 .privacy { font-size:0.85rem; color:var(--text-secondary); }
 
-/* -------------------------
-   COMPONENT: DROPDOWN MENU (advanced)
-   ------------------------- */
 .dropdown-adv { position:relative; display:inline-block; }
 .dropdown-adv .menu {
   position:absolute; top:calc(100% + 8px); right:0; min-width:220px;
@@ -255,175 +183,92 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mo
 .dropdown-adv .menu a { display:block; padding:10px 12px; color:var(--text-primary); text-decoration:none; border-radius:8px; }
 .dropdown-adv .menu a:hover { background: rgba(255,255,255,0.02); color:var(--text-primary); }
 
-/* -------------------------
-   COMPONENT: COLLAPSIBLE / ACCORDION
-   ------------------------- */
 .accordion { border-radius:10px; overflow:hidden; border:1px solid var(--soft-border); background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); }
 .accordion .acc-item + .acc-item { border-top:1px solid var(--soft-border); }
 .acc-head { padding:12px 14px; display:flex; gap:12px; align-items:center; justify-content:space-between; cursor:pointer; }
 .acc-body { padding:12px 14px; display:none; }
 .acc-item.open .acc-body { display:block; animation:fadeInUp .28s var(--easing-default); }
 
-/* -------------------------
-   COMPONENT: TABS (extended)
-   ------------------------- */
 .tabs-vertical { display:flex; gap:12px; align-items:flex-start; }
 .tabs-vertical .nav { min-width:180px; display:flex; flex-direction:column; gap:8px; }
 .tabs-vertical .nav .tab { padding:10px 12px; border-radius:10px; }
 .tabs-vertical .content { flex:1; padding:12px; border-radius:10px; border:1px solid var(--soft-border); background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); }
 
-/* -------------------------
-   COMPONENT: COLLAPSIBLE SIDEBAR (mobile)
-   ------------------------- */
 .sidebar-collapsible { position:fixed; left:0; top:0; bottom:0; width:320px; transform: translateX(-100%); transition: transform var(--short) var(--easing-default); z-index:1600; background:var(--bg-card); border-right:1px solid var(--soft-border); padding:16px; }
 .sidebar-collapsible.open { transform: translateX(0); }
 
-/* -------------------------
-   COMPONENT: PROGRESS / STEPPER
-   ------------------------- */
 .progress { width:100%; background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); border-radius:999px; height:10px; overflow:hidden; border:1px solid var(--soft-border); }
 .progress .bar { height:100%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)); width:0%; transition: width var(--medium) var(--easing-default); }
 
-/* stepper */
 .stepper { display:flex; gap:18px; align-items:center; }
 .stepper .node { width:36px; height:36px; border-radius:50%; background: rgba(255,255,255,0.02); display:inline-grid; place-items:center; font-weight:800; }
 .stepper .node.done { background:var(--accent-blue); color:#fff; }
 
-/* -------------------------
-   TABLE: ADVANCED SORT / FILTER HEADERS
-   ------------------------- */
 .table thead th.sortable { cursor:pointer; user-select:none; }
 .table thead th.sortable:after { content: "▴▾"; font-size:0.7rem; margin-left:8px; color:rgba(255,255,255,0.06); display:inline-block; transform:translateY(-1px); }
 .table thead th.sorted-asc:after { content:"▴"; color:var(--accent-blue); }
 .table thead th.sorted-desc:after { content:"▾"; color:var(--accent-blue); }
 
-/* -------------------------
-   FILTERS: range, date, tags
-   ------------------------- */
 .filter-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:8px 0; }
 .range { display:flex; gap:8px; align-items:center; }
 .range input[type="range"] { -webkit-appearance:none; width:160px; height:6px; background: rgba(255,255,255,0.03); border-radius:999px; outline:none; }
 
-/* date picker helper (styling only) */
 .date-input { padding:10px 12px; border-radius:10px; border:1px solid var(--border-color); background:transparent; color:var(--text-primary); }
 
-/* -------------------------
-   UTILITY: DARK/LIGHT THEME SWITCH (class based)
-   ------------------------- */
 .theme-light body, .theme-light .card, .theme-light .modal { background: #ffffff; color:#111827; }
 .theme-light :root { --text-primary: #0f172a; --text-secondary:#475569; --border-color: rgba(15,23,42,0.06); }
 
-/* -------------------------
-   ANIMATIONS: micro-interactions
-   ------------------------- */
 @keyframes floatUp { from { transform: translateY(6px); opacity:0 } to { transform: translateY(0); opacity:1 } }
 .float-up { animation: floatUp .36s var(--easing-default) both; }
 
-/* small icon pop */
 .icon-pop { display:inline-block; transform-origin:center; transition: transform .18s var(--easing-default); }
 .icon-pop:hover { transform: scale(1.06); }
 
-/* small pulse */
 @keyframes pulse-soft { 0% { transform: scale(0.98); opacity:.9 } 50% { transform: scale(1.02); opacity:1 } 100% { transform: scale(0.98); opacity:.95 } }
 .pulse-soft { animation: pulse-soft 2.2s infinite ease-in-out; }
 
-/* -------------------------
-   ACCESSIBILITY: high-contrast mode
-   ------------------------- */
 .high-contrast { filter: contrast(1.1) saturate(1.02); }
 .high-contrast .btn-primary { filter: none; }
 
-/* -------------------------
-   UTILITY: visually hidden but focusable
-   ------------------------- */
 .visually-hidden { position:absolute !important; clip: rect(1px, 1px, 1px, 1px); padding:0; border:0; height:1px; width:1px; overflow:hidden; white-space:nowrap; }
 
-/* -------------------------
-   DATA-VIS: mini stat widgets
-   ------------------------- */
 .stat-widget { display:flex; gap:12px; align-items:center; background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); padding:12px; border-radius:12px; border:1px solid var(--border-color); }
 .stat-widget .value { font-size:1.3rem; font-weight:800; }
 .stat-widget .label { color:var(--text-secondary); }
 
-/* -------------------------
-   UTILITY: RTL support (basic)
-   ------------------------- */
 [dir="rtl"] .h-stack { flex-direction:row-reverse; }
 [dir="rtl"] .search-input { direction: rtl; }
 
-/* -------------------------
-   EXAMPLES: per-feature helper styles
-   (styles here are optional helpers for the JS you will write)
-   ------------------------- */
-
-/* Pencarian helpers */
 .pencarian-filter-bar { display:flex; gap:10px; align-items:center; justify-content:space-between; }
 .pencarian-filter-left { display:flex; gap:8px; align-items:center; }
 
-/* Pendaftaran helpers */
 .pendaftaran-summary { display:flex; gap:16px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; }
 .pendaftaran-summary .meta { color:var(--text-secondary); font-weight:700; }
 
-/* Presensi helpers */
 .presensi-stats { display:flex; gap:12px; align-items:center; }
 .presensi-legend { display:flex; gap:8px; align-items:center; }
 
-/* Profil helpers */
 .profile-links { display:flex; gap:10px; flex-wrap:wrap; }
 .profile-action { padding:8px 12px; border-radius:10px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); }
 
-/* -------------------------
-   PRINTABLE: export friendy
-   ------------------------- */
 .exportable { display:flex; gap:8px; align-items:center; }
 @media print { .no-print, .presensi-fab, .toast-container, .dropdown-adv .menu { display:none !important; } }
 
-/* -------------------------
-   PERFORMANCE: will-change hints
-   ------------------------- */
 .will-change-transform { will-change: transform; }
 .will-change-opacity { will-change: opacity; }
 
-/* -------------------------
-   JS HOOKS (class names your JS can toggle)
-   ------------------------- */
 .js-show { display:block !important; }
 .js-hide { display:none !important; }
 .js-loading { opacity:.6; pointer-events:none; }
 
-/* -------------------------
-   ERROR / OFFLINE BANNER
-   ------------------------- */
 .offline-banner {
   position: fixed; left:50%; transform:translateX(-50%); top:20px; z-index:1600;
   background: linear-gradient(90deg, var(--accent-red), #d63b3b); color:#fff; padding:8px 14px; border-radius:12px; box-shadow: var(--shadow-md);
 }
 
-/* -------------------------
-   LOCALIZED SMALL COMPONENTS
-   ------------------------- */
-/* mini calendar chip */
 .calendar-chip { padding:8px 10px; border-radius:10px; background: rgba(255,255,255,0.02); display:inline-flex; gap:8px; align-items:center; }
 .calendar-chip .day { font-size:1.2rem; font-weight:800; }
 
-/* mini avatar stack */
 .stack-avatars { display:flex; gap:-10px; align-items:center; }
 .stack-avatars .avatar { border:2px solid var(--bg-card); }
 
-/* -------------------------
-   END: super-maximal block
-   ========================================================= */
-
-/* Extra: polite comment
-   - This appended block is intentionally modular and uses existing variables.
-   - All classes are additive; nothing changes previous definitions.
-   - Use JS to toggle classes like .open, .is-loading, .is-invalid, .toast.success / .toast.error, etc.
-   - If you want, I can also produce a small JS helper file (ui_helpers.js) that:
-     - shows toasts,
-     - handles modals,
-     - toggles dropdowns,
-     - handles file preview for uploader,
-     - and provides a tiny pagination helper.
-*/
-
-/* EOF - Append-only super-maximal additions */

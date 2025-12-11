@@ -1,9 +1,5 @@
-/* ========================================
-   SIMORA Kalender - Calendar Specific Styles
-   Uses variables from dashboard.css
-   ======================================== */
 
-/* Calendar Header */
+
 .calendar-header {
     margin-bottom: 32px;
 }
@@ -14,9 +10,6 @@
     gap: 8px;
 }
 
-/* ========================================
-   CALENDAR SECTION
-   ======================================== */
 .calendar-section {
     margin-bottom: 40px;
 }
@@ -29,7 +22,6 @@
     overflow: hidden;
 }
 
-/* Calendar Controls */
 .calendar-controls {
     display: flex;
     justify-content: space-between;
@@ -74,16 +66,12 @@
     transform: scale(0.95);
 }
 
-/* ========================================
-   CALENDAR GRID - Using CSS Grid
-   ======================================== */
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 8px;
 }
 
-/* Day Headers (Min, Sen, Sel, etc.) */
 .calendar-day-header {
     text-align: center;
     padding: 12px 8px;
@@ -94,7 +82,6 @@
     letter-spacing: 0.5px;
 }
 
-/* Day Cells */
 .calendar-day {
     aspect-ratio: 1;
     min-height: 80px;
@@ -146,7 +133,6 @@
     border-color: rgba(59, 130, 246, 0.3);
 }
 
-/* Day Number */
 .day-number {
     font-size: 0.9rem;
     font-weight: 500;
@@ -154,7 +140,6 @@
     margin-bottom: 4px;
 }
 
-/* Event Tags inside day cells */
 .day-events {
     flex: 1;
     display: flex;
@@ -200,7 +185,6 @@
     transform: scale(1.02);
 }
 
-/* More events indicator */
 .more-events {
     font-size: 0.65rem;
     color: var(--text-muted);
@@ -212,9 +196,6 @@
     color: var(--accent-blue);
 }
 
-/* ========================================
-   EVENTS SIDEBAR
-   ======================================== */
 .events-sidebar {
     background: var(--bg-card);
     border-radius: var(--border-radius-lg);
@@ -309,7 +290,6 @@
     gap: 4px;
 }
 
-/* No events message */
 .no-events {
     text-align: center;
     padding: 32px 16px;
@@ -322,9 +302,6 @@
     opacity: 0.5;
 }
 
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
 @media (max-width: 1024px) {
     .calendar-day {
         min-height: 70px;
@@ -398,7 +375,7 @@
         display: none;
     }
     
-    /* Show dot indicator instead of text on very small screens */
+    
     .calendar-day.has-event::after {
         content: '';
         position: absolute;
@@ -417,9 +394,6 @@
     }
 }
 
-/* ========================================
-   ANIMATIONS
-   ======================================== */
 @keyframes slideIn {
     from {
         opacity: 0;
@@ -441,7 +415,6 @@
 .calendar-day:nth-child(n+29) { animation-delay: 0.08s; }
 .calendar-day:nth-child(n+36) { animation-delay: 0.1s; }
 
-/* Calendar transition when changing months */
 .calendar-grid.fade-out {
     opacity: 0;
     transform: scale(0.98);
@@ -454,7 +427,6 @@
     transition: all 0.2s ease;
 }
 
-/* Event Modal (optional enhancement) */
 .event-modal-overlay {
     position: fixed;
     inset: 0;

@@ -12,23 +12,29 @@
  * NOTE: adjust API endpoints if backend uses different file/action
  */
 
-/* ================================
-   CONFIG
-   ================================ */
 
-// Base API path (relative like dashboard)
-const API_BASE = '../../backend/api';
 
-// Endpoints (change if server uses different names)
-const API_LIST_EVENTS = `${API_BASE}/events.php?action=upcoming`; // read-only list of events
-const API_REGISTER_URL = `${API_BASE}/events.php?action=register`; // register for event (POST)
+const hostname = window.location.hostname;
+const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+const isDotTest = hostname.endsWith('.test');
 
-console.log('📍 pendaftaran.js - API_LIST_EVENTS', API_LIST_EVENTS);
-console.log('📍 pendaftaran.js - API_REGISTER_URL', API_REGISTER_URL);
+let basePath = '';
+if (isLocalhost) {
+    basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+} else if (isDotTest) {
+    basePath = '/kelompok/kelompok_17/src';
+}
 
-/* ================================
-   Helpers (utilities)
-   ================================ */
+const API_BASE = `${basePath}/backend/api`;
+const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
+
+const API_LIST_EVENTS = `${API_BASE}/events.php?action=upcoming`;
+const API_REGISTER_URL = `${API_BASE}/events.php?action=register`;
+
+console.log(' pendaftaran.js - API_LIST_EVENTS', API_LIST_EVENTS);
+console.log(' pendaftaran.js - API_REGISTER_URL', API_REGISTER_URL);
+
+
 
 /**
  * safeFetchJson - fetch wrapper with timeout + credentials include
@@ -71,9 +77,7 @@ function escapeHtml(str = '') {
     .replace(/>/g, '&gt;');
 }
 
-/* ================================
-   DOM cache
-   ================================ */
+
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -108,9 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Toast
   const toastContainer = document.getElementById('toastContainer');
 
-  /* ================================
-     STATE
-  ================================ */
+  
   let currentPage = 1;
   const PAGE_SIZE = 8;
   let totalPages = 1;
@@ -118,9 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let totalItems = 0;
   let eventCache = new Map(); // cache by query+filters+page (simple)
 
-  /* ================================
-     UI Helpers
-  ================================ */
+  
 
   function showToast(title, message, variant = 'info', timeout = 4200) {
     const t = document.createElement('div');
@@ -172,9 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* ================================
-     Renderers: grid & table
-  ================================ */
+  
 
   function renderEventsGrid(events = []) {
     eventsGrid.innerHTML = '';
@@ -266,9 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ================================
-     Modal: open / close / populate
-  ================================ */
+  
 
   function openRegisterModal(eventId) {
     // find event in lastEvents
@@ -334,9 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
   registerCancelBtn?.addEventListener('click', closeRegisterModalFn);
   registerModalBackdrop?.addEventListener('click', closeRegisterModalFn);
 
-  /* ================================
-     Core: register flow (confirm -> post)
-  ================================ */
+  
 
   async function doRegister(eventId) {
     // Get form data from modal
@@ -422,10 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => doRegister(eventId), 120);
   });
 
-  /* ================================
-     Cancel registration (optional)
-     If backend supports cancellation, call the endpoint. For now: optimistic.
-  ================================ */
+  
 
   async function cancelRegistration(eventId) {
     // TODO: Replace with proper API endpoint if exists (attendance.php?action=cancel)
@@ -460,9 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* ================================
-     Pagination utilities (local fallback)
-  ================================ */
+  
 
   function paginateLocalResults() {
     // If server returns only current page, use it directly
@@ -473,9 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return items.slice(start, start + PAGE_SIZE);
   }
 
-  /* ================================
-     MAIN: fetch events list with filters
-  ================================ */
+  
 
   async function runListEvents() {
     const q = (searchInput.value || '').trim();
@@ -560,9 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* ================================
-     EVENTS: bindings
-  ================================ */
+  
 
   // search debounce
   let searchTimer;
@@ -602,20 +587,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentPage < totalPages) { currentPage += 1; runListEvents(); }
   });
 
-  /* ================================
-     INITIALIZE
-  ================================ */
+  
 
   (function init() {
     // initial skeleton and load
     showSkeletonCards(4);
     runListEvents();
-    console.log('✅ pendaftaran.js initialized');
+    console.log(' pendaftaran.js initialized');
   })();
 
-  /* ================================
-     Periodic cache clean
-  ================================ */
+  
   setInterval(() => {
     const now = Date.now();
     for (const [k, v] of eventCache.entries()) {

@@ -4,18 +4,31 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // ========================================
+    
     // CONFIGURATION
-    // ========================================
-    const API_BASE = '../../backend/api';
+    
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isDotTest = hostname.endsWith('.test');
+    
+    let basePath = '';
+    if (isLocalhost) {
+        basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+    } else if (isDotTest) {
+        basePath = '/kelompok/kelompok_17/src';
+    }
+    
+    const API_BASE = `${basePath}/backend/api`;
+    const UPLOAD_BASE = basePath.replace('/src', '/upload');
+    const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
 
     // Store current user data
     let currentUser = null;
     let currentProfile = null;
 
-    // ========================================
+    
     // MODAL MANAGEMENT
-    // ========================================
+    
     const modalManager = {
         editProfile: {
             overlay: document.getElementById('modalOverlay'),
@@ -46,12 +59,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         modal.modal.classList.remove('active');
     };
 
-    // ========================================
+    
     // 1. AUTHENTICATION CHECK
-    // ========================================
+    
     const checkAuth = async () => {
         try {
-            console.log('🔍 Checking authentication...');
+            console.log(' Checking authentication...');
             const response = await fetch(`${API_BASE}/auth.php?action=me`, {
                 method: 'GET',
                 credentials: 'include'
@@ -60,27 +73,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             const result = await response.json();
 
             if (!response.ok || result.status !== 'success') {
-                console.error('❌ Auth failed');
-                window.location.href = '../auth/login.html';
+                console.error(' Auth failed');
+                window.location.href = LOGIN_PAGE;
                 return null;
             }
 
-            console.log('✅ Auth successful');
+            console.log(' Auth successful');
             currentUser = result.data;
             return currentUser;
         } catch (error) {
-            console.error('❌ Auth Error:', error);
-            window.location.href = '../auth/login.html';
+            console.error(' Auth Error:', error);
+            window.location.href = LOGIN_PAGE;
             return null;
         }
     };
 
-    // ========================================
+    
     // 2. LOAD PROFILE DATA
-    // ========================================
+    
     const loadProfile = async () => {
         try {
-            console.log('📥 Loading profile data...');
+            console.log('� Loading profile data...');
             const response = await fetch(`${API_BASE}/profile.php?action=me`, {
                 method: 'GET',
                 credentials: 'include'
@@ -89,22 +102,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             const result = await response.json();
 
             if (!response.ok || result.status !== 'success') {
-                console.error('❌ Failed to load profile:', result.message);
+                console.error(' Failed to load profile:', result.message);
                 return null;
             }
 
             currentProfile = result.data;
-            console.log('✅ Profile loaded:', currentProfile);
+            console.log(' Profile loaded:', currentProfile);
             return currentProfile;
         } catch (error) {
-            console.error('❌ Load Profile Error:', error);
+            console.error(' Load Profile Error:', error);
             return null;
         }
     };
 
-    // ========================================
+    
     // 3. DISPLAY PROFILE INFORMATION
-    // ========================================
+    
     const displayProfile = (user, profile) => {
         // Update navbar
         document.getElementById('navUsername').textContent = profile?.full_name || user.username;
@@ -161,14 +174,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('formPhone').value = profile?.phone_number || '';
         document.getElementById('formAddress').value = profile?.address || '';
         document.getElementById('formDepartment').value = profile?.department || '';
+
+        if (profile?.profile_photo) {
+            const photoUrl = `${UPLOAD_BASE}/profile/${profile.profile_photo}`;
+            const photoImage = document.getElementById('photoImage');
+            const photoPlaceholder = document.getElementById('photoPlaceholder');
+            if (photoImage) {
+                photoImage.src = photoUrl;
+                photoImage.style.display = 'block';
+                if (photoPlaceholder) photoPlaceholder.style.display = 'none';
+            }
+            updateAvatarWithPhoto(photoUrl);
+        }
     };
 
-    // ========================================
+    const updateAvatarWithPhoto = (photoUrl) => {
+        const userAvatar = document.getElementById('userAvatar');
+        const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+        
+        if (userAvatar) {
+            userAvatar.innerHTML = `<img src="${photoUrl}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        }
+        if (profileAvatarLarge) {
+            profileAvatarLarge.innerHTML = `<img src="${photoUrl}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        }
+    };
+
+    
     // 4. LOAD ATTENDANCE STATISTICS
-    // ========================================
+    
     const loadAttendanceStats = async () => {
         try {
-            console.log('📊 Loading attendance statistics...');
+            console.log('� Loading attendance statistics...');
             const response = await fetch(`${API_BASE}/attendance.php?action=statistics`, {
                 method: 'GET',
                 credentials: 'include'
@@ -199,10 +236,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     document.getElementById('progressAlpa').style.width = alpaPercent + '%';
                 }
 
-                console.log('✅ Attendance stats loaded');
+                console.log(' Attendance stats loaded');
             }
         } catch (error) {
-            console.error('❌ Error loading attendance stats:', error);
+            console.error(' Error loading attendance stats:', error);
         }
     };
 
@@ -229,9 +266,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         requestAnimationFrame(updateValue);
     };
 
-    // ========================================
+    
     // 5. EDIT PROFILE HANDLER
-    // ========================================
+    
     const initEditProfileHandler = () => {
         const btnEdit = document.getElementById('btnEditProfile');
 
@@ -301,7 +338,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     submitBtn.textContent = originalText;
                 }
             } catch (error) {
-                console.error('❌ Edit Profile Error:', error);
+                console.error(' Edit Profile Error:', error);
                 showMessage('formMessage', 'Terjadi kesalahan: ' + error.message, 'error');
                 const submitBtn = modalManager.editProfile.submit;
                 if (submitBtn) {
@@ -312,9 +349,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    // ========================================
+    
     // 6. CHANGE PASSWORD HANDLER
-    // ========================================
+    
     const initChangePasswordHandler = () => {
         const btnChange = document.getElementById('btnChangePassword');
 
@@ -363,7 +400,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        old_password: oldPassword,
+                        current_password: oldPassword,
                         new_password: newPassword
                     })
                 });
@@ -386,7 +423,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     submitBtn.textContent = originalText;
                 }
             } catch (error) {
-                console.error('❌ Change Password Error:', error);
+                console.error(' Change Password Error:', error);
                 showMessage('passwordMessage', 'Terjadi kesalahan: ' + error.message, 'error');
                 const submitBtn = modalManager.changePassword.submit;
                 if (submitBtn) {
@@ -397,9 +434,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    // ========================================
+    
     // 7. MESSAGE HELPER
-    // ========================================
+    
     const showMessage = (elementId, message, type) => {
         const element = document.getElementById(elementId);
         if (!element) return;
@@ -414,35 +451,167 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 5000);
     };
 
-    // ========================================
-    // 8. LOGOUT HANDLER
-    // ========================================
-    const initLogout = () => {
-        const btnLogout = document.getElementById('btnLogout');
+    
+    // 8. PHOTO UPLOAD HANDLER
+    
+    const initPhotoUploadHandler = () => {
+        const photoInput = document.getElementById('photoInput');
+        const photoPreview = document.getElementById('photoPreview');
+        const photoImage = document.getElementById('photoImage');
+        const photoPlaceholder = document.getElementById('photoPlaceholder');
 
-        btnLogout?.addEventListener('click', async () => {
-            if (!confirm('Yakin ingin keluar?')) return;
+        let selectedFile = null;
+        let previewDataUrl = null;
 
-            try {
-                btnLogout.textContent = 'Loading...';
-                btnLogout.disabled = true;
+        photoInput?.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
 
-                await fetch(`${API_BASE}/auth.php?action=logout`, {
-                    method: 'POST',
-                    credentials: 'include'
-                });
-
-                window.location.href = '../auth/login.html';
-            } catch (error) {
-                console.error('Logout error:', error);
-                window.location.href = '../auth/login.html';
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Format file tidak valid. Gunakan JPG, PNG, GIF, atau WebP');
+                photoInput.value = '';
+                return;
             }
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Ukuran file terlalu besar. Maksimal 2MB');
+                photoInput.value = '';
+                return;
+            }
+
+            selectedFile = file;
+
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                previewDataUrl = ev.target.result;
+                showPhotoConfirmModal(previewDataUrl);
+            };
+            reader.readAsDataURL(file);
         });
+
+        const showPhotoConfirmModal = (previewUrl) => {
+            let modal = document.getElementById('photoConfirmModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'photoConfirmModal';
+                modal.className = 'photo-confirm-overlay';
+                document.body.appendChild(modal);
+            }
+
+            modal.innerHTML = `
+                <div class="photo-confirm-modal">
+                    <div class="photo-confirm-header">
+                        <h3>Konfirmasi Foto Profil</h3>
+                        <button class="photo-confirm-close" id="photoModalClose">&times;</button>
+                    </div>
+                    <div class="photo-confirm-body">
+                        <p>Apakah Anda yakin ingin mengubah foto profil?</p>
+                        <div class="photo-confirm-preview">
+                            <img src="${previewUrl}" alt="Preview">
+                        </div>
+                    </div>
+                    <div class="photo-confirm-footer">
+                        <button class="btn-cancel" id="photoModalCancel">Batal</button>
+                        <button class="btn-confirm" id="photoModalConfirm">Ya, Ubah Foto</button>
+                    </div>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            const closePhotoModal = () => {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+                photoInput.value = '';
+                selectedFile = null;
+                previewDataUrl = null;
+            };
+
+            document.getElementById('photoModalClose').addEventListener('click', closePhotoModal);
+            document.getElementById('photoModalCancel').addEventListener('click', closePhotoModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closePhotoModal();
+            });
+
+            document.getElementById('photoModalConfirm').addEventListener('click', async () => {
+                if (!selectedFile) return;
+
+                const confirmBtn = document.getElementById('photoModalConfirm');
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = 'Mengupload...';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('photo', selectedFile);
+
+                    const uploadResponse = await fetch(`${API_BASE}/profile.php?action=upload-photo`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: formData
+                    });
+
+                    const result = await uploadResponse.json();
+
+                    if (uploadResponse.ok && result.status === 'success') {
+                        if (photoImage) {
+                            photoImage.src = previewDataUrl;
+                            photoImage.style.display = 'block';
+                        }
+                        if (photoPlaceholder) {
+                            photoPlaceholder.style.display = 'none';
+                        }
+                        
+                        if (result.data?.photo || result.data?.filename) {
+                            const photoFilename = result.data.photo || result.data.filename;
+                            const photoUrl = `${UPLOAD_BASE}/profile/${photoFilename}`;
+                            updateAvatarWithPhoto(photoUrl);
+                            currentProfile = currentProfile || {};
+                            currentProfile.profile_photo = photoFilename;
+                        }
+                        
+                        modal.style.display = 'none';
+                        document.body.style.overflow = '';
+                        alert('Foto profil berhasil diubah!');
+                    } else {
+                        alert(result.message || 'Gagal mengupload foto');
+                    }
+                } catch (error) {
+                    console.error('Photo Upload Error:', error);
+                    alert('Terjadi kesalahan saat mengupload foto');
+                }
+
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Ya, Ubah Foto';
+                photoInput.value = '';
+                selectedFile = null;
+                previewDataUrl = null;
+            });
+        };
+
+        if (currentProfile?.profile_photo) {
+            const photoUrl = `${UPLOAD_BASE}/profile/${currentProfile.profile_photo}`;
+            photoImage.src = photoUrl;
+            photoImage.style.display = 'block';
+            photoPlaceholder.style.display = 'none';
+            updateAvatarWithPhoto(photoUrl);
+        }
     };
 
-    // ========================================
+    
+    // 9. LOGOUT HANDLER
+    
+    // FUNGSI initLogout DIHAPUS - Dipindahkan ke logout-helper.js
+    // Logout sekarang menggunakan modal konfirmasi profesional dengan warna mint green
+    const initLogout = () => {
+        // Event listener logout sudah ditangani oleh logout-helper.js
+        console.log(' Logout will be handled by logout-helper.js');
+    };
+
+    
     // 9. MOBILE NAVIGATION
-    // ========================================
+    
     const initMobileNav = () => {
         const toggle = document.getElementById('navToggle');
         const menu = document.getElementById('navMenu');
@@ -460,9 +629,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    // ========================================
+    
     // INITIALIZE ALL
-    // ========================================
+    
     try {
         const user = await checkAuth();
         if (!user) return;
@@ -475,28 +644,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         initEditProfileHandler();
         initChangePasswordHandler();
+        initPhotoUploadHandler();
         initLogout();
         initMobileNav();
 
-        console.log('✅ Profile page initialized successfully');
+        console.log(' Profile page initialized successfully');
     } catch (error) {
-        console.error('❌ Initialization Error:', error);
-    }
-    ----------------------------------------------------- */
-    function loadProfile() {
-        elName.textContent = userData.name;
-        elRole.textContent = userData.membership;
-
-        elEmail.textContent = userData.email;
-        elPhone.textContent = userData.phone;
-        elAddress.textContent = userData.address;
-        elJoin.textContent = userData.joinDate;
-        elStatus.textContent = userData.status;
-
-        // Avatar awal nama
-        elAvatar.textContent = getInitials(userData.name);
-    }
-
-        console.error('❌ Initialization Error:', error);
+        console.error(' Initialization Error:', error);
     }
 });
