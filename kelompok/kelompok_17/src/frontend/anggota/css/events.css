@@ -210,6 +210,15 @@ main.main-content {
     overflow: hidden;
 }
 
+.event-card-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 .event-card-banner::before {
     content: '';
     position: absolute;
@@ -399,8 +408,8 @@ main.main-content {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
     cursor: pointer;
 }
 
@@ -412,10 +421,40 @@ main.main-content {
     max-width: 900px;
     max-height: 90vh;
     overflow-y: auto;
+    overflow-x: hidden;
     margin: auto;
     box-shadow: var(--shadow-lg);
     animation: slideInUp 0.4s ease;
     z-index: 2001;
+    scrollbar-width: thin;
+    scrollbar-color: var(--teal-600) var(--border-color);
+}
+
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: var(--teal-600);
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: var(--teal-700);
+}
+
+/* Modal Sizes */
+.modal-content.modal-sm {
+    max-width: 600px;
+}
+
+.modal-content.modal-xs {
+    max-width: 450px;
 }
 
 .modal-close {
@@ -444,6 +483,11 @@ main.main-content {
 }
 
 .modal-body {
+    padding: 32px 24px;
+}
+
+/* Special case: Event detail modal should have no padding */
+#eventModal .modal-body {
     padding: 0;
 }
 
@@ -645,7 +689,7 @@ main.main-content {
     border: 1px solid var(--border-color);
     height: fit-content;
     position: sticky;
-    top: 100px;
+    top: 20px;
 }
 
 .attendance-card {
@@ -795,6 +839,12 @@ main.main-content {
         border-radius: 16px 16px 0 0;
     }
 
+    .modal-content.modal-sm,
+    .modal-content.modal-xs {
+        width: 100%;
+        max-width: 100%;
+    }
+
     .event-detail-title {
         font-size: 1.5rem;
     }
@@ -889,6 +939,38 @@ main.main-content {
         width: 36px;
         height: 36px;
     }
+
+    .modal-body {
+        padding: 24px 16px;
+    }
+
+    .presensi-header {
+        margin-bottom: 24px;
+        padding: 0;
+    }
+
+    .presensi-icon {
+        width: 64px;
+        height: 64px;
+    }
+
+    .presensi-title {
+        font-size: 1.5rem;
+    }
+
+    .presensi-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-actions .btn-primary,
+    .form-actions .btn-secondary {
+        width: 100%;
+    }
 }
 
 /* ========================================
@@ -901,6 +983,7 @@ main.main-content {
 .presensi-header {
     text-align: center;
     margin-bottom: 32px;
+    padding: 0 20px;
 }
 
 .presensi-icon {
@@ -926,47 +1009,108 @@ main.main-content {
 .presensi-subtitle {
     font-size: 1rem;
     color: var(--text-secondary);
+    line-height: 1.5;
 }
 
 .presensi-form {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 28px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+    animation: fadeInUp 0.3s ease;
 }
 
 .form-label {
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-primary);
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .required {
     color: var(--accent-red);
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.form-select {
+    width: 100%;
+    padding: 14px 40px 14px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary));
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    appearance: none;
+    background-image: 
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230D9488' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"),
+        linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary));
+    background-repeat: no-repeat, no-repeat;
+    background-position: right 14px center, 0 0;
+    background-size: 18px, 100%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: var(--teal-600);
+    box-shadow: 0 0 0 4px var(--teal-100), 0 4px 12px rgba(13, 148, 136, 0.15);
+    background: var(--bg-primary);
+    transform: translateY(-1px);
+}
+
+.form-select:hover {
+    border-color: var(--teal-500);
+    box-shadow: 0 2px 8px rgba(13, 148, 136, 0.12);
+    transform: translateY(-1px);
+}
+
+.form-select option {
+    padding: 12px 16px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.form-select option:hover,
+.form-select option:checked {
+    background: linear-gradient(135deg, var(--teal-50), var(--emerald-50));
+    color: var(--teal-700);
 }
 
 .upload-area {
     position: relative;
     border: 2px dashed var(--border-color);
-    border-radius: var(--border-radius);
-    background: var(--bg-secondary);
-    transition: all var(--transition-normal);
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .upload-area:hover {
     border-color: var(--teal-600);
-    background: var(--teal-50);
+    background: linear-gradient(135deg, var(--teal-50) 0%, var(--emerald-50) 100%);
+    border-style: solid;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15);
+    transform: translateY(-2px);
 }
 
 .upload-placeholder {
-    padding: 40px 20px;
+    padding: 48px 20px;
     text-align: center;
     color: var(--text-secondary);
 }
@@ -974,6 +1118,13 @@ main.main-content {
 .upload-placeholder svg {
     color: var(--teal-600);
     margin-bottom: 16px;
+    transition: transform 0.3s ease;
+}
+
+.upload-area:hover .upload-placeholder svg {
+    transform: translateY(-4px) scale(1.05);
+    color: var(--teal-700);
+}
 }
 
 .upload-placeholder p {
@@ -1032,37 +1183,51 @@ main.main-content {
 
 .form-textarea {
     width: 100%;
-    padding: 12px 16px;
+    padding: 14px 16px;
     border: 2px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background: var(--bg-primary);
+    border-radius: 12px;
+    background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary));
     color: var(--text-primary);
     font-size: 0.95rem;
     font-family: inherit;
+    font-weight: 500;
+    line-height: 1.6;
     resize: vertical;
-    transition: all var(--transition-normal);
+    min-height: 100px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .form-textarea:focus {
     outline: none;
     border-color: var(--teal-600);
-    box-shadow: 0 0 0 3px var(--teal-100);
+    box-shadow: 0 0 0 4px var(--teal-100), 0 4px 12px rgba(13, 148, 136, 0.15);
+    background: var(--bg-primary);
+    transform: translateY(-1px);
+}
+
+.form-textarea:hover {
+    border-color: var(--teal-400);
+    box-shadow: 0 2px 8px rgba(13, 148, 136, 0.1);
 }
 
 .form-textarea::placeholder {
     color: var(--text-muted);
+    font-weight: 400;
 }
 
 .form-hint {
     font-size: 0.85rem;
     color: var(--text-muted);
-    margin-top: 4px;
+    margin-top: 6px;
+    line-height: 1.5;
+    padding-left: 4px;
 }
 
 .form-actions {
     display: flex;
     gap: 12px;
-    justify-content: flex-end;
+    justify-content: center;
     margin-top: 8px;
 }
 
@@ -1460,3 +1625,213 @@ main.main-content {
     cursor: not-allowed;
 }
 
+
+.attendance-status-options {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.status-option {
+    flex: 1;
+    cursor: pointer;
+}
+
+.status-option input[type="radio"] {
+    display: none;
+}
+
+.status-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-primary);
+    transition: all 0.2s ease;
+}
+
+.status-card span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.status-card svg {
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+}
+
+.status-option input[type="radio"]:checked + .status-card.hadir {
+    border-color: var(--teal-600);
+    background: var(--teal-50);
+}
+
+.status-option input[type="radio"]:checked + .status-card.hadir svg,
+.status-option input[type="radio"]:checked + .status-card.hadir span {
+    color: var(--teal-700);
+}
+
+.status-option input[type="radio"]:checked + .status-card.izin {
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.status-option input[type="radio"]:checked + .status-card.izin svg,
+.status-option input[type="radio"]:checked + .status-card.izin span {
+    color: #b45309;
+}
+
+.status-option input[type="radio"]:checked + .status-card.sakit {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+.status-option input[type="radio"]:checked + .status-card.sakit svg,
+.status-option input[type="radio"]:checked + .status-card.sakit span {
+    color: #b91c1c;
+}
+
+.status-card:hover {
+    border-color: var(--teal-400);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+    .attendance-status-options {
+        flex-direction: column;
+    }
+    
+    .status-card {
+        flex-direction: row;
+        justify-content: center;
+        padding: 12px 16px;
+    }
+}
+
+/* ========================================
+   CONFIRMATION & SUCCESS MODAL STYLES
+   ======================================== */
+#confirmModal .modal-body,
+#successModal .modal-body {
+    text-align: center;
+    padding: 40px 32px;
+}
+
+#confirmIcon svg,
+#successModal svg {
+    display: inline-block;
+    margin-bottom: 16px;
+}
+
+#confirmTitle,
+#successTitle {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+#successTitle {
+    color: var(--green-600);
+}
+
+#confirmMessage,
+#successMessage {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+
+/* Confirmation Modal Buttons */
+#confirmModal .modal-body > div[style*="display: flex"] {
+    display: flex !important;
+    gap: 12px !important;
+    justify-content: center !important;
+}
+
+#btnConfirmCancel,
+#btnConfirmOk,
+#btnSuccessOk {
+    min-width: 120px;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: none;
+}
+
+#btnConfirmCancel {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+#btnConfirmCancel:hover {
+    background: var(--text-secondary);
+    color: white;
+}
+
+#btnConfirmOk,
+#btnSuccessOk {
+    background: var(--teal-600);
+    color: white;
+}
+
+#btnConfirmOk:hover,
+#btnSuccessOk:hover {
+    background: var(--teal-700);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+}
+
+/* Success Modal OK Button Container */
+#successModal .modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#btnSuccessOk {
+    display: block;
+    margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+    #confirmModal .modal-body,
+    #successModal .modal-body {
+        padding: 32px 20px;
+    }
+
+    #confirmIcon svg,
+    #successModal svg {
+        width: 48px;
+        height: 48px;
+    }
+
+    #confirmTitle,
+    #successTitle {
+        font-size: 1.15rem;
+    }
+
+    #confirmMessage,
+    #successMessage {
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+    }
+
+    #confirmModal .modal-body > div[style*="display: flex"] {
+        flex-direction: column;
+    }
+
+    #btnConfirmCancel,
+    #btnConfirmOk,
+    #btnSuccessOk {
+        width: 100%;
+        min-width: auto;
+    }
+}
