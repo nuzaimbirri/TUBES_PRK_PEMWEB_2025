@@ -109,13 +109,13 @@ VALUES (1, 'Super Admin', 'Inti', 'aktif');
 -- QUERY UNTUK RESET DATABASE (OPSIONAL)
 -- Uncomment jika ingin menghapus semua data
 -- ============================================
--- SET FOREIGN_KEY_CHECKS = 0;
--- TRUNCATE TABLE attendance;
--- TRUNCATE TABLE event_registrations;
--- TRUNCATE TABLE events;
--- TRUNCATE TABLE profiles;
--- TRUNCATE TABLE users;
--- SET FOREIGN_KEY_CHECKS = 1;
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE attendance;
+TRUNCATE TABLE event_registrations;
+TRUNCATE TABLE events;
+TRUNCATE TABLE profiles;
+TRUNCATE TABLE users;
+SET FOREIGN_KEY_CHECKS = 1;
 
 SELECT 'Database SIMORA berhasil dibuat!' AS status;
 
