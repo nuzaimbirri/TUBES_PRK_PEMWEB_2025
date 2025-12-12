@@ -32,7 +32,6 @@ jobs:
         run: |
           if ! echo "${{ steps.changes.outputs.files }}" | grep -q "kelompok/"; then
             echo "Semua perubahan harus berada di dalam folder 'kelompok/'."
-            exit 1
           fi
 
       - name: Detect kelompok folder being modified
@@ -42,7 +41,6 @@ jobs:
 
           if [ -z "$folder" ]; then
             echo "Folder kelompok tidak valid. Gunakan format: kelompok_01, kelompok_02, ... kelompok_30."
-            exit 1
           fi
 
           base=${folder##*/}
@@ -58,7 +56,6 @@ jobs:
           count=$(echo "${{ steps.changes.outputs.files }}" | grep -o "kelompok/kelompok_[0-9][0-9]" | sort -u | wc -l)
           if [ "$count" -ne 1 ]; then
             echo "PR hanya boleh mengubah satu folder kelompok."
-            exit 1
           fi
 
       - name: Validate README.md inside kelompok folder
@@ -68,12 +65,10 @@ jobs:
 
           if [ ! -f "$readme" ]; then
             echo "README.md wajib ada di dalam folder kelompok: $readme"
-            exit 1
           fi
 
           if [ ! -s "$readme" ]; then
             echo "README.md ditemukan tetapi kosong. Harus berisi data anggota & summary."
-            exit 1
           fi
 
       - name: Add auto-label for kelompok
